@@ -2,6 +2,11 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.7
+
+- «Consigna» pasa a llamarse **«Temperatura objetivo»** en todo el panel (tabla de tramos,
+  editor, descripciones) y en la documentación. Los nombres técnicos (`setpoint`) no cambian.
+
 ## 2026.11.6
 
 Edición desde el panel: vistas **Tramos** y **Casa** sobre el backend de edición.

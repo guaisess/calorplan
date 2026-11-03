@@ -58,7 +58,7 @@ export function slotTitle(slot) {
   const fin = (h * 60 + m + slot.duration_minutes) % CONFIG.minutosDia;
   const partes = [`${slot.name} ${slot.start}–${fmtMin(fin)}`, daysLabel(slot.days)];
   if (slot.setpoint !== null && slot.setpoint !== undefined) {
-    partes.push(`${TEXTOS.tramo.consigna} ${fmtNum(slot.setpoint)} ${TEXTOS.unidades.grados}`);
+    partes.push(`${TEXTOS.tramo.objetivo} ${fmtNum(slot.setpoint)} ${TEXTOS.unidades.grados}`);
   }
   if (slot.outdoor_below !== null) partes.push(`${TEXTOS.tramo.exterior} ${fmtNum(slot.outdoor_below)}`);
   if (slot.indoor_below !== null) partes.push(`${TEXTOS.tramo.interior} ${fmtNum(slot.indoor_below)}`);

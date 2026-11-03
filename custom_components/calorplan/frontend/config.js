@@ -1,4 +1,4 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.7
 // Configuración del panel: todos los textos y valores ajustables (sin valores fijos en el código).
 
 export const CONFIG = {
@@ -9,7 +9,7 @@ export const CONFIG = {
   comandoHistorial: "calorplan/history",
   comandoRestaurar: "calorplan/restore",
   esperaValidacionMs: 300,
-  consignaPorDefecto: 20,
+  objetivoPorDefecto: 20,
   inicioPorDefecto: "08:00",
   finPorDefecto: "09:00",
   duracionPorDefecto: 60,
@@ -55,7 +55,7 @@ export const TEXTOS = {
     sinTramos: "Sin tramos",
     proximo: "(próximo tramo)",
   },
-  tramo: { consigna: "consigna", exterior: "ext <", interior: "int <" },
+  tramo: { objetivo: "temperatura objetivo", exterior: "ext <", interior: "int <" },
   unidades: { grados: "°C", minutos: "min", horas: "h" },
   en: "en",
   tramos: "Tramos",
@@ -67,7 +67,7 @@ export const TEXTOS = {
   habilitar: "Habilitar",
   deshabilitar: "Deshabilitar",
   copiaSufijo: "(copia)",
-  columnasTramos: ["Tramo", "Días", "Horario", "Consigna", "Condiciones", "Estado", ""],
+  columnasTramos: ["Tramo", "Días", "Horario", "Temperatura objetivo", "Condiciones", "Estado", ""],
   habilitado: "Habilitado",
   inhabilitado: "Deshabilitado",
   editor: {
@@ -78,7 +78,7 @@ export const TEXTOS = {
     inicio: "Inicio",
     fin: "Hora de fin",
     duracion: "Duración (min)",
-    consigna: "Consigna (°C)",
+    objetivo: "Temperatura objetivo (°C)",
     exterior: "Encender si exterior menor que (°C)",
     interior: "Encender si interior menor que (°C)",
     reintento: "Reintento de apagado (min, 0 = ninguno)",

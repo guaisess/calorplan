@@ -47,7 +47,7 @@ def correr(e, evento, **kw):
 
 
 # --- Inicio -------------------------------------------------------------------
-def test_inicio_enciende_climate_con_consigna_bloqueo_y_aviso():
+def test_inicio_enciende_climate_con_temperatura_objetivo_bloqueo_y_aviso():
     e = montar()
     reg = correr(e, ev("start"))
     assert reg.action == "on" and reg.code == aj.COD_OK

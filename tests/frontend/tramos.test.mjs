@@ -1,4 +1,4 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.7
 // Tests de la edición de tramos (node --test): borradores, formulario y HTML.
 process.env.TZ = "Europe/Madrid";
 
@@ -17,7 +17,7 @@ const [dormitorio, despacho, toallero] = datos.rooms;
 const CTX = { canalesIds: ["telegram", "movil"] };
 
 // --- Borradores ---------------------------------------------------------------------------------------------
-test("tramoVacio: la consigna solo aplica a termostatos", () => {
+test("tramoVacio: la temperatura objetivo solo aplica a termostatos", () => {
   const t = tramos.tramoVacio(dormitorio);
   assert.equal(t.setpoint, 20);
   assert.deepEqual(t.days, [0, 1, 2, 3, 4, 5, 6]);
@@ -49,14 +49,14 @@ test("formToSlot: tramo con hora de fin en un termostato", () => {
   });
 });
 
-test("formToSlot: duración, switch sin consigna, aviso propio y avisar al omitir", () => {
+test("formToSlot: duración, switch sin temperatura objetivo, aviso propio y avisar al omitir", () => {
   const t = tramos.formToSlot([
     ["name", "Toallero"], ["days", "0"], ["start", "05:50"], ["endMode", "duration"], ["duration", "105"],
     ["setpoint", "22"], ["notifyMode", "both"], ["notifyChannel", "telegram"], ["notifySkip", "on"],
   ], toallero);
   assert.equal(t.duration_minutes, 105);
   assert.equal("end" in t, false);
-  assert.equal(t.setpoint, null); // un switch no tiene consigna
+  assert.equal(t.setpoint, null); // un switch no tiene temperatura objetivo
   assert.deepEqual(t.notify, { mode: "both", channels: ["telegram"] });
   assert.equal(t.notify_on_skip, true);
   assert.equal(t.enabled, false); // casilla sin marcar
@@ -120,7 +120,7 @@ test("renderFormTramo: climate con hora de fin", () => {
   assert.doesNotMatch(html, /data-accion="guardar-tramo" disabled/);
 });
 
-test("renderFormTramo: switch con duración, sin consigna", () => {
+test("renderFormTramo: switch con duración, sin temperatura objetivo", () => {
   const html = vista.renderFormTramo(clonar(toallero.slots[0].config), toallero, CTX, null);
   assert.match(html, /name="duration"[^>]*value="105"/);
   assert.doesNotMatch(html, /name="end"/);

@@ -39,7 +39,7 @@ def parsear_hora(texto: Any, nombre: str) -> time:
 
 @dataclass
 class Slot:
-    """Tramo: días, hora de inicio, fin (o duración), consigna y condiciones."""
+    """Tramo: días, hora de inicio, fin (o duración), temperatura objetivo y condiciones."""
 
     id: str
     name: str

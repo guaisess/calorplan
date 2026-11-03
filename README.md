@@ -8,9 +8,9 @@ Cada habitación tiene **tramos** horarios con sus propias condiciones (temperat
 
 ## Qué hace
 
-- Tramos con hora de inicio y fin **o** duración (útil para toalleros eléctricos), días y consigna.
+- Tramos con hora de inicio y fin **o** duración (útil para toalleros eléctricos), días y temperatura objetivo.
 - Condiciones por tramo: enciende solo si `exterior < X` e `interior < Y`. Los sensores de cada grupo se agregan por el **mínimo** y los no disponibles se ignoran.
-- Actuadores `climate` (modo `heat` + consigna) y `switch` (enchufes, toalleros).
+- Actuadores `climate` (modo `heat` + temperatura objetivo) y `switch` (enchufes, toalleros).
 - **Bloqueo infantil** opcional (switch asociado) configurable al encender y al apagar: `lock`, `unlock` o `none`.
 - **Apagado verificado**: espera a que el dispositivo esté disponible, apaga, comprueba el estado y reintenta; si falla, avisa siempre.
 - Reintento de apagado a los N minutos (se ignora si hay otro tramo activo).
@@ -85,7 +85,7 @@ Tras importar la configuración aparece **Calorplan** en la barra lateral (solo 
 
 **Tramos** (edición)
 - Una tarjeta por habitación con sus tramos. Alta, edición, **duplicado**, habilitar/deshabilitar y borrado.
-- El editor admite hora de fin **o** duración, consigna (solo termostatos), condiciones de temperatura exterior e interior, reintento de apagado y avisos propios. Indica con qué tramos se solapa antes de guardar.
+- El editor admite hora de fin **o** duración, temperatura objetivo (solo termostatos), condiciones de temperatura exterior e interior, reintento de apagado y avisos propios. Indica con qué tramos se solapa antes de guardar.
 
 **Casa** (edición)
 - **Ajustes globales**: sensores exteriores y cómo se combinan (más frío, más cálido o media), canales de aviso (con botón *Probar*), aviso por defecto, mensajes, política si falta un sensor, comportamiento al arrancar y **modo sombra**.

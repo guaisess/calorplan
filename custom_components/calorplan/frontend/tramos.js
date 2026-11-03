@@ -1,10 +1,10 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.7
 // Lógica pura de la edición de tramos: borradores y conversión del formulario.
 
 import { CONFIG, TEXTOS } from "./config.js";
 import { numero, parseEntries } from "./forms.js";
 
-/** Tramo vacío para el alta (la consigna solo aplica a termostatos). */
+/** Tramo vacío para el alta (la temperatura objetivo solo aplica a termostatos). */
 export function tramoVacio(room) {
   const climate = room.actuator.type === "climate";
   return {
@@ -13,7 +13,7 @@ export function tramoVacio(room) {
     days: [...CONFIG.diasLargos.keys()],
     start: CONFIG.inicioPorDefecto,
     end: CONFIG.finPorDefecto,
-    setpoint: climate ? CONFIG.consignaPorDefecto : null,
+    setpoint: climate ? CONFIG.objetivoPorDefecto : null,
     retry_off_minutes: CONFIG.reintentoPorDefecto,
     conditions: { outdoor_below: null, indoor_below: null },
     notify: null,

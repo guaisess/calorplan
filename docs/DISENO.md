@@ -131,7 +131,7 @@ Reglas de validación (al guardar, en el servidor):
 1. **Planificación**: por cada tramo se programa el inicio y el fin con `async_track_time_change`. Se recalcula al guardar cambios y al cambiar la hora del sistema.
 2. **Inicio de tramo** (si la habitación y el tramo están habilitados y no hay modo ausencia):
    1. Evalúa las condiciones (`outdoor_below` y `indoor_below` con los valores en ese instante).
-   2. Si se cumplen: ejecuta el actuador (`heat`, consigna, bloqueo infantil) y envía el aviso de encendido.
+   2. Si se cumplen: ejecuta el actuador (`heat`, temperatura objetivo, bloqueo infantil) y envía el aviso de encendido.
    3. Si no: registra el motivo ("exterior 17 ≥ 15") y **no** avisa, salvo que el tramo tenga activado «avisar también si se omite».
 3. **Fin de tramo**: apaga con `off_only_if_heating`, verifica el estado con reintentos y envía el aviso de apagado. Programa el reintento a `retry_off_minutes`.
 4. **Arranque de Home Assistant dentro de un tramo**: política `catch_up` configurable (`none` por defecto; `evaluate` aplica el tramo activo si las condiciones se cumplen).
@@ -163,7 +163,7 @@ La creación y edición de tramos va por la API WebSocket del panel (con validac
 
 ## 9. Frontend
 
-- **Panel lateral** (`calorplan-panel`): lista de habitaciones, editor de tramos (hora, días, consigna, condiciones, avisos), ajustes globales y canales.
+- **Panel lateral** (`calorplan-panel`): lista de habitaciones, editor de tramos (hora, días, temperatura objetivo, condiciones, avisos), ajustes globales y canales.
 - **Línea de tiempo** del día/semana con barras por habitación (el diagrama tipo Gantt que ya usamos en la vista actual).
 - **Simulador** «¿qué haría ahora?»: evalúa los tramos con los valores actuales y muestra el resultado sin ejecutar nada.
 - **Tarjeta Lovelace** (`calorplan-card`): resumen de una o varias habitaciones con próximo evento y atajos (saltar, ausencia).

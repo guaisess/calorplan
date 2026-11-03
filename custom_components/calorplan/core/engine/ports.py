@@ -35,7 +35,7 @@ class ActuatorPort(ABC):
 
     @abstractmethod
     async def climate_heat(self, entity_id: str, hvac_mode: str, temperature: float | None) -> None:
-        """Pone el climate en modo calor y fija la consigna (si hay)."""
+        """Pone el climate en modo calor y fija la temperatura objetivo (si hay)."""
 
     @abstractmethod
     async def climate_off(self, entity_id: str) -> None:

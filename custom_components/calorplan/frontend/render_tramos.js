@@ -1,4 +1,4 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.7
 // HTML de la vista «Tramos» (funciones puras): tabla por habitación y editor de tramo.
 
 import { CONFIG, TEXTOS } from "./config.js";
@@ -32,12 +32,12 @@ export function condiciones(slot) {
 function renderTabla(room) {
   if (!room.slots.length) return `<div class="mensaje">${TEXTOS.sinTramos}</div>`;
   const filas = [...room.slots].sort((a, b) => a.start.localeCompare(b.start)).map((s) => {
-    const consigna = s.setpoint === null ? TEXTOS.nada : `${fmtNum(s.setpoint)} ${TEXTOS.unidades.grados}`;
+    const objetivo = s.setpoint === null ? TEXTOS.nada : `${fmtNum(s.setpoint)} ${TEXTOS.unidades.grados}`;
     const alterna = s.enabled ? TEXTOS.deshabilitar : TEXTOS.habilitar;
     const data = `data-room="${esc(room.id)}" data-slot="${esc(s.id)}"`;
     return `<tr class="${s.enabled ? "" : "tramo-off"}">
       <td>${esc(s.name)}</td><td>${esc(daysLabel(s.days))}</td><td>${esc(horario(s))}</td>
-      <td>${esc(consigna)}</td><td>${esc(condiciones(s))}</td>
+      <td>${esc(objetivo)}</td><td>${esc(condiciones(s))}</td>
       <td class="${s.enabled ? "ok" : "muted"}">${s.enabled ? TEXTOS.habilitado : TEXTOS.inhabilitado}</td>
       <td class="acciones"><button data-accion="editar-tramo" ${data}>${TEXTOS.editar}</button>
       <button data-accion="duplicar-tramo" ${data}>${TEXTOS.duplicar}</button>
@@ -84,7 +84,7 @@ export function renderFormTramo(t, room, ctx, validacion) {
     <div class="campo"><span>${E.dias}</span><div class="casillas">${dias}</div></div>
     ${campo(E.inicio, `<input type="time" name="start" value="${esc(t.start)}">`)}
     <div class="campo"><span>${E.fin} / ${E.duracion}</span><div class="casillas">${radios}</div>${fin}</div>
-    ${climate ? campo(E.consigna, `<input type="number" step="0.5" name="setpoint" value="${esc(t.setpoint ?? "")}">`) : ""}
+    ${climate ? campo(E.objetivo, `<input type="number" step="0.5" name="setpoint" value="${esc(t.setpoint ?? "")}">`) : ""}
     ${campo(E.exterior, `<input type="number" step="0.5" name="outdoor" value="${esc(t.conditions?.outdoor_below ?? "")}">`)}
     ${campo(E.interior, `<input type="number" step="0.5" name="indoor" value="${esc(t.conditions?.indoor_below ?? "")}">`)}
     ${campo(E.reintento, `<input type="number" min="0" max="${CONFIG.minutosMaxDuracion}" name="retry" value="${esc(t.retry_off_minutes)}">`)}
