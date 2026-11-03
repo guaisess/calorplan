@@ -4,15 +4,19 @@ Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes)
 
 ## 2026.11.6
 
-Vista **Casa** en el panel (ajustes globales y habitaciones) sobre el backend de edición.
+Edición desde el panel: vistas **Tramos** y **Casa** sobre el backend de edición.
 
-- Panel con dos vistas: **Resumen** y **Casa**. En Casa se editan los sensores exteriores y su
+- Vista **Tramos**: tabla por habitación y editor (nombre, días, inicio, hora de fin o duración,
+  consigna, condiciones de temperatura exterior e interior, reintento de apagado, avisos propios,
+  habilitado). Duplicar, habilitar/deshabilitar y borrar. La validación en vivo indica con qué
+  tramos se solapa y no deja guardar hasta resolverlo; cada cambio guarda una copia en el historial.
+- Panel con tres vistas: **Resumen**, **Tramos** y **Casa**. En Casa se editan los sensores exteriores y su
   agregación, los canales de aviso (con botón de prueba), el aviso por defecto, los mensajes,
   la política de sensores sin datos, `catch_up` y el modo sombra (pide confirmación al desactivarlo);
   y se crean, editan y borran habitaciones (actuador `climate`/`switch`, bloqueo infantil,
   sensores y agregación). Validación en vivo contra el servidor, con avisos si algo no existe
   en Home Assistant, y diálogo de historial para restaurar versiones anteriores.
-- Tests de Node de la vista Casa (34 en total) y prueba de integración manual del panel contra
+- Tests de Node de las vistas Casa y Tramos (49 en total) y prueba de integración manual del panel contra
   el backend real.
 - **Agregación de sensores configurable:** `outdoor_aggregation` (global) e `indoor_aggregation`
   (por habitación) aceptan `min` (por defecto, como hasta ahora), `max` o `mean`.

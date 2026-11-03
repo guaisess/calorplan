@@ -34,6 +34,7 @@ export const TEXTOS = {
   actualizado: "Actualizado",
   cargando: "Cargando…",
   error: "No se pudo cargar Calorplan",
+  sinTramos: "No hay tramos en esta habitación.",
   sinHabitaciones: "No hay habitaciones. Importa una configuración con calorplan.import_config.",
   lineaTiempo: "Línea de tiempo",
   estadoAhora: "Estado ahora",

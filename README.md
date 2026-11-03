@@ -77,18 +77,20 @@ En `channels`, `service` puede ser un servicio `notify.<nombre>` o una entidad `
 
 ## Panel
 
-Tras importar la configuración aparece **Calorplan** en la barra lateral (solo administradores) con dos vistas.
+Tras importar la configuración aparece **Calorplan** en la barra lateral (solo administradores) con tres vistas: Resumen, Tramos y Casa.
 
 **Resumen** (solo lectura)
 - **Línea de tiempo** por día de la semana: una fila por habitación, barras por tramo (verde = activo ahora, gris = deshabilitado) y marca de la hora actual.
 - **Estado ahora**: estado del actuador, tramo activo, próximo evento, última acción (indica si fue simulada) y el simulador **«¿qué haría ahora?»**, que evalúa las condiciones con los valores actuales sin ejecutar nada.
 
+**Tramos** (edición)
+- Una tarjeta por habitación con sus tramos. Alta, edición, **duplicado**, habilitar/deshabilitar y borrado.
+- El editor admite hora de fin **o** duración, consigna (solo termostatos), condiciones de temperatura exterior e interior, reintento de apagado y avisos propios. Indica con qué tramos se solapa antes de guardar.
+
 **Casa** (edición)
 - **Ajustes globales**: sensores exteriores y cómo se combinan (más frío, más cálido o media), canales de aviso (con botón *Probar*), aviso por defecto, mensajes, política si falta un sensor, comportamiento al arrancar y **modo sombra**.
 - **Habitaciones**: alta, edición y baja con su `climate` o `switch`, bloqueo infantil, sensores y agregación.
 - Cada cambio se **valida en el servidor** antes de guardar y se conserva una **copia de las últimas 10 versiones**, que se pueden restaurar desde *Historial*.
-
-La edición de tramos desde el panel llegará en la siguiente entrega; hasta entonces se editan en el JSON y se vuelve a importar.
 
 ## Entidades
 

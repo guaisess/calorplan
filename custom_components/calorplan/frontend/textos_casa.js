@@ -2,7 +2,7 @@
 // Textos y valores por defecto de la vista «Casa» (ajustes globales y habitaciones).
 
 export const CASA = {
-  vistas: { resumen: "Resumen", casa: "Casa" },
+  vistas: { resumen: "Resumen", tramos: "Tramos", casa: "Casa" },
   guardar: "Guardar",
   cancelar: "Cancelar",
   descartar: "Descartar cambios",
