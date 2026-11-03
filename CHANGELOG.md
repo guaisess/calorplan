@@ -2,6 +2,10 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.3
+
+- Corrección: `import_config` rechazaba rutas dentro de `/config` («Ruta no permitida»). Ahora se admite cualquier ruta dentro de la carpeta de configuración (además de las permitidas por Home Assistant).
+
 ## 2026.11.2
 
 Primera versión con código (Fase 1: núcleo).

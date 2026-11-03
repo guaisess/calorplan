@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.3
 """Servicios de Calorplan: importar, ejecutar tramo, ausencia, prueba y recarga."""
 from __future__ import annotations
 
@@ -39,6 +39,15 @@ def _entrada_y_controlador(hass: HomeAssistant) -> tuple[str, Controller]:
     return next(iter(instancias.items()))
 
 
+def _leer_json(hass: HomeAssistant, ruta: str) -> dict:
+    """Lee un JSON de la carpeta de configuración o de una ruta permitida (bloqueante)."""
+    base = Path(hass.config.config_dir).resolve()
+    destino = (base / ruta).resolve()  # una ruta absoluta sustituye a la base
+    if not (destino.is_relative_to(base) or hass.config.is_allowed_path(str(destino))):
+        raise ServiceValidationError(f"Ruta no permitida: {ruta}")
+    return json.loads(destino.read_text(encoding="utf-8"))
+
+
 def _recargar_entrada(hass: HomeAssistant, entry_id: str) -> None:
     """Recarga la entrada (recrea las entidades) sin bloquear la llamada."""
     hass.async_create_task(hass.config_entries.async_reload(entry_id))
@@ -54,11 +63,8 @@ def async_registrar(hass: HomeAssistant) -> None:
         datos = llamada.data.get(ajustes.CAMPO_CONFIG)
         ruta = llamada.data.get(ajustes.CAMPO_RUTA)
         if datos is None:
-            if not hass.config.is_allowed_path(ruta):
-                raise ServiceValidationError(f"Ruta no permitida: {ruta}")
             try:
-                texto = await hass.async_add_executor_job(Path(ruta).read_text, "utf-8")
-                datos = json.loads(texto)
+                datos = await hass.async_add_executor_job(_leer_json, hass, ruta)
             except (OSError, ValueError) as err:
                 raise ServiceValidationError(f"No se pudo leer {ruta}: {err}") from err
         try:

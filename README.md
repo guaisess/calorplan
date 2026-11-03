@@ -32,7 +32,7 @@ data:
   path: /config/calorplan.json
 ```
 
-La ruta debe estar permitida en `allowlist_external_dirs` o dentro de `/config`.
+La ruta puede ser relativa a la carpeta de configuración o absoluta dentro de ella; fuera de ahí debe estar en `allowlist_external_dirs`.
 
 ## Configuración
 
