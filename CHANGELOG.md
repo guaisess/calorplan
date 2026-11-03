@@ -2,6 +2,15 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.5
+
+- Panel lateral **Calorplan** (solo administradores, solo lectura): línea de tiempo por día con
+  barras por habitación y línea de «ahora», estado actual, próximo evento, última acción y
+  simulador «¿qué haría ahora?» (evalúa las condiciones con los valores actuales sin ejecutar nada).
+- API WebSocket `calorplan/overview` y cálculo de línea de tiempo y simulador en el núcleo (probado).
+- Frontend sin dependencias ni compilación (módulos ES), con 14 tests de Node y test de contrato
+  contra el formato real de la API.
+
 ## 2026.11.4
 
 - Corrección: los avisos funcionan también con entidades `notify.*` (Telegram moderno), enviadas con `notify.send_message`. Antes solo se admitían servicios `notify.<nombre>`.

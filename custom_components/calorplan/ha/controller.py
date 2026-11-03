@@ -16,6 +16,7 @@ from homeassistant.helpers.start import async_at_started
 
 from ..core import settings as ajustes
 from ..core.engine import Notifier, PlannedEvent, Runner
+from ..core.engine.overview import OverviewBuilder
 from ..core.models import Plan, Slot
 from .adapters import HAActuator, HAClock, HAEvents, HANotify, HAState
 from .store import PlanStore
@@ -139,6 +140,10 @@ class Controller:
             if tramo.enabled:
                 return tramo
         return None
+
+    def overview(self) -> dict[str, Any]:
+        """Resumen de solo lectura para el panel (línea de tiempo, estado, simulación)."""
+        return OverviewBuilder(self.plan, HAState(self.hass)).build(self.clock.now(), self.ultimos)
 
     # --- Operaciones ----------------------------------------------------------------
     async def async_set_room_enabled(self, room_id: str, habilitada: bool) -> None:

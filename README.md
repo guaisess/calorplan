@@ -73,6 +73,15 @@ Notas: `days` usa 0 = lunes … 6 = domingo; el día de un tramo es el de su ini
 
 En `channels`, `service` puede ser un servicio `notify.<nombre>` o una entidad `notify.*` (por ejemplo Telegram en versiones recientes de Home Assistant).
 
+## Panel
+
+Tras importar la configuración aparece **Calorplan** en la barra lateral (solo administradores). Es de solo lectura:
+
+- **Línea de tiempo** por día de la semana: una fila por habitación, barras por tramo (verde = activo ahora, gris = deshabilitado) y marca de la hora actual.
+- **Estado ahora**: estado del actuador, tramo activo, próximo evento, última acción (indica si fue simulada) y el simulador **«¿qué haría ahora?»**, que evalúa las condiciones con los valores actuales sin ejecutar nada.
+
+La edición visual de tramos llegará en una fase posterior; hasta entonces se edita el JSON y se vuelve a importar.
+
 ## Entidades
 
 | Entidad | Contenido |
@@ -100,7 +109,10 @@ El núcleo (`custom_components/calorplan/core`) es Python puro y se prueba sin H
 ```bash
 pip install -r requirements_test.txt
 python -m pytest
+node --test tests/frontend/*.test.mjs
 ```
+
+Si cambia el formato de la API del panel, regenera el fixture del frontend con `python tests/frontend/generar_fixture.py`.
 
 La capa `ha/` y las plataformas necesitan Home Assistant; se validan en CI con `hassfest` y la validación de HACS.
 

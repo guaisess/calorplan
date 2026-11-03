@@ -1,0 +1,504 @@
+{
+ "version": "2026.11.5",
+ "now": "2026-11-02T06:30:00+01:00",
+ "weekday": 0,
+ "minute": 390,
+ "shadow_mode": true,
+ "away_mode": false,
+ "outdoor": 8.0,
+ "rooms": [
+  {
+   "id": "dormitorio",
+   "name": "Dormitorio",
+   "enabled": true,
+   "actuator": {
+    "type": "climate",
+    "entity_id": "climate.calefaccion_dormitorio",
+    "state": "off"
+   },
+   "slots": [
+    {
+     "id": "madrugada",
+     "name": "Madrugada",
+     "enabled": true,
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "start": "06:00",
+     "duration_minutes": 60,
+     "setpoint": 20.0,
+     "outdoor_below": 10.0,
+     "indoor_below": 16.0
+    },
+    {
+     "id": "tarde",
+     "name": "Tarde",
+     "enabled": true,
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "11:00",
+     "duration_minutes": 360,
+     "setpoint": 20.0,
+     "outdoor_below": 15.0,
+     "indoor_below": 16.0
+    },
+    {
+     "id": "noche",
+     "name": "Noche",
+     "enabled": true,
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6
+     ],
+     "start": "19:00",
+     "duration_minutes": 120,
+     "setpoint": 20.0,
+     "outdoor_below": 10.0,
+     "indoor_below": 18.0
+    }
+   ],
+   "week": [
+    [
+     {
+      "slot_id": "madrugada",
+      "start": 360,
+      "end": 420,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "tarde",
+      "start": 660,
+      "end": 1020,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "noche",
+      "start": 1140,
+      "end": 1260,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "madrugada",
+      "start": 360,
+      "end": 420,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "tarde",
+      "start": 660,
+      "end": 1020,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "noche",
+      "start": 1140,
+      "end": 1260,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "madrugada",
+      "start": 360,
+      "end": 420,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "tarde",
+      "start": 660,
+      "end": 1020,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "noche",
+      "start": 1140,
+      "end": 1260,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "madrugada",
+      "start": 360,
+      "end": 420,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "tarde",
+      "start": 660,
+      "end": 1020,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "noche",
+      "start": 1140,
+      "end": 1260,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "madrugada",
+      "start": 360,
+      "end": 420,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "tarde",
+      "start": 660,
+      "end": 1020,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "noche",
+      "start": 1140,
+      "end": 1260,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "tarde",
+      "start": 660,
+      "end": 1020,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "tarde",
+      "start": 660,
+      "end": 1020,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "noche",
+      "start": 1140,
+      "end": 1260,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ]
+   ],
+   "active_slot": "madrugada",
+   "next": {
+    "time": "2026-11-02T07:00:00+01:00",
+    "kind": "end",
+    "slot_id": "madrugada"
+   },
+   "last": {
+    "time": "2026-11-02T06:00:00+01:00",
+    "room_id": "dormitorio",
+    "room": "Dormitorio",
+    "slot_id": "madrugada",
+    "slot": "Madrugada",
+    "event": "start",
+    "action": "on",
+    "code": "dry_run",
+    "reason": "Modo sombra: habría hecho «on» (Condiciones cumplidas)",
+    "setpoint": 20.0,
+    "outdoor": 8.0,
+    "indoor": 15.0,
+    "simulated": true
+   },
+   "simulation": {
+    "slot_id": "madrugada",
+    "slot": "Madrugada",
+    "active": true,
+    "would_start": true,
+    "code": "ok",
+    "reason": "Condiciones cumplidas",
+    "outdoor": 8.0,
+    "indoor": 15.0
+   }
+  },
+  {
+   "id": "despacho",
+   "name": "Despacho",
+   "enabled": true,
+   "actuator": {
+    "type": "switch",
+    "entity_id": "switch.calefaccion_despacho_enchufe",
+    "state": "off"
+   },
+   "slots": [
+    {
+     "id": "fin_semana",
+     "name": "Fin de semana",
+     "enabled": true,
+     "days": [
+      5,
+      6
+     ],
+     "start": "07:00",
+     "duration_minutes": 150,
+     "setpoint": null,
+     "outdoor_below": 16.0,
+     "indoor_below": 20.0
+    },
+    {
+     "id": "mediodia",
+     "name": "Mediodía",
+     "enabled": true,
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "11:30",
+     "duration_minutes": 165,
+     "setpoint": null,
+     "outdoor_below": 16.0,
+     "indoor_below": 20.0
+    }
+   ],
+   "week": [
+    [
+     {
+      "slot_id": "mediodia",
+      "start": 690,
+      "end": 855,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "mediodia",
+      "start": 690,
+      "end": 855,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "mediodia",
+      "start": 690,
+      "end": 855,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "mediodia",
+      "start": 690,
+      "end": 855,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "mediodia",
+      "start": 690,
+      "end": 855,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "fin_semana",
+      "start": 420,
+      "end": 570,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "mediodia",
+      "start": 690,
+      "end": 855,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "fin_semana",
+      "start": 420,
+      "end": 570,
+      "continued_from_prev": false,
+      "continues_next": false
+     },
+     {
+      "slot_id": "mediodia",
+      "start": 690,
+      "end": 855,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ]
+   ],
+   "active_slot": null,
+   "next": {
+    "time": "2026-11-02T11:30:00+01:00",
+    "kind": "start",
+    "slot_id": "mediodia"
+   },
+   "last": null,
+   "simulation": {
+    "slot_id": "mediodia",
+    "slot": "Mediodía",
+    "active": false,
+    "would_start": true,
+    "code": "ok",
+    "reason": "Condiciones cumplidas",
+    "outdoor": 8.0,
+    "indoor": 18.0
+   }
+  },
+  {
+   "id": "toallero",
+   "name": "Toallero",
+   "enabled": true,
+   "actuator": {
+    "type": "switch",
+    "entity_id": "switch.toallero_bano",
+    "state": "on"
+   },
+   "slots": [
+    {
+     "id": "manana",
+     "name": "Mañana",
+     "enabled": true,
+     "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "start": "05:50",
+     "duration_minutes": 105,
+     "setpoint": null,
+     "outdoor_below": 16.0,
+     "indoor_below": 22.0
+    }
+   ],
+   "week": [
+    [
+     {
+      "slot_id": "manana",
+      "start": 350,
+      "end": 455,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "manana",
+      "start": 350,
+      "end": 455,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "manana",
+      "start": 350,
+      "end": 455,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "manana",
+      "start": 350,
+      "end": 455,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "manana",
+      "start": 350,
+      "end": 455,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "manana",
+      "start": 350,
+      "end": 455,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ],
+    [
+     {
+      "slot_id": "manana",
+      "start": 350,
+      "end": 455,
+      "continued_from_prev": false,
+      "continues_next": false
+     }
+    ]
+   ],
+   "active_slot": "manana",
+   "next": {
+    "time": "2026-11-02T07:35:00+01:00",
+    "kind": "end",
+    "slot_id": "manana"
+   },
+   "last": null,
+   "simulation": {
+    "slot_id": "manana",
+    "slot": "Mañana",
+    "active": true,
+    "would_start": true,
+    "code": "ok",
+    "reason": "Condiciones cumplidas",
+    "outdoor": 8.0,
+    "indoor": 18.0
+   }
+  }
+ ]
+}

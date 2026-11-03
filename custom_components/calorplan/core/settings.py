@@ -1,4 +1,4 @@
-# Versión: 2026.11.4
+# Versión: 2026.11.5
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.4"
+VERSION = "2026.11.5"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -174,3 +174,15 @@ PLATAFORMAS = ("switch", "sensor", "binary_sensor")
 # Avisos mediante entidades notify (integraciones modernas)
 NOTIFY_DOMINIO = "notify"
 NOTIFY_SERVICIO_ENTIDAD = "send_message"
+
+# --- Panel y API WebSocket ----------------------------------------------------
+WS_OVERVIEW = "calorplan/overview"
+PANEL_URL = "calorplan"
+PANEL_TITULO = "Calorplan"
+PANEL_ICONO = "mdi:radiator"
+PANEL_COMPONENTE = "calorplan-panel"
+PANEL_FICHERO = "calorplan-panel.js"
+ESTATICO_URL = "/calorplan_static"
+ESTATICO_CARPETA = "frontend"
+CLAVE_ESTATICO = "calorplan_estatico_registrado"
+CLAVE_PANEL = "calorplan_panel_registrado"

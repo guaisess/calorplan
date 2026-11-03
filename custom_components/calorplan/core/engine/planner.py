@@ -68,6 +68,14 @@ class Planner:
         eventos = self.events_between(desde, hasta, room_id)
         return eventos[0] if eventos else None
 
+    def next_start(self, desde: datetime, room_id: str) -> PlannedEvent | None:
+        """Próximo inicio de tramo (ignora fines y reintentos) de una habitación."""
+        hasta = desde + timedelta(days=ajustes.HORIZONTE_PLANIFICACION_DIAS)
+        for evento in self.events_between(desde, hasta, room_id):
+            if evento.kind == ajustes.EVENTO_INICIO:
+                return evento
+        return None
+
     def active_slots(self, room: Room, instante: datetime) -> list[Slot]:
         """Tramos de la habitación activos en `instante` (inicio <= t < fin)."""
         activos = []
