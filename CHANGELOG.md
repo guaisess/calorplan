@@ -2,6 +2,10 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.4
+
+- Corrección: los avisos funcionan también con entidades `notify.*` (Telegram moderno), enviadas con `notify.send_message`. Antes solo se admitían servicios `notify.<nombre>`.
+
 ## 2026.11.3
 
 - Corrección: `import_config` rechazaba rutas dentro de `/config` («Ruta no permitida»). Ahora se admite cualquier ruta dentro de la carpeta de configuración (además de las permitidas por Home Assistant).

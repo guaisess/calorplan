@@ -71,6 +71,8 @@ Notas: `days` usa 0 = lunes … 6 = domingo; el día de un tramo es el de su ini
 
 **Tus datos personales** (servicios `notify`, identificadores de Telegram) no deben subirse al repositorio: guárdalos en tu configuración local de Home Assistant. La carpeta `local/` de este repositorio está ignorada por git.
 
+En `channels`, `service` puede ser un servicio `notify.<nombre>` o una entidad `notify.*` (por ejemplo Telegram en versiones recientes de Home Assistant).
+
 ## Entidades
 
 | Entidad | Contenido |

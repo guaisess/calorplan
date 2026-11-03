@@ -67,15 +67,28 @@ class HAActuator(ActuatorPort):
 
 
 class HANotify(NotifyPort):
-    """Envía avisos con servicios `notify.<nombre>`."""
+    """Envía avisos con un servicio `notify.<nombre>` o con una entidad `notify.*`.
+
+    Las integraciones modernas (p. ej. Telegram) exponen entidades de notificación
+    que se envían con `notify.send_message`; las antiguas, servicios propios.
+    """
 
     def __init__(self, hass: HomeAssistant) -> None:
         self._hass = hass
 
     async def send(self, service: str, title: str, message: str) -> None:
         dominio, _, nombre = service.partition(".")
-        await self._hass.services.async_call(
-            dominio, nombre, {"title": title, "message": message}, blocking=True)
+        if self._hass.services.has_service(dominio, nombre):
+            # Servicio clásico: notify.<nombre>
+            await self._hass.services.async_call(
+                dominio, nombre, {"title": title, "message": message}, blocking=True)
+        elif self._hass.states.get(service) is not None:
+            # Entidad de notificación: notify.send_message con entity_id
+            await self._hass.services.async_call(
+                ajustes.NOTIFY_DOMINIO, ajustes.NOTIFY_SERVICIO_ENTIDAD,
+                {"entity_id": service, "title": title, "message": message}, blocking=True)
+        else:
+            raise ValueError(f"No existe el servicio ni la entidad de aviso '{service}'")
 
 
 class HAClock(ClockPort):

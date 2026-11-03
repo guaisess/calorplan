@@ -1,4 +1,4 @@
-# Versión: 2026.11.3
+# Versión: 2026.11.4
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.3"
+VERSION = "2026.11.4"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -170,3 +170,7 @@ ID_UNICO_SENSOR_ULTIMA = "{dominio}_{habitacion}_ultima_accion"
 ID_UNICO_TRAMO_ACTIVO = "{dominio}_{habitacion}_tramo_activo"
 
 PLATAFORMAS = ("switch", "sensor", "binary_sensor")
+
+# Avisos mediante entidades notify (integraciones modernas)
+NOTIFY_DOMINIO = "notify"
+NOTIFY_SERVICIO_ENTIDAD = "send_message"
