@@ -26,3 +26,19 @@ class PlanStore:
     async def async_save(self, plan: Plan) -> None:
         """Guarda el plan completo."""
         await self._store.async_save(plan.to_dict())
+
+
+class HistoryStore:
+    """Persistencia del historial de versiones del plan."""
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        self._store: Store = Store(hass, ajustes.SCHEMA_VERSION, ajustes.HISTORIAL_STORAGE_KEY)
+
+    async def async_load(self) -> list[dict]:
+        """Lee las versiones guardadas (lista vacía si no hay)."""
+        datos = await self._store.async_load()
+        return list((datos or {}).get("entries", []))
+
+    async def async_save(self, entradas: list[dict]) -> None:
+        """Guarda las versiones."""
+        await self._store.async_save({"entries": entradas})

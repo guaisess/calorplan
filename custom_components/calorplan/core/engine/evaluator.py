@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.6
 """Evaluador de condiciones de un tramo (temperatura exterior e interior)."""
 from __future__ import annotations
 
@@ -16,21 +16,32 @@ class Evaluator:
     def __init__(self, state: StatePort) -> None:
         self._state = state
 
-    def aggregate_min(self, entity_ids: Iterable[str]) -> float | None:
-        """Mínimo de los sensores; ignora los no numéricos o no disponibles."""
+    def aggregate(self, entity_ids: Iterable[str],
+                  modo: str = ajustes.AGREGACION_DEFECTO) -> float | None:
+        """Agrega los sensores (mínimo, máximo o media); ignora los no numéricos o no disponibles."""
         valores = []
         for entidad in entity_ids:
             valor = self._state.get_float(entidad)
             if valor is not None:
                 valores.append(valor)
-        return min(valores) if valores else None
+        if not valores:
+            return None
+        if modo == ajustes.AGREGACION_MAX:
+            return max(valores)
+        if modo == ajustes.AGREGACION_MEDIA:
+            return sum(valores) / len(valores)
+        return min(valores)
+
+    def aggregate_min(self, entity_ids: Iterable[str]) -> float | None:
+        """Mínimo de los sensores (atajo de `aggregate`)."""
+        return self.aggregate(entity_ids, ajustes.AGREGACION_MIN)
 
     def evaluate(self, room: Room, slot: Slot, config: Config) -> Decision:
         """Evalúa las condiciones del tramo con los valores actuales."""
         ignorar_sin_datos = config.unavailable_policy == ajustes.POLITICA_ENCENDER_IGUAL
-        exterior = (self.aggregate_min(config.outdoor_sensors)
+        exterior = (self.aggregate(config.outdoor_sensors, config.outdoor_aggregation)
                     if slot.outdoor_below is not None else None)
-        interior = (self.aggregate_min(room.sensors)
+        interior = (self.aggregate(room.sensors, room.indoor_aggregation)
                     if slot.indoor_below is not None else None)
 
         # Exterior

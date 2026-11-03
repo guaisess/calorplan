@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.6
 """Configuración global: sensores exteriores, canales y políticas."""
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Any
 
 from .. import settings as ajustes
 from .errors import ConfigError
-from .notify import Channel, NotifyConfig
+from .notify import Channel, NotifyConfig, validar_plantillas
 
 
 @dataclass
@@ -17,6 +17,7 @@ class Config:
     outdoor_sensors: list[str] = field(default_factory=list)
     away_mode: bool = ajustes.MODO_AUSENCIA_DEFECTO
     shadow_mode: bool = ajustes.MODO_SOMBRA_DEFECTO
+    outdoor_aggregation: str = ajustes.AGREGACION_DEFECTO
     unavailable_policy: str = ajustes.POLITICA_NO_DISPONIBLE_DEFECTO
     catch_up: str = ajustes.CATCH_UP_DEFECTO
     channels: list[Channel] = field(default_factory=list)
@@ -41,6 +42,9 @@ class Config:
         politica = datos.get("unavailable_policy", ajustes.POLITICA_NO_DISPONIBLE_DEFECTO)
         if politica not in ajustes.POLITICAS_NO_DISPONIBLE:
             raise ConfigError(f"Política no válida: {politica}")
+        agregacion = datos.get("outdoor_aggregation", ajustes.AGREGACION_DEFECTO)
+        if agregacion not in ajustes.AGREGACIONES:
+            raise ConfigError(f"Agregación no válida: {agregacion}")
         catch_up = datos.get("catch_up", ajustes.CATCH_UP_DEFECTO)
         if catch_up not in ajustes.CATCH_UP_OPCIONES:
             raise ConfigError(f"Valor de catch_up no válido: {catch_up}")
@@ -54,16 +58,19 @@ class Config:
         plantillas = datos.get("templates") or {}
         if not isinstance(plantillas, dict):
             raise ConfigError("'templates' debe ser un objeto")
+        plantillas = {str(k): str(v) for k, v in plantillas.items()}
+        validar_plantillas(plantillas, "Plantillas globales")
         aviso = NotifyConfig.from_dict(datos.get("default_notify")) or NotifyConfig()
         return cls(
             outdoor_sensors=[str(s) for s in sensores],
             away_mode=bool(datos.get("away_mode", ajustes.MODO_AUSENCIA_DEFECTO)),
             shadow_mode=bool(datos.get("shadow_mode", ajustes.MODO_SOMBRA_DEFECTO)),
+            outdoor_aggregation=agregacion,
             unavailable_policy=politica,
             catch_up=catch_up,
             channels=canales,
             default_notify=aviso,
-            templates={str(k): str(v) for k, v in plantillas.items()},
+            templates=plantillas,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -72,6 +79,7 @@ class Config:
             "outdoor_sensors": list(self.outdoor_sensors),
             "away_mode": self.away_mode,
             "shadow_mode": self.shadow_mode,
+            "outdoor_aggregation": self.outdoor_aggregation,
             "unavailable_policy": self.unavailable_policy,
             "catch_up": self.catch_up,
             "channels": [c.to_dict() for c in self.channels],

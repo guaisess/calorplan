@@ -67,6 +67,8 @@ Ejemplo mínimo (la referencia completa está en [`docs/DISENO.md`](docs/DISENO.
 }
 ```
 
+**Varios sensores.** Tanto los sensores exteriores (`global.outdoor_aggregation`) como los de cada habitación (`indoor_aggregation`) se combinan con `min` (por defecto: el más frío), `max` (el más cálido; el más conservador) o `mean` (media). Los sensores sin datos se ignoran.
+
 Notas: `days` usa 0 = lunes … 6 = domingo; el día de un tramo es el de su inicio (un tramo que cruza la medianoche termina al día siguiente); los tramos de una misma habitación no pueden solaparse.
 
 **Tus datos personales** (servicios `notify`, identificadores de Telegram) no deben subirse al repositorio: guárdalos en tu configuración local de Home Assistant. La carpeta `local/` de este repositorio está ignorada por git.

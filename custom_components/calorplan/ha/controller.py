@@ -16,10 +16,12 @@ from homeassistant.helpers.start import async_at_started
 
 from ..core import settings as ajustes
 from ..core.engine import Notifier, PlannedEvent, Runner
+from ..core.engine.editor import PlanEditor
+from ..core.engine.history import History
 from ..core.engine.overview import OverviewBuilder
 from ..core.models import Plan, Slot
 from .adapters import HAActuator, HAClock, HAEvents, HANotify, HAState
-from .store import PlanStore
+from .store import HistoryStore, PlanStore
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +32,8 @@ class Controller:
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
         self.store = PlanStore(hass)
+        self.history_store = HistoryStore(hass)
+        self.history = History()
         self.clock = HAClock()
         self.plan = Plan()
         self.runner: Runner | None = None
@@ -46,6 +50,7 @@ class Controller:
     async def async_start(self) -> None:
         """Carga el plan, crea el motor y programa el primer evento."""
         self.plan = await self.store.async_load()
+        self.history = History(await self.history_store.async_load())
         self.notifier = Notifier(self.plan, HANotify(self.hass), self.clock)
         self.runner = Runner(self.plan, HAState(self.hass), HAActuator(self.hass),
                              self.notifier, self.clock, HAEvents(self.hass, self._registrar))
@@ -160,15 +165,88 @@ class Controller:
         await self.store.async_save(self.plan)
         self._avisar()
 
-    async def async_replace_plan(self, plan: Plan) -> None:
-        """Sustituye el plan completo (importación), lo guarda y reprograma."""
+    async def async_replace_plan(self, plan: Plan, motivo: str | None = None) -> None:
+        """Sustituye el plan completo, lo guarda y reprograma.
+
+        Si se indica `motivo`, antes se guarda una copia del plan actual en el historial.
+        """
         assert self.runner is not None
+        if motivo and self.plan.rooms:
+            self.history.registrar(self.plan, motivo, self.clock.now())
+            await self.history_store.async_save(self.history.to_list())
         self.plan = plan
         self.runner.set_plan(plan)
         await self.store.async_save(plan)
         self._ultimo_instante = self.clock.now()
         self._programar()
         self._avisar()
+
+    # --- Edición de tramos (la validación completa la hace PlanEditor) -----------------
+    def validar_tramo(self, room_id: str, tramo: dict[str, Any], slot_id: str | None) -> dict[str, Any]:
+        """Valida un tramo sin guardarlo (vista previa del editor)."""
+        return PlanEditor.validar(self.plan, room_id, tramo, slot_id)
+
+    async def async_guardar_tramo(self, room_id: str, tramo: dict[str, Any],
+                                  slot_id: str | None = None) -> str:
+        """Crea o modifica un tramo. Lanza ConfigError si no es válido."""
+        nuevo, id_ = PlanEditor.guardar_tramo(self.plan, room_id, tramo, slot_id)
+        await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_GUARDAR.format(
+            habitacion=room_id, tramo=id_))
+        return id_
+
+    async def async_borrar_tramo(self, room_id: str, slot_id: str) -> None:
+        """Elimina un tramo. Lanza ConfigError si no existe."""
+        nuevo = PlanEditor.borrar_tramo(self.plan, room_id, slot_id)
+        await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_BORRAR.format(
+            habitacion=room_id, tramo=slot_id))
+
+    # --- Habitaciones -------------------------------------------------------------------
+    def validar_habitacion(self, datos: dict[str, Any], room_id: str | None) -> dict[str, Any]:
+        """Valida una habitación sin guardarla."""
+        return PlanEditor.validar_habitacion(self.plan, datos, room_id)
+
+    async def async_guardar_habitacion(self, datos: dict[str, Any], room_id: str | None = None) -> str:
+        """Crea o modifica una habitación (copia previa en el historial). Lanza ConfigError."""
+        nuevo, id_ = PlanEditor.guardar_habitacion(self.plan, datos, room_id)
+        await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_HAB_GUARDAR.format(habitacion=id_))
+        return id_
+
+    async def async_borrar_habitacion(self, room_id: str) -> None:
+        """Elimina una habitación y sus tramos. Lanza ConfigError si no existe."""
+        nuevo = PlanEditor.borrar_habitacion(self.plan, room_id)
+        await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_HAB_BORRAR.format(habitacion=room_id))
+
+    def firma_habitaciones(self) -> list[tuple[str, str]]:
+        """(id, nombre) de cada habitación: si cambia, hay que recrear las entidades."""
+        return [(r.id, r.name) for r in self.plan.rooms]
+
+    # --- Ajustes globales («Casa») --------------------------------------------------------
+    def global_config(self) -> dict[str, Any]:
+        """Ajustes globales completos (incluye los servicios de aviso: solo para administradores)."""
+        return self.plan.config.to_dict()
+
+    def validar_global(self, datos: dict[str, Any]) -> dict[str, Any]:
+        """Valida los ajustes globales sin guardarlos."""
+        return PlanEditor.validar_global(self.plan, datos)
+
+    async def async_guardar_global(self, datos: dict[str, Any]) -> None:
+        """Guarda los ajustes globales (copia previa en el historial). Lanza ConfigError."""
+        nuevo = PlanEditor.guardar_global(self.plan, datos)
+        await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_GLOBAL)
+
+    def historial(self) -> list[dict[str, Any]]:
+        """Versiones guardadas del plan (de la más reciente a la más antigua)."""
+        return self.history.listar()
+
+    async def async_restaurar(self, indice: int) -> None:
+        """Restaura una versión; conserva el modo ausencia y las habitaciones habilitadas actuales."""
+        plan = self.history.obtener(indice)
+        plan.config.away_mode = self.plan.config.away_mode
+        for sala in plan.rooms:
+            actual = self.plan.room(sala.id)
+            if actual is not None:
+                sala.enabled = actual.enabled
+        await self.async_replace_plan(plan, ajustes.MOTIVO_HIST_RESTAURAR)
 
     async def async_run_slot(self, room_id: str, slot_id: str, forzar: bool) -> None:
         """Ejecuta ahora el inicio de un tramo."""

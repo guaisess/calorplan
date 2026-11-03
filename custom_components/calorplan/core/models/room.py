@@ -1,10 +1,11 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.6
 """Habitación: actuador, sensores, avisos y tramos."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
 
+from .. import settings as ajustes
 from .actuator import Actuator
 from .errors import ConfigError
 from .notify import NotifyConfig
@@ -19,6 +20,7 @@ class Room:
     name: str
     actuator: Actuator
     sensors: list[str] = field(default_factory=list)
+    indoor_aggregation: str = ajustes.AGREGACION_DEFECTO
     enabled: bool = True
     notify: NotifyConfig | None = None
     slots: list[Slot] = field(default_factory=list)
@@ -49,11 +51,15 @@ class Room:
         sensores = datos.get("sensors", [])
         if not isinstance(sensores, list):
             raise ConfigError(f"Habitación '{id_}': 'sensors' debe ser una lista")
+        agregacion = datos.get("indoor_aggregation", ajustes.AGREGACION_DEFECTO)
+        if agregacion not in ajustes.AGREGACIONES:
+            raise ConfigError(f"Habitación '{id_}': agregación no válida: {agregacion}")
         sala = cls(
             id=id_,
             name=str(datos.get("name", id_)),
             actuator=Actuator.from_dict(datos.get("actuator")),
             sensors=[str(s) for s in sensores],
+            indoor_aggregation=agregacion,
             enabled=bool(datos.get("enabled", True)),
             notify=NotifyConfig.from_dict(datos.get("notify")),
             slots=[Slot.from_dict(s) for s in datos.get("slots", [])],
@@ -69,6 +75,7 @@ class Room:
             "enabled": self.enabled,
             "actuator": self.actuator.to_dict(),
             "sensors": list(self.sensors),
+            "indoor_aggregation": self.indoor_aggregation,
             "notify": self.notify.to_dict() if self.notify else None,
             "slots": [s.to_dict() for s in self.slots],
         }

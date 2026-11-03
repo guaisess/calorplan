@@ -74,7 +74,9 @@ def test_resumen_general():
 
 def test_resumen_no_incluye_servicios_de_aviso():
     r, _ = construir()
-    assert "notify" not in json.dumps(r) and "telegram" not in json.dumps(r)
+    texto = json.dumps(r)
+    assert "telegram_ejemplo" not in texto and "mobile_app" not in texto and '"service"' not in texto
+    assert r["channels"] == ["telegram", "movil"]  # solo los ids
 
 
 def test_habitacion_activa_y_proximo_evento():

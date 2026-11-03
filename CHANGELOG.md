@@ -2,6 +2,22 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.6
+
+Backend de edición (todavía sin interfaz en el panel).
+
+- **Agregación de sensores configurable:** `outdoor_aggregation` (global) e `indoor_aggregation`
+  (por habitación) aceptan `min` (por defecto, como hasta ahora), `max` o `mean`.
+- Validación de plantillas de aviso al guardar: variables desconocidas o formato roto.
+- Editor de plan en el núcleo: tramos, habitaciones (actuador, sensores, agregación) y ajustes
+  globales, siempre validando el plan completo y sin modificar el original.
+- Historial de las últimas 10 versiones del plan (copia automática antes de cada cambio e
+  importación) con restauración.
+- Comandos WebSocket de escritura solo para administradores: `validate_slot`, `save_slot`,
+  `delete_slot`, `validate_room`, `save_room`, `delete_room`, `get_global`, `validate_global`,
+  `save_global`, `history`, `restore`. Las validaciones avisan (sin bloquear) si un sensor,
+  actuador o canal no existe en Home Assistant.
+
 ## 2026.11.5
 
 - Panel lateral **Calorplan** (solo administradores, solo lectura): línea de tiempo por día con

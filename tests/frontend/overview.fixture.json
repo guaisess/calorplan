@@ -1,16 +1,22 @@
 {
- "version": "2026.11.5",
+ "version": "2026.11.6",
  "now": "2026-11-02T06:30:00+01:00",
  "weekday": 0,
  "minute": 390,
  "shadow_mode": true,
  "away_mode": false,
  "outdoor": 8.0,
+ "outdoor_aggregation": "min",
+ "channels": [
+  "telegram",
+  "movil"
+ ],
  "rooms": [
   {
    "id": "dormitorio",
    "name": "Dormitorio",
    "enabled": true,
+   "indoor_aggregation": "min",
    "actuator": {
     "type": "climate",
     "entity_id": "climate.calefaccion_dormitorio",
@@ -32,7 +38,29 @@
      "duration_minutes": 60,
      "setpoint": 20.0,
      "outdoor_below": 10.0,
-     "indoor_below": 16.0
+     "indoor_below": 16.0,
+     "config": {
+      "id": "madrugada",
+      "name": "Madrugada",
+      "enabled": true,
+      "days": [
+       0,
+       1,
+       2,
+       3,
+       4
+      ],
+      "start": "06:00",
+      "setpoint": 20.0,
+      "retry_off_minutes": 5,
+      "conditions": {
+       "outdoor_below": 10.0,
+       "indoor_below": 16.0
+      },
+      "notify": null,
+      "notify_on_skip": false,
+      "end": "07:00"
+     }
     },
     {
      "id": "tarde",
@@ -51,7 +79,31 @@
      "duration_minutes": 360,
      "setpoint": 20.0,
      "outdoor_below": 15.0,
-     "indoor_below": 16.0
+     "indoor_below": 16.0,
+     "config": {
+      "id": "tarde",
+      "name": "Tarde",
+      "enabled": true,
+      "days": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "start": "11:00",
+      "setpoint": 20.0,
+      "retry_off_minutes": 5,
+      "conditions": {
+       "outdoor_below": 15.0,
+       "indoor_below": 16.0
+      },
+      "notify": null,
+      "notify_on_skip": false,
+      "end": "17:00"
+     }
     },
     {
      "id": "noche",
@@ -69,7 +121,30 @@
      "duration_minutes": 120,
      "setpoint": 20.0,
      "outdoor_below": 10.0,
-     "indoor_below": 18.0
+     "indoor_below": 18.0,
+     "config": {
+      "id": "noche",
+      "name": "Noche",
+      "enabled": true,
+      "days": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       6
+      ],
+      "start": "19:00",
+      "setpoint": 20.0,
+      "retry_off_minutes": 5,
+      "conditions": {
+       "outdoor_below": 10.0,
+       "indoor_below": 18.0
+      },
+      "notify": null,
+      "notify_on_skip": false,
+      "end": "21:00"
+     }
     }
    ],
    "week": [
@@ -250,6 +325,7 @@
    "id": "despacho",
    "name": "Despacho",
    "enabled": true,
+   "indoor_aggregation": "min",
    "actuator": {
     "type": "switch",
     "entity_id": "switch.calefaccion_despacho_enchufe",
@@ -268,7 +344,26 @@
      "duration_minutes": 150,
      "setpoint": null,
      "outdoor_below": 16.0,
-     "indoor_below": 20.0
+     "indoor_below": 20.0,
+     "config": {
+      "id": "fin_semana",
+      "name": "Fin de semana",
+      "enabled": true,
+      "days": [
+       5,
+       6
+      ],
+      "start": "07:00",
+      "setpoint": null,
+      "retry_off_minutes": 5,
+      "conditions": {
+       "outdoor_below": 16.0,
+       "indoor_below": 20.0
+      },
+      "notify": null,
+      "notify_on_skip": false,
+      "end": "09:30"
+     }
     },
     {
      "id": "mediodia",
@@ -287,7 +382,31 @@
      "duration_minutes": 165,
      "setpoint": null,
      "outdoor_below": 16.0,
-     "indoor_below": 20.0
+     "indoor_below": 20.0,
+     "config": {
+      "id": "mediodia",
+      "name": "Mediodía",
+      "enabled": true,
+      "days": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "start": "11:30",
+      "setpoint": null,
+      "retry_off_minutes": 5,
+      "conditions": {
+       "outdoor_below": 16.0,
+       "indoor_below": 20.0
+      },
+      "notify": null,
+      "notify_on_skip": false,
+      "end": "14:15"
+     }
     }
    ],
    "week": [
@@ -391,6 +510,7 @@
    "id": "toallero",
    "name": "Toallero",
    "enabled": true,
+   "indoor_aggregation": "min",
    "actuator": {
     "type": "switch",
     "entity_id": "switch.toallero_bano",
@@ -414,7 +534,31 @@
      "duration_minutes": 105,
      "setpoint": null,
      "outdoor_below": 16.0,
-     "indoor_below": 22.0
+     "indoor_below": 22.0,
+     "config": {
+      "id": "manana",
+      "name": "Mañana",
+      "enabled": true,
+      "days": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "start": "05:50",
+      "setpoint": null,
+      "retry_off_minutes": 5,
+      "conditions": {
+       "outdoor_below": 16.0,
+       "indoor_below": 22.0
+      },
+      "notify": null,
+      "notify_on_skip": false,
+      "duration_minutes": 105
+     }
     }
    ],
    "week": [

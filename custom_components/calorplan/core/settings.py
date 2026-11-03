@@ -1,4 +1,4 @@
-# Versión: 2026.11.5
+# Versión: 2026.11.6
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.5"
+VERSION = "2026.11.6"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -57,6 +57,13 @@ POLITICA_ENCENDER_IGUAL = "start_anyway"
 POLITICAS_NO_DISPONIBLE = (POLITICA_NO_ENCENDER, POLITICA_ENCENDER_IGUAL)
 POLITICA_NO_DISPONIBLE_DEFECTO = POLITICA_NO_ENCENDER
 MODO_SOMBRA_DEFECTO = False
+
+# Agregación de varios sensores de temperatura
+AGREGACION_MIN = "min"
+AGREGACION_MAX = "max"
+AGREGACION_MEDIA = "mean"
+AGREGACIONES = (AGREGACION_MIN, AGREGACION_MAX, AGREGACION_MEDIA)
+AGREGACION_DEFECTO = AGREGACION_MIN
 MODO_AUSENCIA_DEFECTO = False
 
 # Códigos de decisión del evaluador
@@ -186,3 +193,44 @@ ESTATICO_URL = "/calorplan_static"
 ESTATICO_CARPETA = "frontend"
 CLAVE_ESTATICO = "calorplan_estatico_registrado"
 CLAVE_PANEL = "calorplan_panel_registrado"
+
+# --- Edición de tramos e historial de versiones ---------------------------------
+HISTORIAL_MAX = 10
+HISTORIAL_STORAGE_KEY = "calorplan_history"
+ID_TRAMO_PREFIJO = "tramo"
+MOTIVO_HIST_IMPORTAR = "Importación de configuración"
+MOTIVO_HIST_GUARDAR = "Guardar tramo {habitacion}/{tramo}"
+MOTIVO_HIST_BORRAR = "Borrar tramo {habitacion}/{tramo}"
+MOTIVO_HIST_RESTAURAR = "Antes de restaurar una versión anterior"
+ERROR_HABITACION_INEXISTENTE = "La habitación '{habitacion}' no existe"
+ERROR_TRAMO_INEXISTENTE = "El tramo '{tramo}' no existe en '{habitacion}'"
+ERROR_VERSION_INEXISTENTE = "La versión {indice} del historial no existe"
+
+WS_VALIDAR_TRAMO = "calorplan/validate_slot"
+WS_GUARDAR_TRAMO = "calorplan/save_slot"
+WS_BORRAR_TRAMO = "calorplan/delete_slot"
+WS_HISTORIAL = "calorplan/history"
+WS_RESTAURAR = "calorplan/restore"
+
+# --- Configuración global («Casa») ----------------------------------------------------
+WS_GET_GLOBAL = "calorplan/get_global"
+WS_VALIDAR_GLOBAL = "calorplan/validate_global"
+WS_GUARDAR_GLOBAL = "calorplan/save_global"
+MOTIVO_HIST_GLOBAL = "Guardar ajustes globales"
+ERROR_PLANTILLA_FORMATO = "Plantilla '{plantilla}': formato no válido ({detalle})"
+ERROR_PLANTILLA_VARIABLE = "Plantilla '{plantilla}': variable desconocida {{{variable}}}"
+ERROR_PLANTILLA_ACCION = "Plantilla para una acción desconocida: '{accion}'"
+ADVERTENCIA_CANAL_INEXISTENTE = "El servicio o entidad de aviso '{servicio}' no existe en Home Assistant"
+ADVERTENCIA_SENSOR_INEXISTENTE = "El sensor '{sensor}' no existe en Home Assistant"
+ADVERTENCIA_SOMBRA_APAGADO = "El modo sombra está desactivado: el motor actuará sobre los dispositivos"
+
+# --- Edición de habitaciones ----------------------------------------------------------
+ID_HABITACION_PREFIJO = "habitacion"
+MOTIVO_HIST_HAB_GUARDAR = "Guardar habitación {habitacion}"
+MOTIVO_HIST_HAB_BORRAR = "Borrar habitación {habitacion}"
+WS_VALIDAR_HABITACION = "calorplan/validate_room"
+WS_GUARDAR_HABITACION = "calorplan/save_room"
+WS_BORRAR_HABITACION = "calorplan/delete_room"
+ADVERTENCIA_ACTUADOR_INEXISTENTE = "El actuador '{entidad}' no existe en Home Assistant"
+ADVERTENCIA_SENSOR_NO_TEMPERATURA = "'{sensor}' no es un sensor de temperatura (device_class: {clase})"
+DEVICE_CLASS_TEMPERATURA = "temperature"

@@ -1,4 +1,4 @@
-# Versión: 2026.11.5
+# Versión: 2026.11.6
 """Resumen de solo lectura para el panel: línea de tiempo, estado y simulación.
 
 El simulador responde «¿qué haría ahora?» evaluando las condiciones con los
@@ -68,6 +68,7 @@ class OverviewBuilder:
             "id": sala.id,
             "name": sala.name,
             "enabled": sala.enabled,
+            "indoor_aggregation": sala.indoor_aggregation,
             "actuator": {"type": sala.actuator.type, "entity_id": sala.actuator.entity_id,
                          "state": self._state.get_state(sala.actuator.entity_id)},
             "slots": [{
@@ -75,6 +76,7 @@ class OverviewBuilder:
                 "start": t.start.strftime(ajustes.FORMATO_HORA),
                 "duration_minutes": t.duracion_minutos, "setpoint": t.setpoint,
                 "outdoor_below": t.outdoor_below, "indoor_below": t.indoor_below,
+                "config": t.to_dict(),  # datos completos para el editor
             } for t in sala.slots],
             "week": semana_habitacion(sala),
             "active_slot": activo.id if activo else None,
@@ -94,6 +96,8 @@ class OverviewBuilder:
             "minute": ahora.hour * 60 + ahora.minute,
             "shadow_mode": cfg.shadow_mode,
             "away_mode": cfg.away_mode,
-            "outdoor": self._evaluator.aggregate_min(cfg.outdoor_sensors),
+            "outdoor": self._evaluator.aggregate(cfg.outdoor_sensors, cfg.outdoor_aggregation),
+            "outdoor_aggregation": cfg.outdoor_aggregation,
+            "channels": [c.id for c in cfg.channels],  # solo ids: nunca los servicios
             "rooms": [self._habitacion(r, ahora, ultimos) for r in self._plan.rooms],
         }

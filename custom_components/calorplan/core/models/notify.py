@@ -2,11 +2,29 @@
 """Configuración de avisos: canales y modo de aviso."""
 from __future__ import annotations
 
+import string
 from dataclasses import dataclass, field
 from typing import Any
 
 from .. import settings as ajustes
 from .errors import ConfigError
+
+
+def validar_plantillas(plantillas: dict[str, str], donde: str) -> None:
+    """Comprueba las acciones y que cada `{variable}` exista (detecta erratas al guardar)."""
+    for accion, texto in plantillas.items():
+        if accion not in ajustes.PLANTILLAS_DEFECTO:
+            raise ConfigError(f"{donde}: " + ajustes.ERROR_PLANTILLA_ACCION.format(accion=accion))
+        try:
+            campos = [c for _, c, _, _ in string.Formatter().parse(texto) if c is not None]
+        except ValueError as err:
+            raise ConfigError(f"{donde}: " + ajustes.ERROR_PLANTILLA_FORMATO.format(
+                plantilla=accion, detalle=err)) from err
+        for campo in campos:
+            nombre = campo.split(".")[0].split("[")[0]
+            if nombre not in ajustes.VARIABLES_PLANTILLA:
+                raise ConfigError(f"{donde}: " + ajustes.ERROR_PLANTILLA_VARIABLE.format(
+                    plantilla=accion, variable=nombre))
 
 
 @dataclass
@@ -36,8 +54,9 @@ class Channel:
         plantillas = datos.get("templates") or {}
         if not isinstance(plantillas, dict):
             raise ConfigError(f"Las plantillas del canal '{id_}' deben ser un objeto")
-        return cls(id=id_, service=servicio, type=tipo,
-                   templates={str(k): str(v) for k, v in plantillas.items()})
+        plantillas = {str(k): str(v) for k, v in plantillas.items()}
+        validar_plantillas(plantillas, f"Canal '{id_}'")
+        return cls(id=id_, service=servicio, type=tipo, templates=plantillas)
 
     def to_dict(self) -> dict[str, Any]:
         """Serializa el canal."""

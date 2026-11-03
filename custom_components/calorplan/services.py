@@ -71,7 +71,7 @@ def async_registrar(hass: HomeAssistant) -> None:
             plan = Plan.from_dict(datos)
         except ConfigError as err:
             raise ServiceValidationError(f"Configuración inválida: {err}") from err
-        await controlador.async_replace_plan(plan)
+        await controlador.async_replace_plan(plan, ajustes.MOTIVO_HIST_IMPORTAR)
         _recargar_entrada(hass, entry_id)
 
     async def ejecutar(llamada: ServiceCall) -> None:
