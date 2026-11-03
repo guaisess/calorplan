@@ -1,0 +1,71 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Calorplan",
+        "description": "The integration will be created. Then import your configuration with the calorplan.import_config service."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Calorplan only supports a single instance."
+    }
+  },
+  "services": {
+    "import_config": {
+      "name": "Import configuration",
+      "description": "Replaces the whole plan with the one from a JSON file or an object.",
+      "fields": {
+        "path": {
+          "name": "Path",
+          "description": "Path of an allowed JSON file (for example /config/calorplan.json)."
+        },
+        "config": {
+          "name": "Configuration",
+          "description": "Full plan as an object."
+        }
+      }
+    },
+    "run_slot": {
+      "name": "Run slot",
+      "description": "Runs the start of a slot right now.",
+      "fields": {
+        "room_id": {
+          "name": "Room",
+          "description": "Room identifier."
+        },
+        "slot_id": {
+          "name": "Slot",
+          "description": "Slot identifier."
+        },
+        "force": {
+          "name": "Force",
+          "description": "Ignores conditions, away mode and disabled slots."
+        }
+      }
+    },
+    "set_away": {
+      "name": "Away mode",
+      "description": "Turns away mode on or off (starts are skipped).",
+      "fields": {
+        "away": {
+          "name": "Away",
+          "description": "True to turn away mode on."
+        }
+      }
+    },
+    "test_notification": {
+      "name": "Test notification",
+      "description": "Sends a test notification to a channel.",
+      "fields": {
+        "channel": {
+          "name": "Channel",
+          "description": "Notification channel identifier."
+        }
+      }
+    },
+    "reload": {
+      "name": "Reload",
+      "description": "Reloads the integration and recreates its entities."
+    }
+  }
+}

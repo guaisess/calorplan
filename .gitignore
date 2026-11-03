@@ -1,0 +1,18 @@
+# Datos personales: configuración real, identificadores de Telegram, servicios notify
+local/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Frontend (Fase 3)
+node_modules/

@@ -1,0 +1,71 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Calorplan",
+        "description": "Se creará la integración. Después importa tu configuración con el servicio calorplan.import_config."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Calorplan solo admite una instancia."
+    }
+  },
+  "services": {
+    "import_config": {
+      "name": "Importar configuración",
+      "description": "Sustituye el plan completo por el de un fichero JSON o por un objeto.",
+      "fields": {
+        "path": {
+          "name": "Ruta",
+          "description": "Ruta de un fichero JSON permitido (por ejemplo /config/calorplan.json)."
+        },
+        "config": {
+          "name": "Configuración",
+          "description": "Plan completo en forma de objeto."
+        }
+      }
+    },
+    "run_slot": {
+      "name": "Ejecutar tramo",
+      "description": "Ejecuta ahora el inicio de un tramo.",
+      "fields": {
+        "room_id": {
+          "name": "Habitación",
+          "description": "Identificador de la habitación."
+        },
+        "slot_id": {
+          "name": "Tramo",
+          "description": "Identificador del tramo."
+        },
+        "force": {
+          "name": "Forzar",
+          "description": "Ignora condiciones, modo ausencia y tramos deshabilitados."
+        }
+      }
+    },
+    "set_away": {
+      "name": "Modo ausencia",
+      "description": "Activa o desactiva el modo ausencia (se omiten los encendidos).",
+      "fields": {
+        "away": {
+          "name": "Ausente",
+          "description": "Verdadero para activar el modo ausencia."
+        }
+      }
+    },
+    "test_notification": {
+      "name": "Probar aviso",
+      "description": "Envía un aviso de prueba a un canal.",
+      "fields": {
+        "channel": {
+          "name": "Canal",
+          "description": "Identificador del canal de aviso."
+        }
+      }
+    },
+    "reload": {
+      "name": "Recargar",
+      "description": "Recarga la integración y recrea sus entidades."
+    }
+  }
+}

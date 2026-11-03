@@ -1,0 +1,224 @@
+{
+  "version": 1,
+  "global": {
+    "outdoor_sensors": [
+      "sensor.temperatura_exterior",
+      "sensor.temperatura_porche"
+    ],
+    "away_mode": false,
+    "shadow_mode": true,
+    "unavailable_policy": "do_not_start",
+    "catch_up": "none",
+    "channels": [
+      {
+        "id": "telegram",
+        "type": "notify",
+        "service": "notify.telegram_ejemplo"
+      },
+      {
+        "id": "movil",
+        "type": "notify",
+        "service": "notify.mobile_app_ejemplo"
+      }
+    ],
+    "default_notify": {
+      "mode": "both",
+      "channels": [
+        "telegram"
+      ]
+    }
+  },
+  "rooms": [
+    {
+      "id": "dormitorio",
+      "name": "Dormitorio",
+      "enabled": true,
+      "actuator": {
+        "type": "climate",
+        "entity_id": "climate.calefaccion_dormitorio",
+        "child_lock_switch": "switch.calefaccion_dormitorio_bloqueo_infantil",
+        "child_lock_on_start": "lock",
+        "child_lock_on_end": "none",
+        "off_only_if_heating": true,
+        "verify_attempts": 3,
+        "hvac_mode_on": "heat"
+      },
+      "sensors": [
+        "sensor.dormitorio_temperatura",
+        "sensor.dormitorio_temperatura_2"
+      ],
+      "notify": null,
+      "slots": [
+        {
+          "id": "madrugada",
+          "name": "Madrugada",
+          "enabled": true,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "start": "06:00",
+          "end": "07:00",
+          "setpoint": 20,
+          "retry_off_minutes": 5,
+          "conditions": {
+            "outdoor_below": 10,
+            "indoor_below": 16
+          },
+          "notify": null,
+          "notify_on_skip": false
+        },
+        {
+          "id": "tarde",
+          "name": "Tarde",
+          "enabled": true,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "start": "11:00",
+          "end": "17:00",
+          "setpoint": 20,
+          "retry_off_minutes": 5,
+          "conditions": {
+            "outdoor_below": 15,
+            "indoor_below": 16
+          },
+          "notify": null,
+          "notify_on_skip": false
+        },
+        {
+          "id": "noche",
+          "name": "Noche",
+          "enabled": true,
+          "days": [
+            6,
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "start": "19:00",
+          "end": "21:00",
+          "setpoint": 20,
+          "retry_off_minutes": 5,
+          "conditions": {
+            "outdoor_below": 10,
+            "indoor_below": 18
+          },
+          "notify": null,
+          "notify_on_skip": false
+        }
+      ]
+    },
+    {
+      "id": "despacho",
+      "name": "Despacho",
+      "enabled": true,
+      "actuator": {
+        "type": "switch",
+        "entity_id": "switch.calefaccion_despacho_enchufe",
+        "child_lock_switch": null,
+        "off_only_if_heating": true,
+        "verify_attempts": 3
+      },
+      "sensors": [
+        "sensor.despacho_temperatura"
+      ],
+      "notify": null,
+      "slots": [
+        {
+          "id": "fin_semana",
+          "name": "Fin de semana",
+          "enabled": true,
+          "days": [
+            5,
+            6
+          ],
+          "start": "07:00",
+          "end": "09:30",
+          "retry_off_minutes": 5,
+          "conditions": {
+            "outdoor_below": 16,
+            "indoor_below": 20
+          },
+          "notify": null,
+          "notify_on_skip": false
+        },
+        {
+          "id": "mediodia",
+          "name": "Mediodía",
+          "enabled": true,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "start": "11:30",
+          "end": "14:15",
+          "retry_off_minutes": 5,
+          "conditions": {
+            "outdoor_below": 16,
+            "indoor_below": 20
+          },
+          "notify": null,
+          "notify_on_skip": false
+        }
+      ]
+    },
+    {
+      "id": "toallero",
+      "name": "Toallero",
+      "enabled": true,
+      "actuator": {
+        "type": "switch",
+        "entity_id": "switch.toallero_bano",
+        "child_lock_switch": null,
+        "off_only_if_heating": true,
+        "verify_attempts": 3
+      },
+      "sensors": [
+        "sensor.bano_temperatura"
+      ],
+      "notify": null,
+      "slots": [
+        {
+          "id": "manana",
+          "name": "Mañana",
+          "enabled": true,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "start": "05:50",
+          "duration_minutes": 105,
+          "retry_off_minutes": 5,
+          "conditions": {
+            "outdoor_below": 16,
+            "indoor_below": 22
+          },
+          "notify": null,
+          "notify_on_skip": false
+        }
+      ]
+    }
+  ]
+}

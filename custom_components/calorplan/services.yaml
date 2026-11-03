@@ -1,0 +1,46 @@
+import_config:
+  fields:
+    path:
+      required: false
+      example: "/config/calorplan.json"
+      selector:
+        text:
+    config:
+      required: false
+      selector:
+        object:
+
+run_slot:
+  fields:
+    room_id:
+      required: true
+      example: "dormitorio"
+      selector:
+        text:
+    slot_id:
+      required: true
+      example: "madrugada"
+      selector:
+        text:
+    force:
+      required: false
+      default: false
+      selector:
+        boolean:
+
+set_away:
+  fields:
+    away:
+      required: true
+      selector:
+        boolean:
+
+test_notification:
+  fields:
+    channel:
+      required: true
+      example: "telegram"
+      selector:
+        text:
+
+reload:
