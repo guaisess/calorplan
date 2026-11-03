@@ -95,6 +95,7 @@ export const TEXTOS = {
   },
   hist: {
     titulo: "Historial de versiones",
+    antesDe: "Antes de:",
     vacio: "Todavía no hay versiones guardadas. Se crea una copia antes de cada cambio.",
     restaurar: "Restaurar",
     cerrar: "Cerrar",

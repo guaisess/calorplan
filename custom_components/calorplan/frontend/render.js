@@ -74,12 +74,12 @@ export function renderEstado(datos, ahora) {
 }
 
 /** Documento completo del panel. */
-export function renderPanel(datos, dia, ahora) {
+export function renderPanel(datos, dia, ahora, extra = "") {
   const actualizado = fmtMin(ahora.getHours() * 60 + ahora.getMinutes());
   if (!datos.rooms.length) {
-    return `${renderCabecera(datos, actualizado)}<div class="tarjeta mensaje">${TEXTOS.sinHabitaciones}</div>`;
+    return `${renderCabecera(datos, actualizado)}${extra}<div class="tarjeta mensaje">${TEXTOS.sinHabitaciones}</div>`;
   }
-  return `${renderCabecera(datos, actualizado)}
+  return `${renderCabecera(datos, actualizado)}${extra}
     <div class="tarjeta"><h2>${TEXTOS.lineaTiempo}</h2>${renderPestanas(dia, datos.weekday)}${renderGantt(datos, dia)}</div>
     <div class="tarjeta"><h2>${TEXTOS.estadoAhora}</h2>${renderEstado(datos, ahora)}</div>`;
 }

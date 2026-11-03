@@ -154,7 +154,11 @@ def ws_get_global(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
                   msg: dict[str, Any]) -> None:
     """Devuelve los ajustes globales completos para el editor."""
     if (instancia := _instancia(hass, connection, msg)) is not None:
-        connection.send_result(msg["id"], {"global": instancia[1].global_config()})
+        connection.send_result(msg["id"], {
+            "global": instancia[1].global_config(),
+            "template_defaults": dict(ajustes.PLANTILLAS_DEFECTO),
+            "template_variables": list(ajustes.VARIABLES_PLANTILLA),
+        })
 
 
 @websocket_api.require_admin

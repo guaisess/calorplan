@@ -69,6 +69,7 @@ class OverviewBuilder:
             "name": sala.name,
             "enabled": sala.enabled,
             "indoor_aggregation": sala.indoor_aggregation,
+            "config": {k: v for k, v in sala.to_dict().items() if k != "slots"},
             "actuator": {"type": sala.actuator.type, "entity_id": sala.actuator.entity_id,
                          "state": self._state.get_state(sala.actuator.entity_id)},
             "slots": [{

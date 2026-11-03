@@ -17,6 +17,27 @@
    "name": "Dormitorio",
    "enabled": true,
    "indoor_aggregation": "min",
+   "config": {
+    "id": "dormitorio",
+    "name": "Dormitorio",
+    "enabled": true,
+    "actuator": {
+     "type": "climate",
+     "entity_id": "climate.calefaccion_dormitorio",
+     "child_lock_switch": "switch.calefaccion_dormitorio_bloqueo_infantil",
+     "child_lock_on_start": "lock",
+     "child_lock_on_end": "none",
+     "off_only_if_heating": true,
+     "verify_attempts": 3,
+     "hvac_mode_on": "heat"
+    },
+    "sensors": [
+     "sensor.dormitorio_temperatura",
+     "sensor.dormitorio_temperatura_2"
+    ],
+    "indoor_aggregation": "min",
+    "notify": null
+   },
    "actuator": {
     "type": "climate",
     "entity_id": "climate.calefaccion_dormitorio",
@@ -326,6 +347,26 @@
    "name": "Despacho",
    "enabled": true,
    "indoor_aggregation": "min",
+   "config": {
+    "id": "despacho",
+    "name": "Despacho",
+    "enabled": true,
+    "actuator": {
+     "type": "switch",
+     "entity_id": "switch.calefaccion_despacho_enchufe",
+     "child_lock_switch": null,
+     "child_lock_on_start": "lock",
+     "child_lock_on_end": "none",
+     "off_only_if_heating": true,
+     "verify_attempts": 3,
+     "hvac_mode_on": "heat"
+    },
+    "sensors": [
+     "sensor.despacho_temperatura"
+    ],
+    "indoor_aggregation": "min",
+    "notify": null
+   },
    "actuator": {
     "type": "switch",
     "entity_id": "switch.calefaccion_despacho_enchufe",
@@ -511,6 +552,26 @@
    "name": "Toallero",
    "enabled": true,
    "indoor_aggregation": "min",
+   "config": {
+    "id": "toallero",
+    "name": "Toallero",
+    "enabled": true,
+    "actuator": {
+     "type": "switch",
+     "entity_id": "switch.toallero_bano",
+     "child_lock_switch": null,
+     "child_lock_on_start": "lock",
+     "child_lock_on_end": "none",
+     "off_only_if_heating": true,
+     "verify_attempts": 3,
+     "hvac_mode_on": "heat"
+    },
+    "sensors": [
+     "sensor.bano_temperatura"
+    ],
+    "indoor_aggregation": "min",
+    "notify": null
+   },
    "actuator": {
     "type": "switch",
     "entity_id": "switch.toallero_bano",
