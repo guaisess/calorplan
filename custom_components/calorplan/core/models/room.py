@@ -1,4 +1,4 @@
-# Versión: 2026.11.6
+# Versión: 2026.11.8
 """Habitación: actuador, sensores, avisos y tramos."""
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from .. import settings as ajustes
 from .actuator import Actuator
 from .errors import ConfigError
 from .notify import NotifyConfig
+from .pause import Pause, pausas_desde
 from .slot import Slot
 
 
@@ -24,6 +25,7 @@ class Room:
     enabled: bool = True
     notify: NotifyConfig | None = None
     slots: list[Slot] = field(default_factory=list)
+    pauses: list[Pause] = field(default_factory=list)
 
     def slot(self, slot_id: str) -> Slot | None:
         """Devuelve el tramo con ese id, o None."""
@@ -63,6 +65,7 @@ class Room:
             enabled=bool(datos.get("enabled", True)),
             notify=NotifyConfig.from_dict(datos.get("notify")),
             slots=[Slot.from_dict(s) for s in datos.get("slots", [])],
+            pauses=pausas_desde(datos.get("pauses"), f"Habitación '{id_}'"),
         )
         sala.validar()
         return sala
@@ -78,4 +81,5 @@ class Room:
             "indoor_aggregation": self.indoor_aggregation,
             "notify": self.notify.to_dict() if self.notify else None,
             "slots": [s.to_dict() for s in self.slots],
+            "pauses": [p.to_dict() for p in self.pauses],
         }

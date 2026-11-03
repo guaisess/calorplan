@@ -1,4 +1,4 @@
-// Versión: 2026.11.5
+// Versión: 2026.11.8
 // Generación del HTML del panel a partir de los datos (función pura, sin DOM).
 
 import { CONFIG, TEXTOS } from "./config.js";
@@ -11,6 +11,9 @@ export function renderCabecera(datos, actualizadoEn) {
   const insignias = [`<span class="insignia">v${esc(datos.version)}</span>`];
   if (datos.shadow_mode) insignias.push(`<span class="insignia aviso">${TEXTOS.sombra}</span>`);
   if (datos.away_mode) insignias.push(`<span class="insignia aviso">${TEXTOS.ausencia}</span>`);
+  if ((datos.global_pauses ?? []).some((p) => p.status === "active")) {
+    insignias.push(`<span class="insignia aviso">${TEXTOS.pausaGlobal}</span>`);
+  }
   if (datos.outdoor !== null) {
     insignias.push(`<span class="insignia">${TEXTOS.exterior} ${fmtNum(datos.outdoor)} ${TEXTOS.unidades.grados}</span>`);
   }

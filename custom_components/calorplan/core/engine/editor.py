@@ -1,4 +1,4 @@
-# Versión: 2026.11.6
+# Versión: 2026.11.8
 """Editor del plan: altas, cambios y bajas de tramos con validación completa.
 
 Cada operación devuelve un plan NUEVO (el original no se modifica): se vuelve a
@@ -110,13 +110,59 @@ class PlanEditor:
         return {"ok": True, "error": None}
 
     @classmethod
+    def _contenedor_pausas(cls, completo: dict[str, Any], room_id: str | None) -> dict[str, Any]:
+        """Diccionario que contiene las pausas: la habitación o los ajustes globales."""
+        return completo["global"] if room_id is None else cls._sala(completo, room_id)
+
+    @classmethod
+    def guardar_pausa(cls, plan: Plan, pausa: dict[str, Any], pause_id: str | None = None,
+                      room_id: str | None = None) -> tuple[Plan, str]:
+        """Crea (pause_id=None) o modifica una pausa de una habitación o global."""
+        completo = copy.deepcopy(plan.to_dict())
+        lista = cls._contenedor_pausas(completo, room_id).setdefault("pauses", [])
+        pausa = dict(pausa)
+        if pause_id is None:
+            pausa["id"] = generar_id(str(pausa.get("reason", "")), [p["id"] for p in lista],
+                                     ajustes.ID_PAUSA_PREFIJO)
+            lista.append(pausa)
+        else:
+            posicion = next((i for i, p in enumerate(lista) if p["id"] == pause_id), None)
+            if posicion is None:
+                raise ConfigError(ajustes.ERROR_PAUSA_INEXISTENTE.format(pausa=pause_id))
+            pausa["id"] = pause_id
+            lista[posicion] = pausa
+        return Plan.from_dict(completo), pausa["id"]
+
+    @classmethod
+    def borrar_pausa(cls, plan: Plan, pause_id: str, room_id: str | None = None) -> Plan:
+        """Elimina una pausa."""
+        completo = copy.deepcopy(plan.to_dict())
+        contenedor = cls._contenedor_pausas(completo, room_id)
+        restantes = [p for p in contenedor.get("pauses", []) if p["id"] != pause_id]
+        if len(restantes) == len(contenedor.get("pauses", [])):
+            raise ConfigError(ajustes.ERROR_PAUSA_INEXISTENTE.format(pausa=pause_id))
+        contenedor["pauses"] = restantes
+        return Plan.from_dict(completo)
+
+    @classmethod
+    def validar_pausa(cls, plan: Plan, pausa: dict[str, Any], pause_id: str | None = None,
+                      room_id: str | None = None) -> dict[str, Any]:
+        """Valida una pausa sin guardarla: {ok, error}."""
+        try:
+            cls.guardar_pausa(plan, pausa, pause_id, room_id)
+        except ConfigError as err:
+            return {"ok": False, "error": str(err)}
+        return {"ok": True, "error": None}
+
+    @classmethod
     def guardar_global(cls, plan: Plan, datos: dict[str, Any]) -> Plan:
         """Sustituye los ajustes globales. Valida todo el plan (p. ej. canales en uso).
 
         El modo ausencia se conserva: se gestiona con su propio interruptor.
         """
         completo = copy.deepcopy(plan.to_dict())
-        completo["global"] = {**datos, "away_mode": plan.config.away_mode}
+        completo["global"] = {**datos, "away_mode": plan.config.away_mode,
+                              "pauses": plan.to_dict()["global"]["pauses"]}
         return Plan.from_dict(completo)
 
     @classmethod

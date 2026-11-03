@@ -1,4 +1,4 @@
-# Versión: 2026.11.6
+# Versión: 2026.11.8
 """API WebSocket del panel: lectura (resumen) y edición de tramos (solo administradores)."""
 from __future__ import annotations
 
@@ -276,9 +276,69 @@ async def ws_delete_room(hass: HomeAssistant, connection: websocket_api.ActiveCo
     connection.send_result(msg["id"], {"overview": controlador.overview()})
 
 
+@websocket_api.require_admin
+@websocket_api.websocket_command({
+    vol.Required("type"): ajustes.WS_VALIDAR_PAUSA,
+    vol.Required("pause"): dict,
+    vol.Optional("pause_id"): vol.Any(str, None),
+    vol.Optional("room_id"): vol.Any(str, None),
+})
+@callback
+def ws_validate_pause(hass: HomeAssistant, connection: websocket_api.ActiveConnection,
+                      msg: dict[str, Any]) -> None:
+    """Valida una pausa (de una habitación o global): {ok, error}."""
+    if (instancia := _instancia(hass, connection, msg)) is not None:
+        connection.send_result(msg["id"], instancia[1].validar_pausa(
+            msg["pause"], msg.get("pause_id"), msg.get("room_id")))
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({
+    vol.Required("type"): ajustes.WS_GUARDAR_PAUSA,
+    vol.Required("pause"): dict,
+    vol.Optional("pause_id"): vol.Any(str, None),
+    vol.Optional("room_id"): vol.Any(str, None),
+})
+@websocket_api.async_response
+async def ws_save_pause(hass: HomeAssistant, connection: websocket_api.ActiveConnection,
+                        msg: dict[str, Any]) -> None:
+    """Crea o modifica una pausa (guarda antes una copia en el historial)."""
+    if (instancia := _instancia(hass, connection, msg)) is None:
+        return
+    controlador = instancia[1]
+    try:
+        pause_id = await controlador.async_guardar_pausa(
+            msg["pause"], msg.get("pause_id"), msg.get("room_id"))
+    except ConfigError as err:
+        connection.send_error(msg["id"], ERR_INVALIDO, str(err))
+        return
+    connection.send_result(msg["id"], {"pause_id": pause_id, "overview": controlador.overview()})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({
+    vol.Required("type"): ajustes.WS_BORRAR_PAUSA,
+    vol.Required("pause_id"): str,
+    vol.Optional("room_id"): vol.Any(str, None),
+})
+@websocket_api.async_response
+async def ws_delete_pause(hass: HomeAssistant, connection: websocket_api.ActiveConnection,
+                          msg: dict[str, Any]) -> None:
+    """Elimina una pausa (guarda antes una copia en el historial)."""
+    if (instancia := _instancia(hass, connection, msg)) is None:
+        return
+    try:
+        await instancia[1].async_borrar_pausa(msg["pause_id"], msg.get("room_id"))
+    except ConfigError as err:
+        connection.send_error(msg["id"], ERR_INVALIDO, str(err))
+        return
+    connection.send_result(msg["id"], {"overview": instancia[1].overview()})
+
+
 def async_registrar(hass: HomeAssistant) -> None:
     """Registra los comandos WebSocket."""
     for comando in (ws_overview, ws_validate_slot, ws_save_slot, ws_delete_slot,
                     ws_history, ws_restore, ws_get_global, ws_validate_global, ws_save_global,
-                    ws_validate_room, ws_save_room, ws_delete_room):
+                    ws_validate_room, ws_save_room, ws_delete_room,
+                    ws_validate_pause, ws_save_pause, ws_delete_pause):
         websocket_api.async_register_command(hass, comando)

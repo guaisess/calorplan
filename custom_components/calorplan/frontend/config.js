@@ -1,4 +1,4 @@
-// Versión: 2026.11.7
+// Versión: 2026.11.8
 // Configuración del panel: todos los textos y valores ajustables (sin valores fijos en el código).
 
 export const CONFIG = {
@@ -8,6 +8,9 @@ export const CONFIG = {
   comandoBorrar: "calorplan/delete_slot",
   comandoHistorial: "calorplan/history",
   comandoRestaurar: "calorplan/restore",
+  comandoValidarPausa: "calorplan/validate_pause",
+  comandoGuardarPausa: "calorplan/save_pause",
+  comandoBorrarPausa: "calorplan/delete_pause",
   esperaValidacionMs: 300,
   objetivoPorDefecto: 20,
   inicioPorDefecto: "08:00",
@@ -29,6 +32,7 @@ export const TEXTOS = {
   titulo: "Calorplan",
   sombra: "Modo sombra",
   ausencia: "Ausencia",
+  pausaGlobal: "Pausa global",
   exterior: "Exterior",
   actualizar: "Actualizar",
   actualizado: "Actualizado",
@@ -50,6 +54,7 @@ export const TEXTOS = {
     away: "No: modo ausencia",
     room_disabled: "No: habitación deshabilitada",
     slot_disabled: "No: tramo deshabilitado",
+    paused: "No: en pausa",
     outdoor_unavailable: "No: sin dato exterior",
     indoor_unavailable: "No: sin dato interior",
     sinTramos: "Sin tramos",

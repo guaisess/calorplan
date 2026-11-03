@@ -154,8 +154,10 @@ test("renderValidacionTramo: conflictos por nombre", () => {
   assert.doesNotMatch(vista.renderValidacionTramo({ ok: false, error: "e", conflicts: [] }, dormitorio), /Se solapa/);
 });
 
-test("las pestañas incluyen Tramos entre Resumen y Casa", () => {
+test("las pestañas siguen el orden Resumen, Casa, Tramos y Pausas", () => {
   const html = casa.renderVistas("tramos");
-  assert.ok(html.indexOf("resumen") < html.indexOf("tramos") && html.indexOf("tramos") < html.indexOf('data-vista="casa"'));
+  const orden = ["resumen", "casa", "tramos", "pausas"].map((v) => html.indexOf(`data-vista="${v}"`));
+  assert.ok(orden.every((x) => x >= 0));
+  assert.deepEqual([...orden].sort((a, b) => a - b), orden);
   assert.match(html, /data-vista="tramos" class="sel"/);
 });

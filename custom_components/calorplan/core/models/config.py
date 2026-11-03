@@ -1,4 +1,4 @@
-# Versión: 2026.11.6
+# Versión: 2026.11.8
 """Configuración global: sensores exteriores, canales y políticas."""
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from typing import Any
 from .. import settings as ajustes
 from .errors import ConfigError
 from .notify import Channel, NotifyConfig, validar_plantillas
+from .pause import Pause, pausas_desde
 
 
 @dataclass
@@ -24,6 +25,7 @@ class Config:
     default_notify: NotifyConfig = field(default_factory=NotifyConfig)
     # Plantillas globales (acción -> texto); se completan con las de `settings`
     templates: dict[str, str] = field(default_factory=dict)
+    pauses: list[Pause] = field(default_factory=list)
 
     def canal(self, canal_id: str) -> Channel | None:
         """Devuelve el canal con ese id, o None."""
@@ -71,6 +73,7 @@ class Config:
             channels=canales,
             default_notify=aviso,
             templates=plantillas,
+            pauses=pausas_desde(datos.get("pauses"), "Ajustes globales"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -85,4 +88,5 @@ class Config:
             "channels": [c.to_dict() for c in self.channels],
             "default_notify": self.default_notify.to_dict(),
             "templates": dict(self.templates),
+            "pauses": [p.to_dict() for p in self.pauses],
         }

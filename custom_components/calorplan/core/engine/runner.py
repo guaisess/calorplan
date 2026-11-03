@@ -1,11 +1,11 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.8
 """Ejecutor: aplica los eventos planificados sobre los actuadores."""
 from __future__ import annotations
 
 import logging
 
 from .. import settings as ajustes
-from ..models import Actuator, Plan, Room, Slot
+from ..models import Actuator, Pause, Plan, Room, Slot, pausa_activa
 from .evaluator import Evaluator
 from .notifier import Notifier
 from .planner import Planner
@@ -61,6 +61,25 @@ class Runner:
                     registros.append(registro)
         return registros
 
+    # --- Pausas ----------------------------------------------------------------------------
+    def pausa_vigente(self, sala: Room) -> tuple[Pause, bool] | None:
+        """Pausa vigente hoy: (pausa, es_global). La de la habitación tiene prioridad."""
+        hoy = self._clock.now().date()
+        propia = pausa_activa(sala.pauses, hoy)
+        if propia is not None:
+            return propia, False
+        global_ = pausa_activa(self.plan.config.pauses, hoy)
+        return (global_, True) if global_ is not None else None
+
+    @staticmethod
+    def _motivo_pausa(pausa: Pause, es_global: bool) -> str:
+        """Texto del motivo de omisión por pausa."""
+        return ajustes.MOTIVO_PAUSA.format(
+            motivo=pausa.reason or ajustes.MOTIVO_PAUSA_SIN_NOMBRE,
+            ambito=ajustes.PAUSA_AMBITO_CASA if es_global else "habitación",
+            desde=pausa.start.strftime(ajustes.FORMATO_FECHA),
+            hasta=pausa.end.strftime(ajustes.FORMATO_FECHA) if pausa.end else ajustes.PAUSA_SIN_FIN)
+
     # --- Inicio ------------------------------------------------------------------
     async def _inicio(self, sala: Room, tramo: Slot, forzar: bool) -> Record:
         """Inicio de tramo: comprueba, evalúa y enciende."""
@@ -77,6 +96,10 @@ class Runner:
             if self.plan.config.away_mode:
                 return await self._emitir(sala, tramo, tipo, ajustes.ACCION_OMITIR,
                                           ajustes.COD_AUSENCIA, ajustes.MOTIVO_AUSENCIA)
+            pausa = self.pausa_vigente(sala)
+            if pausa is not None:
+                return await self._emitir(sala, tramo, tipo, ajustes.ACCION_OMITIR,
+                                          ajustes.COD_PAUSA, self._motivo_pausa(*pausa))
 
         decision = self._evaluator.evaluate(sala, tramo, self.plan.config)
         if forzar and not decision.start:

@@ -1,0 +1,35 @@
+// Versión: 2026.11.8
+// Textos y valores por defecto de la vista «Pausas».
+
+export const PAUSAS = {
+  titulo: "Pausas",
+  ayuda: "Mientras una pausa está activa no se programan encendidos (los apagados siguen funcionando). Las fechas incluyen el primer y el último día.",
+  casa: "Toda la casa",
+  anadir: "Añadir pausa",
+  vacio: "Sin pausas.",
+  enPausa: "En pausa",
+  afectadaPorCasa: "Afectada por la pausa de toda la casa:",
+  sinFin: "sin fecha de fin",
+  columnas: ["Motivo", "Desde", "Hasta", "Estado", ""],
+  sinMotivo: "(sin motivo)",
+  estados: { active: "Activa", upcoming: "Próxima", expired: "Caducada", disabled: "Deshabilitada" },
+  tonos: { active: "ok", upcoming: "muted", expired: "muted", disabled: "muted" },
+  acciones: { editar: "Editar", habilitar: "Habilitar", deshabilitar: "Deshabilitar", borrar: "Borrar" },
+  editor: {
+    nueva: "Nueva pausa",
+    editar: "Editar pausa",
+    ambitoCasa: "Toda la casa",
+    motivo: "Motivo (opcional)",
+    motivoPlaceholder: "Vacaciones, visita, obras…",
+    sugerencias: ["Vacaciones", "Visita", "Obras", "Fin de semana fuera"],
+    desde: "Desde (incluido)",
+    hasta: "Hasta (incluido)",
+    sinFin: "Sin fecha de fin (hasta que la quite)",
+    habilitada: "Pausa habilitada",
+    guardar: "Guardar",
+    cancelar: "Cancelar",
+    confirmarBorrar: "¿Borrar la pausa «{pausa}» de {ambito}? Se guarda una copia en el historial.",
+    avisoSinFin: "Sin fecha de fin: los encendidos quedarán omitidos hasta que borres o deshabilites la pausa.",
+  },
+  defectos: { diasDuracion: 7 },
+};

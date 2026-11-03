@@ -11,7 +11,7 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_send
-from homeassistant.helpers.event import async_track_point_in_time
+from homeassistant.helpers.event import async_track_point_in_time, async_track_time_change
 from homeassistant.helpers.start import async_at_started
 
 from ..core import settings as ajustes
@@ -42,6 +42,7 @@ class Controller:
         self.ultimos: dict[str, dict[str, Any]] = {}
         self._cancelar_temporizador: Callable[[], None] | None = None
         self._cancelar_arranque: Callable[[], None] | None = None
+        self._cancelar_medianoche: Callable[[], None] | None = None
         self._ultimo_instante: datetime = self.clock.now()
         self._tareas: set[asyncio.Task] = set()
         self._cerrojos: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
@@ -56,6 +57,8 @@ class Controller:
                              self.notifier, self.clock, HAEvents(self.hass, self._registrar))
         self._ultimo_instante = self.clock.now()
         self._cancelar_arranque = async_at_started(self.hass, self._al_arrancar)
+        self._cancelar_medianoche = async_track_time_change(
+            self.hass, self._medianoche, hour=0, minute=0, second=10)
         self._programar()
 
     def async_stop(self) -> None:
@@ -66,6 +69,9 @@ class Controller:
         if self._cancelar_arranque:
             self._cancelar_arranque()
             self._cancelar_arranque = None
+        if self._cancelar_medianoche:
+            self._cancelar_medianoche()
+            self._cancelar_medianoche = None
         for tarea in list(self._tareas):
             tarea.cancel()
         self._tareas.clear()
@@ -233,6 +239,36 @@ class Controller:
         """Guarda los ajustes globales (copia previa en el historial). Lanza ConfigError."""
         nuevo = PlanEditor.guardar_global(self.plan, datos)
         await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_GLOBAL)
+
+    # --- Pausas -----------------------------------------------------------------------------
+    def validar_pausa(self, pausa: dict[str, Any], pause_id: str | None, room_id: str | None) -> dict[str, Any]:
+        """Valida una pausa sin guardarla."""
+        return PlanEditor.validar_pausa(self.plan, pausa, pause_id, room_id)
+
+    async def async_guardar_pausa(self, pausa: dict[str, Any], pause_id: str | None = None,
+                                  room_id: str | None = None) -> str:
+        """Crea o modifica una pausa (copia previa en el historial). Lanza ConfigError."""
+        nuevo, id_ = PlanEditor.guardar_pausa(self.plan, pausa, pause_id, room_id)
+        ambito = room_id or ajustes.PAUSA_AMBITO_CASA
+        await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_PAUSA_GUARDAR.format(ambito=ambito, pausa=id_))
+        return id_
+
+    async def async_borrar_pausa(self, pause_id: str, room_id: str | None = None) -> None:
+        """Elimina una pausa. Lanza ConfigError si no existe."""
+        nuevo = PlanEditor.borrar_pausa(self.plan, pause_id, room_id)
+        ambito = room_id or ajustes.PAUSA_AMBITO_CASA
+        await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_PAUSA_BORRAR.format(ambito=ambito, pausa=pause_id))
+
+    def en_pausa(self, room_id: str) -> tuple[Any, bool] | None:
+        """Pausa vigente que afecta a la habitación: (pausa, es_global) o None."""
+        sala = self.plan.room(room_id)
+        if sala is None or self.runner is None:
+            return None
+        return self.runner.pausa_vigente(sala)
+
+    def _medianoche(self, _ahora: datetime) -> None:
+        """Las pausas cambian por fecha: se refrescan las entidades a medianoche."""
+        self._avisar()
 
     def historial(self) -> list[dict[str, Any]]:
         """Versiones guardadas del plan (de la más reciente a la más antigua)."""

@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.8
 """Notificador: elige modo y canales efectivos y envía los avisos."""
 from __future__ import annotations
 
@@ -38,13 +38,14 @@ class Notifier:
         canales = [self.plan.config.canal(i) for i in ids]
         return [c for c in canales if c is not None]
 
-    def debe_avisar(self, room: Room, slot: Slot, accion: str) -> bool:
+    def debe_avisar(self, room: Room, slot: Slot, accion: str, codigo: str | None = None) -> bool:
         """Indica si la acción genera aviso según el modo efectivo."""
         modo = self.efectivo(room, slot).mode
         if accion == ajustes.ACCION_ERROR:
             return True  # los errores se avisan siempre
         if accion == ajustes.ACCION_OMITIR:
-            return slot.notify_on_skip
+            # Ausencia, pausa y deshabilitados no avisan nunca (serían avisos diarios sin interés)
+            return slot.notify_on_skip and codigo not in ajustes.CODIGOS_OMISION_SILENCIOSA
         if accion == ajustes.ACCION_ENCENDER:
             return modo in (ajustes.AVISO_ENCENDIDO, ajustes.AVISO_AMBOS)
         if accion == ajustes.ACCION_APAGAR:
@@ -84,7 +85,7 @@ class Notifier:
     # --- API pública -------------------------------------------------------
     async def notificar(self, room: Room, slot: Slot, registro: Record) -> int:
         """Avisa si corresponde. Devuelve cuántos canales recibieron el aviso."""
-        if not self.debe_avisar(room, slot, registro.action):
+        if not self.debe_avisar(room, slot, registro.action, registro.code):
             return 0
         enviados = 0
         for canal in self._canales(room, slot):

@@ -1,4 +1,4 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.8
 // Panel lateral de Calorplan (web component sin dependencias ni compilación).
 // Vistas: «Resumen» (solo lectura) y «Casa» (ajustes globales y habitaciones).
 
@@ -9,6 +9,9 @@ import { CONFIG, TEXTOS } from "./config.js";
 import { esc } from "./logic.js";
 import { renderFormTramo, renderTramos, renderValidacionTramo } from "./render_tramos.js";
 import { duplicarTramo, formToSlot, tramoVacio } from "./tramos.js";
+import { formToPause, pausaVacia } from "./pausas.js";
+import { renderFormPausa, renderPausas } from "./render_pausas.js";
+import { PAUSAS } from "./textos_pausas.js";
 import { renderCabecera, renderPanel } from "./render.js";
 import {
   renderCasa, renderFormHabitacion, renderHistorial, renderModal, renderValidacion, renderVistas,
@@ -104,6 +107,8 @@ class CalorplanPanel extends HTMLElement {
       cont.innerHTML = `<div class="tarjeta mensaje error">${TEXTOS.error}: ${esc(this._error)}</div>`;
     } else if (!this._datos) {
       cont.innerHTML = `<div class="mensaje">${TEXTOS.cargando}</div>`;
+    } else if (this._vista === "pausas") {
+      cont.innerHTML = `${renderCabecera(this._datos, this._hora())}${renderVistas("pausas")}${renderPausas(this._datos)}`;
     } else if (this._vista === "tramos") {
       cont.innerHTML = `${renderCabecera(this._datos, this._hora())}${renderVistas("tramos")}${renderTramos(this._datos)}`;
     } else if (this._vista === "casa" && this._global) {
@@ -124,6 +129,11 @@ class CalorplanPanel extends HTMLElement {
     } else if (m.tipo === "habitacion") {
       const titulo = m.roomId ? CASA.editor.editar : CASA.editor.nueva;
       cont.innerHTML = renderModal(titulo, renderFormHabitacion(m.draft, this._ctx(), m.validacion));
+    } else if (m.tipo === "pausa") {
+      const sala = m.roomId ? this._datos.rooms.find((r) => r.id === m.roomId) : null;
+      const ambito = sala ? sala.name : PAUSAS.editor.ambitoCasa;
+      const titulo = m.pauseId ? PAUSAS.editor.editar : PAUSAS.editor.nueva;
+      cont.innerHTML = renderModal(titulo, renderFormPausa(m.draft, ambito, m.validacion));
     } else if (m.tipo === "tramo") {
       const sala = this._datos.rooms.find((r) => r.id === m.roomId);
       const titulo = `${m.slotId ? TEXTOS.editor.editar : TEXTOS.editor.nuevo} · ${sala.name}`;
@@ -158,6 +168,24 @@ class CalorplanPanel extends HTMLElement {
     }
   }
 
+  _sincronizarPausa() {
+    const f = this._formulario("pausa");
+    if (f && this._modal?.tipo === "pausa") this._modal.draft = formToPause(new FormData(f));
+  }
+
+  async _validarPausa() {
+    const m = this._modal;
+    if (!m || m.tipo !== "pausa") return;
+    try {
+      m.validacion = await this._ws({
+        type: CONFIG.comandoValidarPausa, pause: m.draft, pause_id: m.pauseId, room_id: m.roomId,
+      });
+    } catch (err) {
+      m.validacion = { ok: false, error: err?.message ?? String(err) };
+    }
+    this._pintarValidacion(m.validacion, "guardar-pausa", "validacion-pausa");
+  }
+
   _hora() {
     const a = new Date();
     return `${String(a.getHours()).padStart(2, "0")}:${String(a.getMinutes()).padStart(2, "0")}`;
@@ -182,6 +210,10 @@ class CalorplanPanel extends HTMLElement {
       this._sincronizarGlobal();
       if (estructural) this._pintar();
       this._programar(() => this._validarGlobal());
+    } else if (form.dataset.form === "pausa") {
+      this._sincronizarPausa();
+      if (estructural) this._pintarModal();
+      this._programar(() => this._validarPausa());
     } else if (form.dataset.form === "tramo") {
       this._sincronizarTramo();
       if (estructural) this._pintarModal();
@@ -282,6 +314,12 @@ class CalorplanPanel extends HTMLElement {
       case "anadir-sensor-habitacion": this._sincronizarHabitacion(); this._modal.draft.sensors.push(""); return this._pintarModal();
       case "quitar-sensor-habitacion": this._sincronizarHabitacion(); this._modal.draft.sensors.splice(Number(d.i), 1); return this._pintarModal();
       case "guardar-habitacion": return this._guardarHabitacion();
+      // --- Pausas
+      case "nueva-pausa": return this._abrirPausa(d.room, null);
+      case "editar-pausa": return this._abrirPausa(d.room, d.pausa);
+      case "alternar-pausa": return this._alternarPausa(d.room, d.pausa);
+      case "borrar-pausa": return this._borrarPausa(d.room, d.pausa);
+      case "guardar-pausa": return this._guardarPausa();
       // --- Tramos
       case "nuevo-tramo": return this._abrirTramo(d.room, null, null);
       case "editar-tramo": return this._abrirTramo(d.room, d.slot, "editar");
@@ -420,6 +458,53 @@ class CalorplanPanel extends HTMLElement {
     const texto = TEXTOS.editor.confirmarBorrar.replace("{tramo}", slot.name).replace("{habitacion}", sala.name);
     if (!confirm(texto)) return;
     const r = await this._ws({ type: CONFIG.comandoBorrar, room_id: roomId, slot_id: slotId });
+    this._datos = r.overview;
+    this._pintar();
+  }
+
+  // --- Pausas ---------------------------------------------------------------------------------------------
+  _listaPausas(roomId) {
+    return roomId ? this._datos.rooms.find((r) => r.id === roomId).pauses : this._datos.global_pauses;
+  }
+
+  async _abrirPausa(roomId, pauseId) {
+    const existente = pauseId ? this._listaPausas(roomId).find((p) => p.id === pauseId) : null;
+    const draft = existente
+      ? { reason: existente.reason, from: existente.from, until: existente.until, enabled: existente.enabled }
+      : pausaVacia(this._datos.today);
+    this._modal = { tipo: "pausa", roomId: roomId || null, pauseId: pauseId || null, draft, validacion: null };
+    this._pintarModal();
+    await this._validarPausa();
+  }
+
+  async _guardarPausa() {
+    this._sincronizarPausa();
+    const m = this._modal;
+    try {
+      const r = await this._ws({ type: CONFIG.comandoGuardarPausa, pause: m.draft, pause_id: m.pauseId, room_id: m.roomId });
+      this._datos = r.overview;
+      this._modal = null;
+      this._pintar();
+    } catch (err) {
+      m.validacion = { ok: false, error: `${CASA.errorGuardar}: ${err?.message ?? err}` };
+      this._pintarValidacion(m.validacion, "guardar-pausa", "validacion-pausa");
+    }
+  }
+
+  async _alternarPausa(roomId, pauseId) {
+    const p = this._listaPausas(roomId).find((x) => x.id === pauseId);
+    const pause = { reason: p.reason, from: p.from, until: p.until, enabled: !p.enabled };
+    const r = await this._ws({ type: CONFIG.comandoGuardarPausa, pause, pause_id: pauseId, room_id: roomId || null });
+    this._datos = r.overview;
+    this._pintar();
+  }
+
+  async _borrarPausa(roomId, pauseId) {
+    const p = this._listaPausas(roomId).find((x) => x.id === pauseId);
+    const ambito = roomId ? this._datos.rooms.find((r) => r.id === roomId).name : PAUSAS.editor.ambitoCasa;
+    const texto = PAUSAS.editor.confirmarBorrar.replace("{pausa}", p.reason || PAUSAS.sinMotivo).replace("{ambito}", ambito);
+    if (!confirm(texto)) return;
+    const r = await this._ws({ type: CONFIG.comandoBorrarPausa, pause_id: pauseId, room_id: roomId || null });
     this._datos = r.overview;
     this._pintar();
   }

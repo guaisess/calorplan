@@ -1,8 +1,8 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.8
 // Textos y valores por defecto de la vista «Casa» (ajustes globales y habitaciones).
 
 export const CASA = {
-  vistas: { resumen: "Resumen", tramos: "Tramos", casa: "Casa" },
+  vistas: { resumen: "Resumen", casa: "Casa", tramos: "Tramos", pausas: "Pausas" },
   guardar: "Guardar",
   cancelar: "Cancelar",
   descartar: "Descartar cambios",

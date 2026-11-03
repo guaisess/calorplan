@@ -2,6 +2,23 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.8
+
+**Pausas**: periodos en los que no se programan encendidos (vacaciones, visitas, obras...).
+
+- Pausas por **habitación** y de **toda la casa**, con fecha de inicio y de fin (ambos días incluidos)
+  o **sin fecha de fin** hasta que se quiten. Se pueden habilitar, deshabilitar y borrar.
+- Mientras una pausa está activa se omiten los encendidos; los **apagados y reintentos siguen
+  funcionando**, como en el modo ausencia. «Ejecutar tramo» con `force` la ignora.
+- Un fin de pausa vacío se rechaza: «sin fecha de fin» debe ser una decisión explícita.
+- Nueva vista **Pausas** en el panel, insignias «En pausa» y «Pausa global», y el simulador
+  indica «No: en pausa». Nuevo sensor binario `binary_sensor.calorplan_<hab>_en_pausa`.
+- Las omisiones por ausencia, pausa o tramo/habitación deshabilitados **nunca avisan**, ni siquiera
+  con «avisar también si se omite» (evita avisos diarios sin interés).
+- Orden de las pestañas del panel: Resumen, Casa, Tramos y Pausas.
+- Comandos WebSocket `validate_pause`, `save_pause` y `delete_pause`. Guardar los ajustes globales
+  o editar una habitación conserva sus pausas.
+
 ## 2026.11.7
 
 - «Consigna» pasa a llamarse **«Temperatura objetivo»** en todo el panel (tabla de tramos,

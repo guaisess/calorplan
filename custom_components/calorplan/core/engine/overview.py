@@ -1,4 +1,4 @@
-# Versión: 2026.11.6
+# Versión: 2026.11.8
 """Resumen de solo lectura para el panel: línea de tiempo, estado y simulación.
 
 El simulador responde «¿qué haría ahora?» evaluando las condiciones con los
@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 
 from .. import settings as ajustes
-from ..models import Plan, Room, Slot
+from ..models import Pause, Plan, Room, Slot, pausa_activa
 from .evaluator import Evaluator
 from .planner import Planner
 from .ports import StatePort
@@ -25,6 +25,21 @@ class OverviewBuilder:
         self._state = state
         self._planner = Planner(plan)
         self._evaluator = Evaluator(state)
+
+    # --- Pausas -------------------------------------------------------------------
+    def _pausa_de(self, sala: Room, ahora: datetime) -> tuple[Pause, str] | None:
+        """Pausa vigente que afecta a la habitación: (pausa, ámbito «room» o «global»)."""
+        hoy = ahora.date()
+        propia = pausa_activa(sala.pauses, hoy)
+        if propia is not None:
+            return propia, "room"
+        global_ = pausa_activa(self._plan.config.pauses, hoy)
+        return (global_, "global") if global_ is not None else None
+
+    @staticmethod
+    def _pausas(pausas: list[Pause], hoy) -> list[dict[str, Any]]:
+        """Pausas con su estado respecto a hoy."""
+        return [{**p.to_dict(), "status": p.estado(hoy)} for p in pausas]
 
     # --- Simulación ---------------------------------------------------------
     def _simular(self, sala: Room, ahora: datetime) -> dict[str, Any] | None:
@@ -46,6 +61,8 @@ class OverviewBuilder:
             bloqueo = ajustes.COD_TRAMO_DESHABILITADO
         elif self._plan.config.away_mode:
             bloqueo = ajustes.COD_AUSENCIA
+        elif self._pausa_de(sala, ahora) is not None:
+            bloqueo = ajustes.COD_PAUSA
         decision = self._evaluator.evaluate(sala, tramo, self._plan.config)
         return {
             "slot_id": tramo.id,
@@ -85,7 +102,18 @@ class OverviewBuilder:
                       "slot_id": proximo.slot_id} if proximo else None),
             "last": ultimos.get(sala.id),
             "simulation": self._simular(sala, ahora),
+            "pauses": self._pausas(sala.pauses, ahora.date()),
+            "paused_by": self._resumen_pausa(self._pausa_de(sala, ahora)),
         }
+
+    @staticmethod
+    def _resumen_pausa(encontrada: tuple[Pause, str] | None) -> dict[str, Any] | None:
+        """Resumen de la pausa vigente: ámbito, motivo y hasta cuándo."""
+        if encontrada is None:
+            return None
+        pausa, ambito = encontrada
+        return {"scope": ambito, "id": pausa.id, "reason": pausa.reason,
+                "until": pausa.end.strftime(ajustes.FORMATO_FECHA) if pausa.end else None}
 
     def build(self, ahora: datetime, ultimos: dict[str, dict[str, Any]]) -> dict[str, Any]:
         """Resumen completo para el panel (no incluye servicios ni identificadores de aviso)."""
@@ -97,6 +125,8 @@ class OverviewBuilder:
             "minute": ahora.hour * 60 + ahora.minute,
             "shadow_mode": cfg.shadow_mode,
             "away_mode": cfg.away_mode,
+            "today": ahora.strftime(ajustes.FORMATO_FECHA),
+            "global_pauses": self._pausas(cfg.pauses, ahora.date()),
             "outdoor": self._evaluator.aggregate(cfg.outdoor_sensors, cfg.outdoor_aggregation),
             "outdoor_aggregation": cfg.outdoor_aggregation,
             "channels": [c.id for c in cfg.channels],  # solo ids: nunca los servicios

@@ -1,4 +1,4 @@
-# Versión: 2026.11.7
+# Versión: 2026.11.8
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.7"
+VERSION = "2026.11.8"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -234,3 +234,32 @@ WS_BORRAR_HABITACION = "calorplan/delete_room"
 ADVERTENCIA_ACTUADOR_INEXISTENTE = "El actuador '{entidad}' no existe en Home Assistant"
 ADVERTENCIA_SENSOR_NO_TEMPERATURA = "'{sensor}' no es un sensor de temperatura (device_class: {clase})"
 DEVICE_CLASS_TEMPERATURA = "temperature"
+
+# --- Pausas (vacaciones, visitas, obras...) ------------------------------------------------------
+FORMATO_FECHA = "%Y-%m-%d"
+PAUSA_ACTIVA = "active"
+PAUSA_PROXIMA = "upcoming"
+PAUSA_CADUCADA = "expired"
+PAUSA_DESHABILITADA = "disabled"
+ID_PAUSA_PREFIJO = "pausa"
+COD_PAUSA = "paused"
+PAUSA_SIN_FIN = "sin fecha de fin"
+PAUSA_AMBITO_CASA = "toda la casa"
+MOTIVO_PAUSA = "Pausa «{motivo}» ({ambito}, {desde} → {hasta})"
+MOTIVO_PAUSA_SIN_NOMBRE = "sin motivo"
+ERROR_PAUSA_FECHA = "Pausa: '{campo}' debe ser una fecha AAAA-MM-DD"
+ERROR_PAUSA_OBJETO = "Una pausa debe ser un objeto"
+ERROR_PAUSA_ID = "Una pausa necesita 'id'"
+ERROR_PAUSA_ORDEN = "Pausa: la fecha final no puede ser anterior a la inicial"
+ERROR_PAUSAS_LISTA = "'pauses' debe ser una lista"
+ERROR_PAUSA_REPETIDA = "ids de pausa repetidos"
+ERROR_PAUSA_INEXISTENTE = "La pausa '{pausa}' no existe"
+MOTIVO_HIST_PAUSA_GUARDAR = "Guardar pausa {ambito}/{pausa}"
+MOTIVO_HIST_PAUSA_BORRAR = "Borrar pausa {ambito}/{pausa}"
+WS_VALIDAR_PAUSA = "calorplan/validate_pause"
+WS_GUARDAR_PAUSA = "calorplan/save_pause"
+WS_BORRAR_PAUSA = "calorplan/delete_pause"
+NOMBRE_EN_PAUSA = "Calorplan {habitacion} en pausa"
+ID_UNICO_EN_PAUSA = "{dominio}_{habitacion}_en_pausa"
+# Omisiones que nunca avisan, ni siquiera con «avisar también si se omite»
+CODIGOS_OMISION_SILENCIOSA = (COD_AUSENCIA, COD_HABITACION_DESHABILITADA, COD_TRAMO_DESHABILITADO, COD_PAUSA)

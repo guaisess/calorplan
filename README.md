@@ -77,11 +77,16 @@ En `channels`, `service` puede ser un servicio `notify.<nombre>` o una entidad `
 
 ## Panel
 
-Tras importar la configuración aparece **Calorplan** en la barra lateral (solo administradores) con tres vistas: Resumen, Tramos y Casa.
+Tras importar la configuración aparece **Calorplan** en la barra lateral (solo administradores) con cuatro vistas: Resumen, Casa, Tramos y Pausas.
 
 **Resumen** (solo lectura)
 - **Línea de tiempo** por día de la semana: una fila por habitación, barras por tramo (verde = activo ahora, gris = deshabilitado) y marca de la hora actual.
 - **Estado ahora**: estado del actuador, tramo activo, próximo evento, última acción (indica si fue simulada) y el simulador **«¿qué haría ahora?»**, que evalúa las condiciones con los valores actuales sin ejecutar nada.
+
+**Pausas** (edición)
+- Periodos sin programación: **vacaciones, visitas, obras**... Una pausa puede ser de una habitación o de **toda la casa**, con fecha de inicio y de fin (ambos incluidos) o **sin fecha de fin** hasta que la quites.
+- Mientras está activa no se programan encendidos; los **apagados siguen funcionando** para que nunca quede nada encendido. Se puede habilitar, deshabilitar o borrar en cualquier momento.
+- El sensor `binary_sensor.calorplan_<habitación>_en_pausa` indica si una habitación está en pausa (por su propia pausa o por la de la casa).
 
 **Tramos** (edición)
 - Una tarjeta por habitación con sus tramos. Alta, edición, **duplicado**, habilitar/deshabilitar y borrado.
