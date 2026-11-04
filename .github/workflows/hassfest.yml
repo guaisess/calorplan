@@ -2,6 +2,7 @@ name: Hassfest
 
 on:
   push:
+    branches: [main]  # no se repite con las etiquetas de las releases
   pull_request:
   schedule:
     - cron: "0 3 * * 1"

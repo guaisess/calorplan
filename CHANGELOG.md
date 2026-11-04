@@ -2,6 +2,12 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.14
+
+- CI: los flujos (tests, `hassfest` y validación de HACS) se ejecutan solo al subir a `main` y en
+  *pull requests*, no con cada etiqueta de *release* (eran duplicados del mismo commit y generaban
+  avisos de fallo por las versiones antiguas, que no tienen el icono).
+
 ## 2026.11.13
 
 - **Icono de la integración** (`custom_components/calorplan/brand/icon.png` y `icon@2x.png`): sustituye

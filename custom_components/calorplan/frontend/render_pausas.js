@@ -1,10 +1,10 @@
-// Versión: 2026.11.13
+// Versión: 2026.11.14
 // HTML de la vista «Pausas» (funciones puras).
 
-import { esc } from "./logic.js?v=2026.11.13";
-import { fmtDia, ordenarPausas } from "./pausas.js?v=2026.11.13";
-import { renderValidacion } from "./render_casa.js?v=2026.11.13";
-import { PAUSAS } from "./textos_pausas.js?v=2026.11.13";
+import { esc } from "./logic.js?v=2026.11.14";
+import { fmtDia, ordenarPausas } from "./pausas.js?v=2026.11.14";
+import { renderValidacion } from "./render_casa.js?v=2026.11.14";
+import { PAUSAS } from "./textos_pausas.js?v=2026.11.14";
 
 const E = PAUSAS.editor;
 
