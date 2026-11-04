@@ -2,6 +2,11 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.15
+
+- `manifest.json`: añadida la categoría de integración `climate.thermostats_heating` («Termostatos y
+  calefacción»), que HACS y Home Assistant piden y elimina el último aviso de la validación.
+
 ## 2026.11.14
 
 - CI: los flujos (tests, `hassfest` y validación de HACS) se ejecutan solo al subir a `main` y en

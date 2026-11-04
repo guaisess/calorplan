@@ -1,10 +1,10 @@
-// Versión: 2026.11.14
+// Versión: 2026.11.15
 // Generación del HTML del panel a partir de los datos (función pura, sin DOM).
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.14";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.15";
 import {
   barStyle, describeLast, describeNext, describeSimulation, esc, fmtMin, fmtNum, segState, slotTitle,
-} from "./logic.js?v=2026.11.14";
+} from "./logic.js?v=2026.11.15";
 
 /** Cabecera: título, versión, avisos de modo y temperatura exterior. */
 export function renderCabecera(datos, actualizadoEn) {
