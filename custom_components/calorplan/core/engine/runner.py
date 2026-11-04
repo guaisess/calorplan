@@ -1,4 +1,4 @@
-# Versión: 2026.11.8
+# Versión: 2026.11.9
 """Ejecutor: aplica los eventos planificados sobre los actuadores."""
 from __future__ import annotations
 
@@ -26,6 +26,8 @@ class Runner:
         self._clock = clock
         self._events = events
         self._evaluator = Evaluator(state)
+        # Tramos activos cuyo inicio se omitió por condiciones: (id de habitación, id de tramo)
+        self._pendientes: set[tuple[str, str]] = set()
         self.plan = plan
         self.planner = Planner(plan)
         self.set_plan(plan)
@@ -80,8 +82,45 @@ class Runner:
             desde=pausa.start.strftime(ajustes.FORMATO_FECHA),
             hasta=pausa.end.strftime(ajustes.FORMATO_FECHA) if pausa.end else ajustes.PAUSA_SIN_FIN)
 
+    # --- Reevaluación durante el tramo ------------------------------------------------------
+    def salas_pendientes(self) -> set[str]:
+        """Habitaciones con algún tramo cuyo inicio se omitió por condiciones."""
+        return {sala_id for sala_id, _ in self._pendientes}
+
+    def _ya_encendido(self, act: Actuator) -> bool:
+        """Indica si el dispositivo ya está calentando (p. ej. encendido a mano)."""
+        return self._state.get_state(act.entity_id) == act.estado_encendido
+
+    async def reevaluate(self, room_id: str | None = None) -> list[Record]:
+        """Reevalúa los tramos activos cuyo inicio se omitió por condiciones.
+
+        Enciende si ahora se cumplen. No hace nada si el dispositivo ya está encendido (a mano),
+        y las omisiones repetidas no se registran ni avisan: solo el encendido.
+        """
+        ahora = self._clock.now()
+        registros: list[Record] = []
+        for clave in sorted(self._pendientes):
+            if room_id is not None and clave[0] != room_id:
+                continue
+            sala = self.plan.room(clave[0])
+            tramo = sala.slot(clave[1]) if sala else None
+            if sala is None or tramo is None or tramo.id not in {
+                    t.id for t in self.planner.active_slots(sala, ahora)}:
+                self._pendientes.discard(clave)  # el tramo ya terminó o no existe
+                continue
+            if (not sala.enabled or not tramo.enabled or self.plan.config.away_mode
+                    or self.pausa_vigente(sala) is not None):
+                continue  # sigue pendiente: se reanudará cuando se levante el bloqueo
+            if self._ya_encendido(sala.actuator):
+                self._pendientes.discard(clave)  # alguien lo encendió: no se interviene
+                continue
+            if not self._evaluator.evaluate(sala, tramo, self.plan.config).start:
+                continue
+            registros.append(await self._inicio(sala, tramo, False, reevaluacion=True))
+        return registros
+
     # --- Inicio ------------------------------------------------------------------
-    async def _inicio(self, sala: Room, tramo: Slot, forzar: bool) -> Record:
+    async def _inicio(self, sala: Room, tramo: Slot, forzar: bool, reevaluacion: bool = False) -> Record:
         """Inicio de tramo: comprueba, evalúa y enciende."""
         tipo = ajustes.EVENTO_INICIO
         if not forzar:
@@ -107,6 +146,8 @@ class Runner:
                                 decision.outdoor, decision.indoor)
 
         if not decision.start:
+            if decision.code in ajustes.CODIGOS_REEVALUABLES:
+                self._pendientes.add((sala.id, tramo.id))  # se reevaluará mientras dure el tramo
             accion = (ajustes.ACCION_ERROR if decision.code in ajustes.CODIGOS_FALLO
                       else ajustes.ACCION_OMITIR)
             return await self._emitir(sala, tramo, tipo, accion, decision.code,
@@ -120,8 +161,10 @@ class Runner:
                 return await self._emitir(
                     sala, tramo, tipo, ajustes.ACCION_ERROR, ajustes.COD_NO_DISPONIBLE,
                     ajustes.MOTIVO_ACTUADOR_ERROR.format(error=err), decision)
+        self._pendientes.discard((sala.id, tramo.id))
+        motivo = ajustes.MOTIVO_REEVALUACION if reevaluacion else decision.reason
         return await self._emitir(sala, tramo, tipo, ajustes.ACCION_ENCENDER, decision.code,
-                                  decision.reason, decision)
+                                  motivo, decision)
 
     async def _encender(self, act: Actuator, tramo: Slot) -> None:
         """Enciende el actuador y aplica el bloqueo infantil de inicio."""
@@ -134,6 +177,8 @@ class Runner:
     # --- Fin y reintento ---------------------------------------------------------
     async def _fin(self, sala: Room, tramo: Slot, tipo: str) -> Record | None:
         """Fin o reintento: apaga con verificación. None si no hay nada que hacer."""
+        if tipo == ajustes.EVENTO_FIN:
+            self._pendientes.discard((sala.id, tramo.id))  # el tramo terminó: deja de reevaluarse
         act = sala.actuator
         ahora = self._clock.now()
         if tipo == ajustes.EVENTO_REINTENTO:

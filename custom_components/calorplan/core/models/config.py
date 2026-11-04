@@ -1,4 +1,4 @@
-# Versión: 2026.11.8
+# Versión: 2026.11.9
 """Configuración global: sensores exteriores, canales y políticas."""
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ class Config:
     outdoor_aggregation: str = ajustes.AGREGACION_DEFECTO
     unavailable_policy: str = ajustes.POLITICA_NO_DISPONIBLE_DEFECTO
     catch_up: str = ajustes.CATCH_UP_DEFECTO
+    reevaluate_minutes: int = ajustes.REEVALUAR_MINUTOS_DEFECTO
     channels: list[Channel] = field(default_factory=list)
     default_notify: NotifyConfig = field(default_factory=NotifyConfig)
     # Plantillas globales (acción -> texto); se completan con las de `settings`
@@ -50,6 +51,10 @@ class Config:
         catch_up = datos.get("catch_up", ajustes.CATCH_UP_DEFECTO)
         if catch_up not in ajustes.CATCH_UP_OPCIONES:
             raise ConfigError(f"Valor de catch_up no válido: {catch_up}")
+        reevaluar = datos.get("reevaluate_minutes", ajustes.REEVALUAR_MINUTOS_DEFECTO)
+        if (isinstance(reevaluar, bool) or not isinstance(reevaluar, int)
+                or not 0 <= reevaluar <= ajustes.REEVALUAR_MINUTOS_MAX):
+            raise ConfigError(ajustes.ERROR_REEVALUAR.format(maximo=ajustes.REEVALUAR_MINUTOS_MAX))
         sensores = datos.get("outdoor_sensors", [])
         if not isinstance(sensores, list):
             raise ConfigError("'outdoor_sensors' debe ser una lista")
@@ -70,6 +75,7 @@ class Config:
             outdoor_aggregation=agregacion,
             unavailable_policy=politica,
             catch_up=catch_up,
+            reevaluate_minutes=reevaluar,
             channels=canales,
             default_notify=aviso,
             templates=plantillas,
@@ -85,6 +91,7 @@ class Config:
             "outdoor_aggregation": self.outdoor_aggregation,
             "unavailable_policy": self.unavailable_policy,
             "catch_up": self.catch_up,
+            "reevaluate_minutes": self.reevaluate_minutes,
             "channels": [c.to_dict() for c in self.channels],
             "default_notify": self.default_notify.to_dict(),
             "templates": dict(self.templates),

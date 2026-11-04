@@ -1,4 +1,4 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.9
 // Tests de la vista «Casa» (node --test): conversión de formularios y HTML.
 process.env.TZ = "Europe/Madrid";
 
@@ -243,4 +243,23 @@ test("renderCasa y renderVistas", () => {
   assert.match(html, /data-accion="nueva-habitacion"/);
   assert.match(vista.renderVistas("casa"), /data-vista="casa" class="sel"/);
   assert.match(vista.renderVistas("casa"), /data-vista="resumen" class=""/);
+});
+
+// --- Reevaluación durante el tramo -----------------------------------------------------------------------------
+test("formToGlobal: reevaluate_minutes se lee como número, y vacío o ausente es 0", () => {
+  assert.equal(casa.formToGlobal([["reevaluate", "15"]], GLOBAL).reevaluate_minutes, 15);
+  assert.equal(casa.formToGlobal([["reevaluate", ""]], GLOBAL).reevaluate_minutes, 0);
+  assert.equal(casa.formToGlobal([["dnMode", "none"]], GLOBAL).reevaluate_minutes, 0);
+  // Un valor inválido llega tal cual para que el servidor lo rechace con su mensaje
+  assert.equal(casa.formToGlobal([["reevaluate", "-5"]], GLOBAL).reevaluate_minutes, -5);
+});
+
+test("renderGlobal: campo de reevaluación con su ayuda", () => {
+  const g = clonar(GLOBAL);
+  g.reevaluate_minutes = 15;
+  const html = vista.renderGlobal(g, CTX, { ok: true });
+  assert.match(html, /name="reevaluate" min="0" max="1440" value="15"/);
+  assert.match(html, /Reevaluar durante el tramo cada \(minutos; 0 = solo al inicio\)/);
+  assert.match(html, /No actúa si ya está encendido ni después de apagarlo tú/);
+  assert.match(vista.renderGlobal(clonar(GLOBAL), CTX, { ok: true }), /name="reevaluate"[^>]*value="0"/); // sin dato: 0
 });

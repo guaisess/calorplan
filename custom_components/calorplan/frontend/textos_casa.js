@@ -1,4 +1,4 @@
-// Versión: 2026.11.8
+// Versión: 2026.11.9
 // Textos y valores por defecto de la vista «Casa» (ajustes globales y habitaciones).
 
 export const CASA = {
@@ -35,6 +35,8 @@ export const CASA = {
     comportamiento: "Comportamiento",
     politica: "Si un sensor necesario no tiene datos",
     catchUp: "Al arrancar Home Assistant dentro de un tramo",
+    reevaluar: "Reevaluar durante el tramo cada (minutos; 0 = solo al inicio)",
+    reevaluarAyuda: "Si al inicio de un tramo no se cumplían las condiciones, se vuelve a comprobar y se enciende si pasan a cumplirse. No actúa si ya está encendido ni después de apagarlo tú.",
     sombra: "Modo sombra: no actúa sobre los dispositivos, solo registra lo que haría",
     confirmarSombra: "Vas a DESACTIVAR el modo sombra: Calorplan empezará a encender y apagar tus dispositivos. ¿Continuar?",
   },

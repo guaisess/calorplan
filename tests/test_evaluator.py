@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.9
 """Tests del evaluador de condiciones."""
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ def test_exterior_alto_no_enciende_y_explica():
     d = evaluar({EXT[0]: "17", EXT[1]: "12", INT[0]: "15"})
     assert d.start is False  # 12 < 10 es falso: el mínimo exterior es 12
     assert d.code == aj.COD_EXTERIOR_ALTO
-    assert d.reason == "Exterior 12 ≥ 10"
+    assert d.reason == "Exterior 12 °C no es menor que 10 °C"
 
 
 def test_la_comparacion_es_estricta():

@@ -1,4 +1,4 @@
-# Versión: 2026.11.5
+# Versión: 2026.11.9
 """Tests de la línea de tiempo y del resumen/simulador para el panel."""
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ def test_simulacion_usa_el_proximo_tramo_si_no_hay_activo():
 def test_simulacion_condicion_no_cumplida():
     sim = construir({EXT[0]: "20", EXT[1]: "21"})[0]["rooms"][0]["simulation"]
     assert not sim["would_start"] and sim["code"] == "outdoor_too_warm"
-    assert sim["reason"] == "Exterior 20 ≥ 10"
+    assert sim["reason"] == "Exterior 20 °C no es menor que 10 °C"
 
 
 def test_simulacion_sin_datos():

@@ -1,4 +1,4 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.9
 // Lógica pura de la vista «Casa»: opciones desde Home Assistant y conversión de formularios.
 
 import { lista, numero, parseEntries } from "./forms.js";
@@ -47,6 +47,7 @@ export function formToGlobal(entries, base) {
     shadow_mode: f.marcado("shadow"),
     unavailable_policy: f.uno("policy", "do_not_start"),
     catch_up: f.uno("catchUp", "none"),
+    reevaluate_minutes: numero(f.uno("reevaluate")) ?? 0,
     channels: canales,
     default_notify: {
       mode: f.uno("dnMode", "none"),

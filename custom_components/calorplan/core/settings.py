@@ -1,4 +1,4 @@
-# Versión: 2026.11.8
+# Versión: 2026.11.9
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.8"
+VERSION = "2026.11.9"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -91,8 +91,8 @@ MOTIVO_HABITACION_DESHABILITADA = "Habitación deshabilitada"
 MOTIVO_TRAMO_DESHABILITADO = "Tramo deshabilitado"
 MOTIVO_EXTERIOR_NO_DISPONIBLE = "Sin datos de temperatura exterior"
 MOTIVO_INTERIOR_NO_DISPONIBLE = "Sin datos de temperatura interior"
-MOTIVO_EXTERIOR_ALTO = "Exterior {valor} ≥ {umbral}"
-MOTIVO_INTERIOR_CALIDO = "Interior {valor} ≥ {umbral}"
+MOTIVO_EXTERIOR_ALTO = "Exterior {valor} °C no es menor que {umbral} °C"
+MOTIVO_INTERIOR_CALIDO = "Interior {valor} °C no es menor que {umbral} °C"
 MOTIVO_FORZADO = "Ejecución manual"
 MOTIVO_APAGADO_NO_VERIFICADO = "No se pudo verificar el apagado tras {intentos} intentos"
 MOTIVO_ACTUADOR_ERROR = "Error al accionar el actuador: {error}"
@@ -263,3 +263,12 @@ NOMBRE_EN_PAUSA = "Calorplan {habitacion} en pausa"
 ID_UNICO_EN_PAUSA = "{dominio}_{habitacion}_en_pausa"
 # Omisiones que nunca avisan, ni siquiera con «avisar también si se omite»
 CODIGOS_OMISION_SILENCIOSA = (COD_AUSENCIA, COD_HABITACION_DESHABILITADA, COD_TRAMO_DESHABILITADO, COD_PAUSA)
+
+# --- Reevaluación durante el tramo ----------------------------------------------------------------
+REEVALUAR_MINUTOS_DEFECTO = 0  # 0 = solo se evalúa al inicio del tramo (comportamiento clásico)
+REEVALUAR_MINUTOS_MAX = 1440
+MOTIVO_REEVALUACION = "Condiciones cumplidas (reevaluación durante el tramo)"
+ERROR_REEVALUAR = "'reevaluate_minutes' debe ser un entero entre 0 y {maximo}"
+# Omisiones que pueden dejar de serlo más tarde: se reevalúan mientras el tramo siga activo
+CODIGOS_REEVALUABLES = (COD_EXTERIOR_ALTO, COD_INTERIOR_CALIDO,
+                        COD_EXTERIOR_NO_DISPONIBLE, COD_INTERIOR_NO_DISPONIBLE)

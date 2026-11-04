@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.9
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_send
-from homeassistant.helpers.event import async_track_point_in_time, async_track_time_change
+from homeassistant.helpers.event import (async_track_point_in_time, async_track_time_change,
+                                        async_track_time_interval)
 from homeassistant.helpers.start import async_at_started
 
 from ..core import settings as ajustes
@@ -43,6 +44,7 @@ class Controller:
         self._cancelar_temporizador: Callable[[], None] | None = None
         self._cancelar_arranque: Callable[[], None] | None = None
         self._cancelar_medianoche: Callable[[], None] | None = None
+        self._cancelar_reevaluacion: Callable[[], None] | None = None
         self._ultimo_instante: datetime = self.clock.now()
         self._tareas: set[asyncio.Task] = set()
         self._cerrojos: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
@@ -56,6 +58,7 @@ class Controller:
         self.runner = Runner(self.plan, HAState(self.hass), HAActuator(self.hass),
                              self.notifier, self.clock, HAEvents(self.hass, self._registrar))
         self._ultimo_instante = self.clock.now()
+        self._programar_reevaluacion()
         self._cancelar_arranque = async_at_started(self.hass, self._al_arrancar)
         self._cancelar_medianoche = async_track_time_change(
             self.hass, self._medianoche, hour=0, minute=0, second=10)
@@ -72,6 +75,9 @@ class Controller:
         if self._cancelar_medianoche:
             self._cancelar_medianoche()
             self._cancelar_medianoche = None
+        if self._cancelar_reevaluacion:
+            self._cancelar_reevaluacion()
+            self._cancelar_reevaluacion = None
         for tarea in list(self._tareas):
             tarea.cancel()
         self._tareas.clear()
@@ -185,6 +191,7 @@ class Controller:
         await self.store.async_save(plan)
         self._ultimo_instante = self.clock.now()
         self._programar()
+        self._programar_reevaluacion()
         self._avisar()
 
     # --- Edición de tramos (la validación completa la hace PlanEditor) -----------------
@@ -265,6 +272,27 @@ class Controller:
         if sala is None or self.runner is None:
             return None
         return self.runner.pausa_vigente(sala)
+
+    def _programar_reevaluacion(self) -> None:
+        """(Re)programa la reevaluación periódica de tramos omitidos por condiciones."""
+        if self._cancelar_reevaluacion:
+            self._cancelar_reevaluacion()
+            self._cancelar_reevaluacion = None
+        minutos = self.plan.config.reevaluate_minutes
+        if minutos > 0:
+            self._cancelar_reevaluacion = async_track_time_interval(
+                self.hass, self._reevaluar, timedelta(minutes=minutos))
+
+    async def _reevaluar(self, _ahora: datetime) -> None:
+        """Reevalúa, habitación a habitación, los tramos omitidos por condiciones."""
+        assert self.runner is not None
+        for sala_id in sorted(self.runner.salas_pendientes()):
+            async with self._cerrojos[sala_id]:
+                try:
+                    await self.runner.reevaluate(sala_id)
+                except Exception:  # noqa: BLE001 - un fallo no debe parar el resto
+                    _LOGGER.exception("Error al reevaluar %s", sala_id)
+        self._avisar()
 
     def _medianoche(self, _ahora: datetime) -> None:
         """Las pausas cambian por fecha: se refrescan las entidades a medianoche."""

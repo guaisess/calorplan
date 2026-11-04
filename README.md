@@ -67,6 +67,8 @@ Ejemplo mínimo (la referencia completa está en [`docs/DISENO.md`](docs/DISENO.
 }
 ```
 
+**Reevaluación durante el tramo.** Por defecto las condiciones se comprueban solo al inicio de cada tramo. Con `global.reevaluate_minutes` (por ejemplo `15`) se vuelven a comprobar cada N minutos si el inicio se omitió por condiciones, y se enciende si pasan a cumplirse mientras el tramo sigue activo. No actúa si ya está encendido ni después de que lo apagues tú, y las omisiones repetidas no se registran ni avisan.
+
 **Varios sensores.** Tanto los sensores exteriores (`global.outdoor_aggregation`) como los de cada habitación (`indoor_aggregation`) se combinan con `min` (por defecto: el más frío), `max` (el más cálido; el más conservador) o `mean` (media). Los sensores sin datos se ignoran.
 
 Notas: `days` usa 0 = lunes … 6 = domingo; el día de un tramo es el de su inicio (un tramo que cruza la medianoche termina al día siguiente); los tramos de una misma habitación no pueden solaparse.

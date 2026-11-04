@@ -1,4 +1,4 @@
-// Versión: 2026.11.8
+// Versión: 2026.11.9
 // Configuración del panel: todos los textos y valores ajustables (sin valores fijos en el código).
 
 export const CONFIG = {
@@ -50,7 +50,7 @@ export const TEXTOS = {
   acciones: { on: "Encendió", off: "Apagó", skip: "Omitió", error: "Error" },
   simulado: "simulado",
   simulacion: {
-    encenderia: "Encendería",
+    encenderia: "Si empezara ahora, encendería",
     away: "No: modo ausencia",
     room_disabled: "No: habitación deshabilitada",
     slot_disabled: "No: tramo deshabilitado",

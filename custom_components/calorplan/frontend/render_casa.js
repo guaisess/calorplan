@@ -1,4 +1,4 @@
-// Versión: 2026.11.6
+// Versión: 2026.11.9
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
 import { TEXTOS } from "./config.js";
@@ -79,6 +79,8 @@ function seccionComportamiento(g) {
   return `<h3>${CASA.global.comportamiento}</h3>
     ${campo(CASA.global.politica, `<select name="policy">${opciones(CASA.politicas, g.unavailable_policy)}</select>`)}
     ${campo(CASA.global.catchUp, `<select name="catchUp">${opciones(CASA.catchUps, g.catch_up)}</select>`)}
+    ${campo(CASA.global.reevaluar, `<input type="number" name="reevaluate" min="0" max="1440" value="${esc(g.reevaluate_minutes ?? 0)}">`)}
+    <p class="muted">${CASA.global.reevaluarAyuda}</p>
     ${casilla("shadow", CASA.global.sombra, g.shadow_mode)}`;
 }
 

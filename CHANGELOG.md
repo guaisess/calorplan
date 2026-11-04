@@ -2,6 +2,19 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.9
+
+- **Reevaluación durante el tramo** (nuevo ajuste global, `reevaluate_minutes`; 0 = desactivado,
+  como hasta ahora). Si al inicio de un tramo no se cumplían las condiciones de temperatura (o
+  faltaban datos de un sensor), se vuelve a comprobar cada N minutos mientras el tramo siga activo y
+  se enciende si pasan a cumplirse. No actúa si el dispositivo ya está encendido (p. ej. a mano), no
+  vuelve a encender después de que lo apagues, se detiene al terminar el tramo y respeta ausencia,
+  pausas y deshabilitados. Las omisiones repetidas no se registran ni avisan: solo el encendido.
+  Editable en Casa → Comportamiento.
+- **Motivos más claros:** «Interior 17 °C no es menor que 17 °C» (antes «Interior 17 ≥ 17»).
+- El simulador del panel dice «Si empezara ahora, encendería» (antes «Encendería»), porque describe
+  qué pasaría si el tramo empezara en este momento, no que vaya a encender.
+
 ## 2026.11.8
 
 **Pausas**: periodos en los que no se programan encendidos (vacaciones, visitas, obras...).

@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.9
 """Tests del ejecutor (inicio, fin, reintento, verificación, sombra, ausencia)."""
 from __future__ import annotations
 
@@ -77,7 +77,7 @@ def test_bloqueo_infantil_al_encender_configurable():
 def test_inicio_omitido_por_condicion_no_avisa_por_defecto():
     e = montar(estados={EXT[0]: "17", EXT[1]: "18"})
     reg = correr(e, ev("start"))
-    assert (reg.action, reg.code, reg.reason) == ("skip", aj.COD_EXTERIOR_ALTO, "Exterior 17 ≥ 10")
+    assert (reg.action, reg.code, reg.reason) == ("skip", aj.COD_EXTERIOR_ALTO, "Exterior 17 °C no es menor que 10 °C")
     assert e.actuador.llamadas == [] and e.envio.enviados == []
     assert len(e.eventos.registros) == 1  # pero queda registrado
 

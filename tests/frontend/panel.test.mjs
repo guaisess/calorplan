@@ -1,4 +1,4 @@
-// Versión: 2026.11.5
+// Versión: 2026.11.9
 // Tests del frontend (node --test): lógica pura y generación de HTML.
 process.env.TZ = "Europe/Madrid";
 
@@ -52,7 +52,7 @@ test("describeSimulation", () => {
   assert.deepEqual(logica.describeSimulation(null), { text: "Sin tramos", tone: "muted" });
   const ok = logica.describeSimulation({ would_start: true, active: true, slot: "Tarde", code: "ok" });
   assert.equal(ok.tone, "ok");
-  assert.match(ok.text, /^Encendería · Tarde$/);
+  assert.match(ok.text, /^Si empezara ahora, encendería · Tarde$/);
   const futuro = logica.describeSimulation({ would_start: true, active: false, slot: "Tarde", code: "ok" });
   assert.match(futuro.text, /\(próximo tramo\)/);
   const alto = logica.describeSimulation({ would_start: false, active: true, slot: "T", code: "outdoor_too_warm", reason: "Exterior 20 ≥ 10" });
@@ -109,7 +109,7 @@ test("renderPanel: cabecera, tabla y escape del nombre", () => {
   assert.match(html, /Modo sombra/);
   assert.match(html, /v2026\.\d+\.\d+/);
   assert.match(html, /Exterior 8 °C/);
-  assert.match(html, /Encendería/);
+  assert.match(html, /Si empezara ahora, encendería/);
   assert.equal(html.includes("<script>"), false);
   assert.match(html, /&lt;script&gt;/);
 });
