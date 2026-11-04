@@ -2,6 +2,12 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.17
+
+- **Importación automática**: en el primer arranque, si existe `calorplan.json` en la carpeta de
+  configuración y no hay plan guardado, se importa solo (una vez, sin sobrescribir nada) y se avisa
+  con una notificación persistente del resultado o del error.
+
 ## 2026.11.16
 
 - Nueva **tarjeta Lovelace** `calorplan-card`: resumen por habitación, línea de tiempo de hoy, insignias

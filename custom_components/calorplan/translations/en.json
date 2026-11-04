@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Calorplan",
-        "description": "The integration will be created. Then import your configuration with the calorplan.import_config service."
+        "description": "The integration will be created. If a calorplan.json file exists in the configuration folder it is imported automatically; otherwise use the calorplan.import_config service."
       }
     },
     "abort": {

@@ -1,4 +1,4 @@
-# Versión: 2026.11.5
+# Versión: 2026.11.17
 """Calorplan: programador de calefacción por habitación para Home Assistant."""
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from . import panel, services, websocket_api
+from .ha.autoimport import async_importar_inicial
 from .core import settings as ajustes
 from .ha.controller import Controller
 
@@ -14,6 +15,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Pone en marcha el controlador, las plataformas, la API y el panel."""
     controlador = Controller(hass)
     await controlador.async_start()
+    await async_importar_inicial(hass, controlador)  # alta sencilla: solo si no hay datos
     hass.data.setdefault(ajustes.DOMAIN, {})[entry.entry_id] = controlador
     await hass.config_entries.async_forward_entry_setups(entry, list(ajustes.PLATAFORMAS))
     services.async_registrar(hass)

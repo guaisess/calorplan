@@ -1,4 +1,4 @@
-# Versión: 2026.11.10
+# Versión: 2026.11.17
 """Almacén persistente del plan (`.storage/calorplan`)."""
 from __future__ import annotations
 
@@ -22,6 +22,10 @@ class PlanStore:
             return Plan.from_dict(datos)
         except ConfigError:
             return Plan()
+
+    async def async_hay_datos(self) -> bool:
+        """¿Hay ya un plan guardado (aunque esté vacío)?"""
+        return await self._store.async_load() is not None
 
     async def async_save(self, plan: Plan) -> None:
         """Guarda el plan completo."""

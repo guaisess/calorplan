@@ -1,4 +1,4 @@
-# Versión: 2026.11.16
+# Versión: 2026.11.17
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.16"
+VERSION = "2026.11.17"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -315,3 +315,11 @@ CLAVE_TARJETA = "calorplan_tarjeta_registrada"
 MOTIVO_PAUSA_RAPIDA = "Pausa rápida"  # motivo de la pausa que crea el botón «Pausar hasta mañana»
 SERVICIO_HABITACION = "set_room_enabled"
 ERROR_SERVICIO_HABITACION = "La habitación '{habitacion}' no existe"
+
+# --- Importación automática en el primer arranque ----------------------------------------------------
+FICHERO_IMPORTACION = "calorplan.json"  # relativo a la carpeta de configuración de Home Assistant
+MOTIVO_HIST_AUTOIMPORTAR = "Importación automática de calorplan.json"
+AUTOIMPORTAR_ID_AVISO = "calorplan_importacion"
+AUTOIMPORTAR_TITULO = "Calorplan"
+AUTOIMPORTAR_OK = "Se ha importado automáticamente {fichero}: {habitaciones} habitación(es). Ya puedes verla en el panel Calorplan."
+AUTOIMPORTAR_ERROR = "No se pudo importar {fichero}: {error}. Corrígelo y usa el servicio calorplan.import_config."

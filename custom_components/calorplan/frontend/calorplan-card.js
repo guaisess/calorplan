@@ -1,11 +1,11 @@
-// Versión: 2026.11.16
+// Versión: 2026.11.17
 // Tarjeta Lovelace «calorplan-card»: resumen por habitación + línea de tiempo de hoy + atajos.
 
-import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.16";
-import { llamadaAusencia, llamadaServicio, normalizarConfig, textoConfirmacion } from "./card_logic.js?v=2026.11.16";
-import { renderTarjeta, esc } from "./render_card.js?v=2026.11.16";
-import { ESTILOS_TARJETA } from "./styles_card.js?v=2026.11.16";
-import "./card_editor.js?v=2026.11.16";
+import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.17";
+import { llamadaAusencia, llamadaServicio, normalizarConfig, textoConfirmacion } from "./card_logic.js?v=2026.11.17";
+import { renderTarjeta, esc } from "./render_card.js?v=2026.11.17";
+import { ESTILOS_TARJETA } from "./styles_card.js?v=2026.11.17";
+import "./card_editor.js?v=2026.11.17";
 
 export class CalorplanCard extends HTMLElement {
   constructor() {

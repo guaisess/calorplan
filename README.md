@@ -23,8 +23,12 @@ Cada habitación tiene **tramos** horarios con sus propias condiciones (temperat
 
 1. HACS → ⋮ → *Repositorios personalizados* → añade `https://github.com/guaisess/calorplan` con categoría *Integración*.
 2. Instala **Calorplan** y reinicia Home Assistant.
-3. *Ajustes → Dispositivos y servicios → Añadir integración → Calorplan*.
-4. Copia tu configuración a `/config/calorplan.json` (parte de [`examples/config_ejemplo.json`](examples/config_ejemplo.json)) y llama al servicio:
+3. Copia tu configuración a `/config/calorplan.json` (parte de [`examples/config_ejemplo.json`](examples/config_ejemplo.json)) **antes** del paso siguiente.
+4. *Ajustes → Dispositivos y servicios → Añadir integración → Calorplan*.
+
+Si en el primer arranque existe `/config/calorplan.json` y Calorplan aún no tiene datos, se **importa solo**
+(una única vez, nunca sobrescribe un plan guardado) y aparece un aviso en Home Assistant con el resultado
+o el error. También se puede importar a mano en cualquier momento con el servicio:
 
 ```yaml
 action: calorplan.import_config
