@@ -1,4 +1,4 @@
-// Versión: 2026.11.9
+// Versión: 2026.11.10
 // Textos y valores por defecto de la vista «Casa» (ajustes globales y habitaciones).
 
 export const CASA = {
@@ -35,6 +35,8 @@ export const CASA = {
     comportamiento: "Comportamiento",
     politica: "Si un sensor necesario no tiene datos",
     catchUp: "Al arrancar Home Assistant dentro de un tramo",
+    esperaArranque: "Esperar tras arrancar Home Assistant antes de actuar (segundos)",
+    esperaArranqueAyuda: "Da tiempo a que las entidades se estabilicen. Tras un reinicio solo se aplican los inicios de tramo perdidos mientras Home Assistant estaba apagado, y nunca se enciende con datos ausentes. Lo que ya estaba gestionado se respeta.",
     reevaluar: "Reevaluar durante el tramo cada (minutos; 0 = solo al inicio)",
     reevaluarAyuda: "Si al inicio de un tramo no se cumplían las condiciones, se vuelve a comprobar y se enciende si pasan a cumplirse. No actúa si ya está encendido ni después de apagarlo tú.",
     sombra: "Modo sombra: no actúa sobre los dispositivos, solo registra lo que haría",
@@ -88,6 +90,7 @@ export const CASA = {
     agregacion: "min",
     modoAviso: "inherit",
     hvacModoEncendido: "heat",
+    esperaArranque: 120,
   },
   limites: { intentosMin: 1, intentosMax: 10 },
 };

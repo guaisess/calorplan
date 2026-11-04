@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.10
 """Planificador: calcula inicios, fines y reintentos de los tramos."""
 from __future__ import annotations
 
@@ -74,6 +74,13 @@ class Planner:
         for evento in self.events_between(desde, hasta, room_id):
             if evento.kind == ajustes.EVENTO_INICIO:
                 return evento
+        return None
+
+    def inicio_ocurrencia(self, tramo: Slot, instante: datetime) -> datetime | None:
+        """Inicio de la ocurrencia del tramo que contiene `instante`, o None si no está activo."""
+        for inicio, fin in self._ocurrencias(tramo, instante, instante):
+            if inicio <= instante < fin:
+                return inicio
         return None
 
     def active_slots(self, room: Room, instante: datetime) -> list[Slot]:

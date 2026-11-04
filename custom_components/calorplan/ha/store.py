@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.10
 """Almacén persistente del plan (`.storage/calorplan`)."""
 from __future__ import annotations
 
@@ -42,3 +42,19 @@ class HistoryStore:
     async def async_save(self, entradas: list[dict]) -> None:
         """Guarda las versiones."""
         await self._store.async_save({"entries": entradas})
+
+
+class RuntimeStore:
+    """Persistencia del estado de ejecución: qué inicios de tramo ya se gestionaron."""
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        self._store: Store = Store(hass, ajustes.SCHEMA_VERSION, ajustes.RUNTIME_STORAGE_KEY)
+
+    async def async_load(self) -> dict | None:
+        """Estado guardado, o None si es el primer arranque."""
+        datos = await self._store.async_load()
+        return None if datos is None else dict(datos.get("handled", {}))
+
+    def guardar_diferido(self, datos_func) -> None:
+        """Guarda con un pequeño retraso (agrupa varias anotaciones seguidas)."""
+        self._store.async_delay_save(lambda: {"handled": datos_func()}, 2)

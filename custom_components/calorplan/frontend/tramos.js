@@ -1,8 +1,8 @@
-// Versión: 2026.11.7
+// Versión: 2026.11.10
 // Lógica pura de la edición de tramos: borradores y conversión del formulario.
 
-import { CONFIG, TEXTOS } from "./config.js";
-import { numero, parseEntries } from "./forms.js";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.10";
+import { numero, parseEntries } from "./forms.js?v=2026.11.10";
 
 /** Tramo vacío para el alta (la temperatura objetivo solo aplica a termostatos). */
 export function tramoVacio(room) {

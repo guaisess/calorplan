@@ -67,6 +67,8 @@ Ejemplo mínimo (la referencia completa está en [`docs/DISENO.md`](docs/DISENO.
 }
 ```
 
+**Reinicio seguro.** Tras reiniciar Home Assistant, Calorplan espera `global.startup_delay_seconds` (por defecto 120 s) antes de actuar. Recuerda qué inicio de cada tramo ya gestionó (se guarda en disco): lo ya gestionado no se vuelve a evaluar, así que lo encendido sigue encendido y lo apagado sigue apagado; solo se aplica un inicio perdido mientras Home Assistant estaba apagado, y nunca con datos de sensores ausentes (se reintenta cada minuto durante 10 minutos).
+
 **Reevaluación durante el tramo.** Por defecto las condiciones se comprueban solo al inicio de cada tramo. Con `global.reevaluate_minutes` (por ejemplo `15`) se vuelven a comprobar cada N minutos si el inicio se omitió por condiciones, y se enciende si pasan a cumplirse mientras el tramo sigue activo. No actúa si ya está encendido ni después de que lo apagues tú, y las omisiones repetidas no se registran ni avisan.
 
 **Varios sensores.** Tanto los sensores exteriores (`global.outdoor_aggregation`) como los de cada habitación (`indoor_aggregation`) se combinan con `min` (por defecto: el más frío), `max` (el más cálido; el más conservador) o `mean` (media). Los sensores sin datos se ignoran.

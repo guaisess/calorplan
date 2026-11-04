@@ -1,4 +1,4 @@
-# Versión: 2026.11.9
+# Versión: 2026.11.10
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from ..core.engine.history import History
 from ..core.engine.overview import OverviewBuilder
 from ..core.models import Plan, Slot
 from .adapters import HAActuator, HAClock, HAEvents, HANotify, HAState
-from .store import HistoryStore, PlanStore
+from .store import HistoryStore, PlanStore, RuntimeStore
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +34,8 @@ class Controller:
         self.hass = hass
         self.store = PlanStore(hass)
         self.history_store = HistoryStore(hass)
+        self.runtime_store = RuntimeStore(hass)
+        self._listo = asyncio.Event()  # se activa al terminar la secuencia de arranque
         self.history = History()
         self.clock = HAClock()
         self.plan = Plan()
@@ -57,6 +59,11 @@ class Controller:
         self.notifier = Notifier(self.plan, HANotify(self.hass), self.clock)
         self.runner = Runner(self.plan, HAState(self.hass), HAActuator(self.hass),
                              self.notifier, self.clock, HAEvents(self.hass, self._registrar))
+        # Estado de lo ya gestionado antes de un reinicio (None = primer arranque con esta función)
+        guardado = await self.runtime_store.async_load()
+        self.runner.cargar_estado(guardado)
+        if guardado is None:
+            self._guardar_runtime()
         self._ultimo_instante = self.clock.now()
         self._programar_reevaluacion()
         self._cancelar_arranque = async_at_started(self.hass, self._al_arrancar)
@@ -83,10 +90,41 @@ class Controller:
         self._tareas.clear()
 
     async def _al_arrancar(self, _hass: HomeAssistant) -> None:
-        """Cuando Home Assistant ha arrancado, aplica `catch_up` si corresponde."""
+        """Cuando Home Assistant ha arrancado, lanza la secuencia de arranque en segundo plano."""
+        tarea = self.hass.async_create_background_task(self._arranque(), name=f"{ajustes.DOMAIN}_arranque")
+        self._tareas.add(tarea)
+        tarea.add_done_callback(self._tareas.discard)
+
+    async def _arranque(self) -> None:
+        """Espera a que las entidades se estabilicen y aplica solo lo que se perdió durante la caída."""
         assert self.runner is not None
-        await self.runner.catch_up()
-        self._avisar()
+        try:
+            await asyncio.sleep(self.plan.config.startup_delay_seconds)
+            await self.runner.catch_up()
+            await self._reintentar_sin_datos()
+        except Exception:  # noqa: BLE001 - el arranque nunca debe dejar el motor bloqueado
+            _LOGGER.exception("Error en la secuencia de arranque")
+        finally:
+            self._listo.set()
+            self._avisar()
+
+    async def _reintentar_sin_datos(self) -> None:
+        """Reintenta cada minuto los tramos omitidos por falta de datos, durante unos minutos."""
+        assert self.runner is not None
+        limite = self.clock.now() + timedelta(seconds=ajustes.ARRANQUE_REINTENTO_MAX_SEGUNDOS)
+        while self.runner.salas_pendientes(solo_sin_datos=True) and self.clock.now() < limite:
+            await asyncio.sleep(ajustes.ARRANQUE_REINTENTO_SEGUNDOS)
+            for sala_id in sorted(self.runner.salas_pendientes(solo_sin_datos=True)):
+                async with self._cerrojos[sala_id]:
+                    await self.runner.reevaluate(sala_id, solo_sin_datos=True)
+
+    async def _esperar_estabilizacion(self) -> None:
+        """Los inicios que caen justo tras arrancar esperan a que acabe la secuencia de arranque."""
+        margen = (self.plan.config.startup_delay_seconds + ajustes.ARRANQUE_REINTENTO_MAX_SEGUNDOS + 60)
+        try:
+            await asyncio.wait_for(self._listo.wait(), timeout=margen)
+        except asyncio.TimeoutError:
+            _LOGGER.warning("La secuencia de arranque tardó demasiado; se continúa")
 
     # --- Planificación -----------------------------------------------------------
     def _programar(self) -> None:
@@ -124,8 +162,13 @@ class Controller:
                              forzar: bool = False) -> None:
         """Ejecuta en orden los eventos de una habitación (con cerrojo por habitación)."""
         assert self.runner is not None
+        if not forzar and any(e.kind == ajustes.EVENTO_INICIO for e in eventos):
+            await self._esperar_estabilizacion()
         async with self._cerrojos[sala_id]:
             for evento in eventos:
+                if (not forzar and evento.kind == ajustes.EVENTO_INICIO
+                        and self.runner.ya_gestionado(evento.room_id, evento.slot_id, evento.when)):
+                    continue  # p. ej. ya lo aplicó la secuencia de arranque
                 try:
                     await self.runner.handle(evento, forzar=forzar)
                 except Exception:  # noqa: BLE001 - un fallo no debe parar el resto
@@ -136,7 +179,13 @@ class Controller:
     def _registrar(self, datos: dict[str, Any]) -> None:
         """Guarda la última decisión de la habitación y avisa a las entidades."""
         self.ultimos[datos["room_id"]] = datos
+        self._guardar_runtime()
         self._avisar()
+
+    def _guardar_runtime(self) -> None:
+        """Guarda (con retraso) lo ya gestionado, para respetarlo tras un reinicio."""
+        if self.runner is not None:
+            self.runtime_store.guardar_diferido(self.runner.estado_arranque)
 
     def _avisar(self) -> None:
         """Pide a las entidades que se actualicen."""

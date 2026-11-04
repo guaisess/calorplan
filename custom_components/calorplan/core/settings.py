@@ -1,4 +1,4 @@
-# Versión: 2026.11.9
+# Versión: 2026.11.10
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.9"
+VERSION = "2026.11.10"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -272,3 +272,18 @@ ERROR_REEVALUAR = "'reevaluate_minutes' debe ser un entero entre 0 y {maximo}"
 # Omisiones que pueden dejar de serlo más tarde: se reevalúan mientras el tramo siga activo
 CODIGOS_REEVALUABLES = (COD_EXTERIOR_ALTO, COD_INTERIOR_CALIDO,
                         COD_EXTERIOR_NO_DISPONIBLE, COD_INTERIOR_NO_DISPONIBLE)
+
+# --- Reinicio de Home Assistant: espera y estado ------------------------------------------------
+ESPERA_ARRANQUE_DEFECTO = 120  # segundos sin actuar tras arrancar (las entidades se estabilizan)
+ESPERA_ARRANQUE_MAX = 3600
+ARRANQUE_REINTENTO_SEGUNDOS = 60  # reintento de tramos omitidos por falta de datos
+ARRANQUE_REINTENTO_MAX_SEGUNDOS = 600  # hasta cuándo se reintenta tras la espera
+ERROR_ESPERA_ARRANQUE = "'startup_delay_seconds' debe ser un entero entre 0 y {maximo}"
+RUNTIME_STORAGE_KEY = "calorplan_runtime"
+# Resultado del último inicio gestionado de un tramo (se guarda para sobrevivir a un reinicio)
+RESULTADO_ENCENDIDO = "on"
+RESULTADO_OMITIDO = "skip"
+RESULTADO_ERROR = "error"
+RESULTADO_PENDIENTE = "pending"  # omitido por condiciones: puede reevaluarse
+RESULTADO_PENDIENTE_DATOS = "pending_data"  # omitido por falta de datos de sensores
+CODIGOS_SIN_DATOS = (COD_EXTERIOR_NO_DISPONIBLE, COD_INTERIOR_NO_DISPONIBLE)

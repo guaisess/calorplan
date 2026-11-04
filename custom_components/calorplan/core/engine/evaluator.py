@@ -1,4 +1,4 @@
-# Versión: 2026.11.6
+# Versión: 2026.11.10
 """Evaluador de condiciones de un tramo (temperatura exterior e interior)."""
 from __future__ import annotations
 
@@ -36,9 +36,12 @@ class Evaluator:
         """Mínimo de los sensores (atajo de `aggregate`)."""
         return self.aggregate(entity_ids, ajustes.AGREGACION_MIN)
 
-    def evaluate(self, room: Room, slot: Slot, config: Config) -> Decision:
-        """Evalúa las condiciones del tramo con los valores actuales."""
-        ignorar_sin_datos = config.unavailable_policy == ajustes.POLITICA_ENCENDER_IGUAL
+    def evaluate(self, room: Room, slot: Slot, config: Config, politica: str | None = None) -> Decision:
+        """Evalúa las condiciones del tramo con los valores actuales.
+
+        `politica` permite forzar la política de «sin datos» (p. ej. conservadora tras un reinicio).
+        """
+        ignorar_sin_datos = (politica or config.unavailable_policy) == ajustes.POLITICA_ENCENDER_IGUAL
         exterior = (self.aggregate(config.outdoor_sensors, config.outdoor_aggregation)
                     if slot.outdoor_below is not None else None)
         interior = (self.aggregate(room.sensors, room.indoor_aggregation)

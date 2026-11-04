@@ -1,4 +1,4 @@
-# Versión: 2026.11.9
+# Versión: 2026.11.10
 """Configuración global: sensores exteriores, canales y políticas."""
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ class Config:
     unavailable_policy: str = ajustes.POLITICA_NO_DISPONIBLE_DEFECTO
     catch_up: str = ajustes.CATCH_UP_DEFECTO
     reevaluate_minutes: int = ajustes.REEVALUAR_MINUTOS_DEFECTO
+    startup_delay_seconds: int = ajustes.ESPERA_ARRANQUE_DEFECTO
     channels: list[Channel] = field(default_factory=list)
     default_notify: NotifyConfig = field(default_factory=NotifyConfig)
     # Plantillas globales (acción -> texto); se completan con las de `settings`
@@ -55,6 +56,10 @@ class Config:
         if (isinstance(reevaluar, bool) or not isinstance(reevaluar, int)
                 or not 0 <= reevaluar <= ajustes.REEVALUAR_MINUTOS_MAX):
             raise ConfigError(ajustes.ERROR_REEVALUAR.format(maximo=ajustes.REEVALUAR_MINUTOS_MAX))
+        espera = datos.get("startup_delay_seconds", ajustes.ESPERA_ARRANQUE_DEFECTO)
+        if (isinstance(espera, bool) or not isinstance(espera, int)
+                or not 0 <= espera <= ajustes.ESPERA_ARRANQUE_MAX):
+            raise ConfigError(ajustes.ERROR_ESPERA_ARRANQUE.format(maximo=ajustes.ESPERA_ARRANQUE_MAX))
         sensores = datos.get("outdoor_sensors", [])
         if not isinstance(sensores, list):
             raise ConfigError("'outdoor_sensors' debe ser una lista")
@@ -76,6 +81,7 @@ class Config:
             unavailable_policy=politica,
             catch_up=catch_up,
             reevaluate_minutes=reevaluar,
+            startup_delay_seconds=espera,
             channels=canales,
             default_notify=aviso,
             templates=plantillas,
@@ -92,6 +98,7 @@ class Config:
             "unavailable_policy": self.unavailable_policy,
             "catch_up": self.catch_up,
             "reevaluate_minutes": self.reevaluate_minutes,
+            "startup_delay_seconds": self.startup_delay_seconds,
             "channels": [c.to_dict() for c in self.channels],
             "default_notify": self.default_notify.to_dict(),
             "templates": dict(self.templates),

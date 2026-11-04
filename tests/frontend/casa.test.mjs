@@ -1,4 +1,4 @@
-// Versión: 2026.11.9
+// Versión: 2026.11.10
 // Tests de la vista «Casa» (node --test): conversión de formularios y HTML.
 process.env.TZ = "Europe/Madrid";
 
@@ -262,4 +262,22 @@ test("renderGlobal: campo de reevaluación con su ayuda", () => {
   assert.match(html, /Reevaluar durante el tramo cada \(minutos; 0 = solo al inicio\)/);
   assert.match(html, /No actúa si ya está encendido ni después de apagarlo tú/);
   assert.match(vista.renderGlobal(clonar(GLOBAL), CTX, { ok: true }), /name="reevaluate"[^>]*value="0"/); // sin dato: 0
+});
+
+// --- Espera tras arrancar ---------------------------------------------------------------------------------------
+test("formToGlobal: startup_delay_seconds, y vacío o ausente es el valor por defecto (120)", () => {
+  assert.equal(casa.formToGlobal([["startupDelay", "300"]], GLOBAL).startup_delay_seconds, 300);
+  assert.equal(casa.formToGlobal([["startupDelay", "0"]], GLOBAL).startup_delay_seconds, 0);
+  assert.equal(casa.formToGlobal([["startupDelay", ""]], GLOBAL).startup_delay_seconds, 120);
+  assert.equal(casa.formToGlobal([["dnMode", "none"]], GLOBAL).startup_delay_seconds, 120);
+});
+
+test("renderGlobal: campo de espera tras arrancar con su ayuda", () => {
+  const g = clonar(GLOBAL);
+  g.startup_delay_seconds = 300;
+  const html = vista.renderGlobal(g, CTX, { ok: true });
+  assert.match(html, /name="startupDelay" min="0" max="3600" value="300"/);
+  assert.match(html, /Esperar tras arrancar Home Assistant antes de actuar \(segundos\)/);
+  assert.match(html, /nunca se enciende con datos ausentes/);
+  assert.match(vista.renderGlobal(clonar(GLOBAL), CTX, { ok: true }), /name="startupDelay"[^>]*value="120"/);
 });

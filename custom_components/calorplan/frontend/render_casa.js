@@ -1,9 +1,9 @@
-// Versión: 2026.11.9
+// Versión: 2026.11.10
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
-import { TEXTOS } from "./config.js";
-import { esc } from "./logic.js";
-import { CASA } from "./textos_casa.js";
+import { TEXTOS } from "./config.js?v=2026.11.10";
+import { esc } from "./logic.js?v=2026.11.10";
+import { CASA } from "./textos_casa.js?v=2026.11.10";
 
 // --- Piezas comunes ----------------------------------------------------------------------------------
 const opciones = (mapa, actual) => Object.entries(mapa)
@@ -81,6 +81,8 @@ function seccionComportamiento(g) {
     ${campo(CASA.global.catchUp, `<select name="catchUp">${opciones(CASA.catchUps, g.catch_up)}</select>`)}
     ${campo(CASA.global.reevaluar, `<input type="number" name="reevaluate" min="0" max="1440" value="${esc(g.reevaluate_minutes ?? 0)}">`)}
     <p class="muted">${CASA.global.reevaluarAyuda}</p>
+    ${campo(CASA.global.esperaArranque, `<input type="number" name="startupDelay" min="0" max="3600" value="${esc(g.startup_delay_seconds ?? 120)}">`)}
+    <p class="muted">${CASA.global.esperaArranqueAyuda}</p>
     ${casilla("shadow", CASA.global.sombra, g.shadow_mode)}`;
 }
 

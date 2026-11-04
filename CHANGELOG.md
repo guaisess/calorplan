@@ -2,6 +2,25 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.10
+
+**Reinicio seguro**: tras reiniciar Home Assistant, Calorplan ya no toca lo que estaba como estaba.
+
+- **Espera tras arrancar** (ajuste global `startup_delay_seconds`, por defecto 120 s; editable en
+  Casa → Comportamiento): ni la puesta al día ni los inicios de tramo que caigan en esa ventana
+  actúan hasta que pase, para que las entidades se estabilicen. Los apagados no esperan.
+- **Se recuerda lo ya gestionado:** se guarda qué inicio de cada tramo se encendió u omitió, y
+  sobrevive al reinicio. Lo ya gestionado **no se vuelve a evaluar**: lo que estaba encendido sigue
+  encendido y lo apagado sigue apagado (incluso si lo apagaste tú). Solo se aplica un inicio perdido
+  mientras Home Assistant estaba apagado.
+- **Nunca se enciende con datos ausentes al arrancar**, aunque la política sea «Encender
+  igualmente». Se omite sin dar error ni aviso y se reintenta cada minuto durante 10 minutos hasta
+  que los sensores informan. Los inicios programados normales siguen respetando tu política.
+- Primer arranque con esta versión: lo que esté activo se considera gestionado (no toca nada).
+- **Caché del navegador:** los imports del panel llevan `?v=<versión>` (antes se veían módulos
+  antiguos tras actualizar y había que forzar la recarga). Test que impide olvidarlo y
+  `tools/estampar_frontend.py` para estamparlo.
+
 ## 2026.11.9
 
 - **Reevaluación durante el tramo** (nuevo ajuste global, `reevaluate_minutes`; 0 = desactivado,
