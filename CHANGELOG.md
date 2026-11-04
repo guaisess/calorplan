@@ -2,6 +2,12 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.13
+
+- **Icono de la integración** (`custom_components/calorplan/brand/icon.png` y `icon@2x.png`): sustituye
+  al «icon not available» de Home Assistant y cumple el requisito de la validación de HACS.
+- Releases de GitHub publicadas para cada versión (HACS muestra ahora la versión y no un hash).
+
 ## 2026.11.12
 
 **Órdenes a los dispositivos más robustas y silenciosas** (cada orden hace pitar al termostato).
