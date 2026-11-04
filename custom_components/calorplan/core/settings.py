@@ -1,4 +1,4 @@
-# Versión: 2026.11.17
+# Versión: 2026.11.18
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.17"
+VERSION = "2026.11.18"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 

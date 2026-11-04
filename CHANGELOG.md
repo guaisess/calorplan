@@ -2,6 +2,11 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.18
+
+- Nueva herramienta `tools/publicar_release.py`: comprueba versión, CHANGELOG, árbol limpio y commit
+  subido, y publica la release de GitHub con las notas de su sección (`--dry-run` para solo comprobar).
+
 ## 2026.11.17
 
 - **Importación automática**: en el primer arranque, si existe `calorplan.json` en la carpeta de

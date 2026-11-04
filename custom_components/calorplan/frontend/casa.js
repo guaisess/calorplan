@@ -1,8 +1,8 @@
-// Versión: 2026.11.17
+// Versión: 2026.11.18
 // Lógica pura de la vista «Casa»: opciones desde Home Assistant y conversión de formularios.
 
-import { lista, numero, parseEntries } from "./forms.js?v=2026.11.17";
-import { CASA } from "./textos_casa.js?v=2026.11.17";
+import { lista, numero, parseEntries } from "./forms.js?v=2026.11.18";
+import { CASA } from "./textos_casa.js?v=2026.11.18";
 
 // --- Opciones (autocompletado) a partir de `hass` ----------------------------------------------
 /** Ids de entidades de un dominio, ordenados. */

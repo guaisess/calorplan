@@ -1,7 +1,7 @@
-// Versión: 2026.11.17
+// Versión: 2026.11.18
 // Lógica pura de la tarjeta (sin DOM): configuración, filtrado, texto de estado y servicios.
 
-import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.17";
+import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.18";
 
 /** Normaliza la configuración del usuario aplicando los valores por defecto. */
 export function normalizarConfig(cfg = {}) {
