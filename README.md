@@ -127,7 +127,7 @@ Los atajos llaman a servicios de Calorplan, por lo que requieren permisos para e
 
 | Entidad | Contenido |
 |---|---|
-| `switch.calorplan_<habitación>` | Habilita o deshabilita la habitación |
+| `switch.calorplan_<habitación>` | Habilita o deshabilita la habitación (al deshabilitarla se apaga el dispositivo y pasa a control manual) |
 | `switch.calorplan_modo_ausencia` | Modo ausencia global |
 | `sensor.calorplan_<habitación>_proximo` | Próximo evento (marca de tiempo) |
 | `sensor.calorplan_<habitación>_ultima_accion` | Última decisión y su motivo (atributos) |

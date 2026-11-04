@@ -2,6 +2,13 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.20
+
+- **Deshabilitar una habitación = control manual.** Al deshabilitarla, si su dispositivo está encendido
+  se apaga (con comprobación, sin aviso ni registro) y desde ese momento Calorplan no enciende ni apaga
+  nada en ella: tampoco ejecuta el fin ni el reintento del tramo que estuviera activo. Para volver a la
+  programación basta con habilitarla. En modo sombra no se envía ninguna orden.
+
 ## 2026.11.19
 
 - Tarjeta Lovelace: corregido el botón de habilitar/deshabilitar, que mostraba el texto contrario

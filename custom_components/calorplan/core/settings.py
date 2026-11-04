@@ -1,4 +1,4 @@
-# Versión: 2026.11.19
+# Versión: 2026.11.20
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.19"
+VERSION = "2026.11.20"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -323,3 +323,7 @@ AUTOIMPORTAR_ID_AVISO = "calorplan_importacion"
 AUTOIMPORTAR_TITULO = "Calorplan"
 AUTOIMPORTAR_OK = "Se ha importado automáticamente {fichero}: {habitaciones} habitación(es). Ya puedes verla en el panel Calorplan."
 AUTOIMPORTAR_ERROR = "No se pudo importar {fichero}: {error}. Corrígelo y usa el servicio calorplan.import_config."
+
+# --- Deshabilitar una habitación = control manual ----------------------------------------------------
+LOG_DESHABILITAR_APAGADO = "Habitación %s deshabilitada: dispositivo apagado, pasa a control manual"
+LOG_DESHABILITAR_FALLO = "Habitación %s deshabilitada, pero no se pudo comprobar el apagado (%s)"

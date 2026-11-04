@@ -1,4 +1,4 @@
-# Versión: 2026.11.12
+# Versión: 2026.11.20
 """Ejecutor: aplica los eventos planificados sobre los actuadores."""
 from __future__ import annotations
 
@@ -57,7 +57,28 @@ class Runner:
             return None
         if evento.kind == ajustes.EVENTO_INICIO:
             return await self._inicio(sala, tramo, forzar)
+        if not sala.enabled:
+            return None  # habitación deshabilitada = control manual: Calorplan no apaga nada
         return await self._fin(sala, tramo, evento.kind)
+
+    async def apagar_por_deshabilitar(self, room_id: str) -> bool:
+        """Al deshabilitar una habitación: apaga el dispositivo si está encendido y lo deja en manual.
+
+        No avisa ni anota nada. En modo sombra no actúa. Devuelve True si se envió el apagado.
+        """
+        sala = self.plan.room(room_id)
+        if sala is None or sala.enabled:
+            return False
+        for clave in [c for c in (self._pendientes | self._sin_datos | self._con_error) if c[0] == room_id]:
+            self._quitar_pendiente(clave)  # ya no se reevalúa nada de esta habitación
+        if self.plan.config.shadow_mode or not self._ya_encendido(sala.actuator):
+            return False
+        verificado, error = await self._apagar_verificado(sala.actuator)
+        if verificado:
+            _LOGGER.info(ajustes.LOG_DESHABILITAR_APAGADO, room_id)
+        else:
+            _LOGGER.warning(ajustes.LOG_DESHABILITAR_FALLO, room_id, error)
+        return True
 
     async def catch_up(self) -> list[Record]:
         """Al arrancar dentro de un tramo, aplica el inicio si `catch_up` lo pide."""

@@ -1,4 +1,4 @@
-# Versión: 2026.11.12
+# Versión: 2026.11.20
 """Tests del ejecutor (inicio, fin, reintento, verificación, sombra, ausencia)."""
 from __future__ import annotations
 
@@ -281,4 +281,35 @@ def test_catch_up_evalua_el_tramo_activo():
 def test_catch_up_ninguno_por_defecto():
     e = montar(hora="06:30")
     assert asyncio.run(e.runner.catch_up()) == []
+    assert e.actuador.llamadas == []
+
+
+# --- Habitación deshabilitada = control manual (2026.11.20) ------------------------------------------
+def test_fin_de_habitacion_deshabilitada_no_apaga():
+    e = montar(estados={CLIMA: "heat"})
+    e.plan.room("dormitorio").enabled = False
+    assert correr(e, ev("end")) is None and correr(e, ev("retry")) is None
+    assert e.actuador.llamadas == [] and e.envio.enviados == []
+
+
+def test_deshabilitar_apaga_si_estaba_encendido_sin_avisar():
+    e = montar(estados={CLIMA: "heat"})
+    e.plan.room("dormitorio").enabled = False
+    assert asyncio.run(e.runner.apagar_por_deshabilitar("dormitorio")) is True
+    assert e.estado.estados[CLIMA] == "off"
+    assert e.envio.enviados == [] and e.eventos.registros == []
+
+
+def test_deshabilitar_no_toca_un_dispositivo_apagado_ni_en_modo_sombra():
+    e = montar()
+    e.plan.room("dormitorio").enabled = False
+    assert asyncio.run(e.runner.apagar_por_deshabilitar("dormitorio")) is False and e.actuador.llamadas == []
+    s = montar(sombra=True, estados={CLIMA: "heat"})
+    s.plan.room("dormitorio").enabled = False
+    assert asyncio.run(s.runner.apagar_por_deshabilitar("dormitorio")) is False and s.actuador.llamadas == []
+
+
+def test_apagar_por_deshabilitar_exige_habitacion_deshabilitada():
+    e = montar(estados={CLIMA: "heat"})
+    assert asyncio.run(e.runner.apagar_por_deshabilitar("dormitorio")) is False
     assert e.actuador.llamadas == []

@@ -1,4 +1,4 @@
-# Versión: 2026.11.16
+# Versión: 2026.11.20
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -220,9 +220,26 @@ class Controller:
         """Habilita o deshabilita una habitación y lo guarda."""
         sala = self.plan.room(room_id)
         if sala is not None:
+            estaba_habilitada = sala.enabled
             sala.enabled = habilitada
             await self.store.async_save(self.plan)
             self._avisar()
+            if estaba_habilitada and not habilitada and self.runner is not None:
+                # Pasa a control manual: se apaga lo que estuviera encendido (en segundo plano)
+                tarea = self.hass.async_create_background_task(
+                    self._apagar_deshabilitada(room_id), name=f"{ajustes.DOMAIN}_deshabilitar_{room_id}")
+                self._tareas.add(tarea)
+                tarea.add_done_callback(self._tareas.discard)
+
+    async def _apagar_deshabilitada(self, room_id: str) -> None:
+        """Apaga el dispositivo de una habitación recién deshabilitada (con el cerrojo de la habitación)."""
+        assert self.runner is not None
+        async with self._cerrojos[room_id]:
+            try:
+                await self.runner.apagar_por_deshabilitar(room_id)
+            except Exception:  # noqa: BLE001 - un fallo no debe romper el servicio
+                _LOGGER.exception("Error al apagar %s tras deshabilitarla", room_id)
+        self._avisar()
 
     async def async_set_away(self, ausente: bool) -> None:
         """Activa o desactiva el modo ausencia global y lo guarda."""
