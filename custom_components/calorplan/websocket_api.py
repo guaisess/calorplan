@@ -1,4 +1,4 @@
-# Versión: 2026.11.8
+# Versión: 2026.11.16
 """API WebSocket del panel: lectura (resumen) y edición de tramos (solo administradores)."""
 from __future__ import annotations
 
@@ -335,10 +335,19 @@ async def ws_delete_pause(hass: HomeAssistant, connection: websocket_api.ActiveC
     connection.send_result(msg["id"], {"overview": instancia[1].overview()})
 
 
+@websocket_api.websocket_command({vol.Required("type"): ajustes.WS_RESUMEN_TARJETA})
+@callback
+def ws_card_summary(hass: HomeAssistant, connection: websocket_api.ActiveConnection,
+                    msg: dict[str, Any]) -> None:
+    """Resumen de solo lectura para la tarjeta Lovelace (accesible a cualquier usuario)."""
+    if (instancia := _instancia(hass, connection, msg)) is not None:
+        connection.send_result(msg["id"], instancia[1].card_summary())
+
+
 def async_registrar(hass: HomeAssistant) -> None:
     """Registra los comandos WebSocket."""
     for comando in (ws_overview, ws_validate_slot, ws_save_slot, ws_delete_slot,
                     ws_history, ws_restore, ws_get_global, ws_validate_global, ws_save_global,
                     ws_validate_room, ws_save_room, ws_delete_room,
-                    ws_validate_pause, ws_save_pause, ws_delete_pause):
+                    ws_validate_pause, ws_save_pause, ws_delete_pause, ws_card_summary):
         websocket_api.async_register_command(hass, comando)

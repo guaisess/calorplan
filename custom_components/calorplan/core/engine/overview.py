@@ -1,4 +1,4 @@
-# Versión: 2026.11.8
+# Versión: 2026.11.16
 """Resumen de solo lectura para el panel: línea de tiempo, estado y simulación.
 
 El simulador responde «¿qué haría ahora?» evaluando las condiciones con los
@@ -131,4 +131,57 @@ class OverviewBuilder:
             "outdoor_aggregation": cfg.outdoor_aggregation,
             "channels": [c.id for c in cfg.channels],  # solo ids: nunca los servicios
             "rooms": [self._habitacion(r, ahora, ultimos) for r in self._plan.rooms],
+        }
+
+    @staticmethod
+    def _norm(texto: Any) -> str:
+        """Motivo normalizado para compararlo (sin mayúsculas ni espacios sobrantes)."""
+        return " ".join(str(texto or "").split()).casefold()
+
+    def build_card(self, ahora: datetime, ultimos: dict[str, dict[str, Any]]) -> dict[str, Any]:
+        """Resumen reducido para la tarjeta Lovelace (la ve cualquier usuario).
+
+        Solo lleva lo necesario para dibujarla: sin entidades, canales ni plantillas.
+        """
+        o = self.build(ahora, ultimos)
+        minuto, dia = o["minute"], o["weekday"]
+        rapida = self._norm(ajustes.MOTIVO_PAUSA_RAPIDA)
+        activas_casa = [p for p in o["global_pauses"] if p["status"] == ajustes.PAUSA_ACTIVA]
+        habitaciones = []
+        for h in o["rooms"]:
+            tramos = {t["id"]: t for t in h["slots"]}
+            hoy = []
+            activo = None
+            for seg in h["week"][dia]:
+                t = tramos.get(seg["slot_id"], {})
+                hoy.append({"slot_id": seg["slot_id"], "name": t.get("name", seg["slot_id"]),
+                            "start": seg["start"], "end": seg["end"],
+                            "enabled": bool(t.get("enabled", True)) and h["enabled"],
+                            "continued_from_prev": seg["continued_from_prev"],
+                            "continues_next": seg["continues_next"]})
+                if h["active_slot"] == seg["slot_id"] and seg["start"] <= minuto < seg["end"]:
+                    activo = {"id": seg["slot_id"], "name": t.get("name", seg["slot_id"]), "end": seg["end"]}
+            if activo is None and h["active_slot"] in tramos:  # tramo que viene de ayer
+                activo = {"id": h["active_slot"], "name": tramos[h["active_slot"]]["name"], "end": None}
+            siguiente = h["next"]
+            if siguiente:
+                siguiente = {**siguiente, "slot_name": tramos.get(siguiente["slot_id"], {}).get("name", siguiente["slot_id"])}
+            ultima = h["last"] or {}
+            habitaciones.append({
+                "id": h["id"], "name": h["name"], "enabled": h["enabled"],
+                "kind": h["actuator"]["type"], "state": h["actuator"]["state"],
+                "active": activo, "next": siguiente, "paused_by": h["paused_by"],
+                "quick_pause": any(p["status"] == ajustes.PAUSA_ACTIVA and self._norm(p["reason"]) == rapida
+                                   for p in h["pauses"]),
+                "today": hoy,
+                "last": {"action": ultima.get("action"), "code": ultima.get("code"),
+                         "time": ultima.get("time"), "simulated": ultima.get("simulated")} if ultima else None,
+            })
+        return {
+            "version": o["version"], "now": o["now"], "today": o["today"], "weekday": dia, "minute": minuto,
+            "shadow_mode": o["shadow_mode"], "away_mode": o["away_mode"], "outdoor": o["outdoor"],
+            "quick_pause_reason": ajustes.MOTIVO_PAUSA_RAPIDA,
+            "global_pause": ({"reason": activas_casa[0]["reason"], "until": activas_casa[0]["until"]}
+                             if activas_casa else None),
+            "rooms": habitaciones,
         }

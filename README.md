@@ -101,6 +101,24 @@ Tras importar la configuración aparece **Calorplan** en la barra lateral (solo 
 - **Habitaciones**: alta, edición y baja con su `climate` o `switch`, bloqueo infantil, sensores y agregación.
 - Cada cambio se **valida en el servidor** antes de guardar y se conserva una **copia de las últimas 10 versiones**, que se pueden restaurar desde *Historial*.
 
+## Tarjeta Lovelace
+
+La integración carga sola la tarjeta `custom:calorplan-card` (no hay que añadir recursos). Se elige en
+*Añadir tarjeta → Calorplan* y tiene editor visual. Muestra por habitación el tramo activo, el próximo
+evento y una línea de tiempo de hoy, y la ven todos los usuarios (solo lectura; no expone entidades).
+
+```yaml
+type: custom:calorplan-card
+title: Calefacción
+show_timeline: true
+rooms: []            # ids; vacío = todas
+actions: [away, pause, enable, run]   # atajos opcionales
+```
+
+Atajos: `away` (modo ausencia), `pause` (pausa rápida hasta el final de hoy), `enable`
+(habilitar/deshabilitar la habitación) y `run` (ejecuta el tramo activo con `force`; pide confirmación).
+Los atajos llaman a servicios de Calorplan, por lo que requieren permisos para ejecutarlos.
+
 ## Entidades
 
 | Entidad | Contenido |
@@ -119,6 +137,7 @@ Tras importar la configuración aparece **Calorplan** en la barra lateral (solo 
 | `calorplan.run_slot` | Ejecuta ahora el inicio de un tramo (`force` ignora condiciones) |
 | `calorplan.set_away` | Activa o desactiva el modo ausencia |
 | `calorplan.test_notification` | Envía un aviso de prueba a un canal |
+| `calorplan.set_room_enabled` | Habilita o deshabilita una habitación (`room_id`, `enabled`) |
 | `calorplan.reload` | Recarga la integración |
 | `calorplan.set_pause` | Crea o actualiza una pausa (idempotente), por habitación o de toda la casa |
 | `calorplan.clear_pause` | Quita pausas por motivo o identificador |

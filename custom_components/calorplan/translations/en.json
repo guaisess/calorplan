@@ -110,6 +110,20 @@
           "description": "Identifier of the pause to remove."
         }
       }
+    },
+    "set_room_enabled": {
+      "name": "Enable or disable room",
+      "description": "Enables or disables all the slots of a room.",
+      "fields": {
+        "room_id": {
+          "name": "Room",
+          "description": "Room identifier."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "True to enable it."
+        }
+      }
     }
   }
 }

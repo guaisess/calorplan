@@ -1,4 +1,4 @@
-# Versión: 2026.11.9
+# Versión: 2026.11.16
 """Tests de la línea de tiempo y del resumen/simulador para el panel."""
 from __future__ import annotations
 
@@ -142,3 +142,36 @@ def test_next_start_ignora_fines_y_reintentos():
     plan = cargar_plan(RAIZ / "examples" / "config_ejemplo.json")
     inicio = Planner(plan).next_start(instante("2026-11-02", "06:30"), "dormitorio")
     assert inicio.kind == "start" and inicio.slot_id == "tarde"
+
+
+# --- Resumen reducido para la tarjeta Lovelace (2026.11.16) ---------------------------------------------
+def tarjeta(estados=None, cambios=None, ahora=("2026-11-02", "06:30")):
+    datos = copy.deepcopy(DATOS)
+    if cambios:
+        cambios(datos)
+    plan = Plan.from_dict(datos)
+    estado = FakeState({EXT[0]: "8", EXT[1]: "9", INT[0]: "15", INT[1]: "17",
+                        "climate.calefaccion_dormitorio": "off", **(estados or {})})
+    return OverviewBuilder(plan, estado).build_card(instante(*ahora), {})
+
+
+def test_tarjeta_no_expone_entidades_ni_canales():
+    texto = json.dumps(tarjeta())
+    assert "sensor." not in texto and "climate." not in texto and "switch." not in texto
+    assert "channels" not in texto and "notify" not in texto
+
+
+def test_tarjeta_lleva_el_dia_y_las_habitaciones():
+    t = tarjeta()
+    assert t["today"] == "2026-11-02" and t["weekday"] == 0 and t["minute"] == 390
+    assert t["quick_pause_reason"] and t["global_pause"] is None
+    sala = t["rooms"][0]
+    assert {"id", "name", "enabled", "kind", "state", "active", "next", "today", "quick_pause", "last"} <= set(sala)
+    assert all({"slot_id", "name", "start", "end", "enabled"} <= set(s) for s in sala["today"])
+    assert sala["quick_pause"] is False
+
+
+def test_tarjeta_nombra_el_proximo_evento():
+    sala = tarjeta()["rooms"][0]
+    if sala["next"]:
+        assert sala["next"]["slot_name"]

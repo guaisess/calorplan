@@ -1,4 +1,4 @@
-# Versión: 2026.11.15
+# Versión: 2026.11.16
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.15"
+VERSION = "2026.11.16"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -307,3 +307,11 @@ ORDEN_ESPERA_SEGUNDOS = 5  # espera antes de comprobar de nuevo y reintentar
 TOLERANCIA_OBJETIVO = 0.5  # °C de diferencia admitida (algunos termostatos redondean)
 ATRIBUTO_TEMPERATURA = "temperature"
 MOTIVO_ORDEN_NO_CONFIRMADA = "{paso}: no se confirmó tras {intentos} intentos"
+
+# --- Tarjeta Lovelace ---------------------------------------------------------------------------------
+WS_RESUMEN_TARJETA = "calorplan/card_summary"
+TARJETA_FICHERO = "calorplan-card.js"
+CLAVE_TARJETA = "calorplan_tarjeta_registrada"
+MOTIVO_PAUSA_RAPIDA = "Pausa rápida"  # motivo de la pausa que crea el botón «Pausar hasta mañana»
+SERVICIO_HABITACION = "set_room_enabled"
+ERROR_SERVICIO_HABITACION = "La habitación '{habitacion}' no existe"

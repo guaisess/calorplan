@@ -1,4 +1,4 @@
-# Versión: 2026.11.11
+# Versión: 2026.11.16
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -206,6 +206,10 @@ class Controller:
             if tramo.enabled:
                 return tramo
         return None
+
+    def card_summary(self) -> dict[str, Any]:
+        """Resumen reducido para la tarjeta Lovelace."""
+        return OverviewBuilder(self.plan, HAState(self.hass)).build_card(self.clock.now(), self.ultimos)
 
     def overview(self) -> dict[str, Any]:
         """Resumen de solo lectura para el panel (línea de tiempo, estado, simulación)."""

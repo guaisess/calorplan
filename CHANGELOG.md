@@ -2,6 +2,15 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.16
+
+- Nueva **tarjeta Lovelace** `calorplan-card`: resumen por habitación, línea de tiempo de hoy, insignias
+  (sombra, ausencia, pausa global, exterior) y atajos opcionales (ausencia, pausa hasta mañana,
+  habilitar/deshabilitar habitación y ejecutar tramo con confirmación). Editor visual incluido.
+- Comando WebSocket `calorplan/card_summary` de solo lectura para cualquier usuario (sin entidades ni canales).
+- Nuevo servicio `calorplan.set_room_enabled`.
+- El JS de la tarjeta se carga automáticamente (`add_extra_js_url`).
+
 ## 2026.11.15
 
 - `manifest.json`: añadida la categoría de integración `climate.thermostats_heating` («Termostatos y

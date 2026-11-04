@@ -110,6 +110,20 @@
           "description": "Identificador de la pausa a quitar."
         }
       }
+    },
+    "set_room_enabled": {
+      "name": "Habilitar o deshabilitar habitación",
+      "description": "Habilita o deshabilita todos los tramos de una habitación.",
+      "fields": {
+        "room_id": {
+          "name": "Habitación",
+          "description": "Identificador de la habitación."
+        },
+        "enabled": {
+          "name": "Habilitada",
+          "description": "Verdadero para habilitarla."
+        }
+      }
     }
   }
 }

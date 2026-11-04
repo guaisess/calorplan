@@ -1,4 +1,4 @@
-# Versión: 2026.11.11
+# Versión: 2026.11.16
 """Servicios de Calorplan: importar, ejecutar tramo, ausencia, prueba y recarga."""
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from .ha.controller import Controller
 
 SERVICIOS = (ajustes.SERVICIO_IMPORTAR, ajustes.SERVICIO_EJECUTAR, ajustes.SERVICIO_AUSENCIA,
              ajustes.SERVICIO_PRUEBA, ajustes.SERVICIO_RECARGAR, ajustes.SERVICIO_PAUSA,
-             ajustes.SERVICIO_QUITAR_PAUSA)
+             ajustes.SERVICIO_QUITAR_PAUSA, ajustes.SERVICIO_HABITACION)
 
 ESQUEMA_IMPORTAR = vol.All(
     vol.Schema({vol.Optional(ajustes.CAMPO_RUTA): cv.string,
@@ -31,6 +31,8 @@ ESQUEMA_EJECUTAR = vol.Schema({
 ESQUEMA_AUSENCIA = vol.Schema({vol.Required(ajustes.CAMPO_AUSENTE): cv.boolean})
 ESQUEMA_PRUEBA = vol.Schema({vol.Required(ajustes.CAMPO_CANAL): cv.string})
 ESQUEMA_RECARGAR = vol.Schema({})
+ESQUEMA_HABITACION = vol.Schema({vol.Required(ajustes.CAMPO_HABITACION): cv.string,
+                                 vol.Required(ajustes.CAMPO_ACTIVA): cv.boolean})
 # Pausas: sin `room_id` = toda la casa; sin `until` (o `until: null`) = sin fecha de fin.
 # Una fecha de fin vacía se rechaza a propósito (evita pausas indefinidas por descuido).
 ESQUEMA_PAUSA = vol.Schema({
@@ -136,6 +138,15 @@ def async_registrar(hass: HomeAssistant) -> None:
             raise ServiceValidationError(str(err)) from err
         return {"removed": quitadas}
 
+    async def habitacion(llamada: ServiceCall) -> None:
+        _, controlador = _entrada_y_controlador(hass)
+        sala_id = llamada.data[ajustes.CAMPO_HABITACION]
+        if controlador.plan.room(sala_id) is None:
+            raise ServiceValidationError(ajustes.ERROR_SERVICIO_HABITACION.format(habitacion=sala_id))
+        await controlador.async_set_room_enabled(sala_id, llamada.data[ajustes.CAMPO_ACTIVA])
+
+    hass.services.async_register(ajustes.DOMAIN, ajustes.SERVICIO_HABITACION, habitacion,
+                                 schema=ESQUEMA_HABITACION)
     hass.services.async_register(ajustes.DOMAIN, ajustes.SERVICIO_PAUSA, fijar_pausa,
                                  schema=ESQUEMA_PAUSA, supports_response=SupportsResponse.OPTIONAL)
     hass.services.async_register(ajustes.DOMAIN, ajustes.SERVICIO_QUITAR_PAUSA, quitar_pausa,

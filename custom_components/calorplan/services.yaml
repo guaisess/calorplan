@@ -88,3 +88,15 @@ clear_pause:
       example: "vacaciones"
       selector:
         text:
+
+set_room_enabled:
+  fields:
+    room_id:
+      required: true
+      example: "dormitorio_alba"
+      selector:
+        text:
+    enabled:
+      required: true
+      selector:
+        boolean:
