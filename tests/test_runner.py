@@ -1,4 +1,4 @@
-# Versión: 2026.11.9
+# Versión: 2026.11.12
 """Tests del ejecutor (inicio, fin, reintento, verificación, sombra, ausencia)."""
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ def test_inicio_enciende_climate_con_temperatura_objetivo_bloqueo_y_aviso():
     e = montar()
     reg = correr(e, ev("start"))
     assert reg.action == "on" and reg.code == aj.COD_OK
-    assert e.actuador.llamadas == [("heat", CLIMA, "heat", 20.0), ("switch", BLOQUEO, True)]
+    assert e.actuador.llamadas == [("heat", CLIMA, "heat"), ("temp", CLIMA, 20.0), ("switch", BLOQUEO, True)]
     assert len(e.envio.enviados) == 1 and "ACTIVADA" in e.envio.enviados[0][2]
     assert e.eventos.eventos[0][0] == aj.EVENTO_ACCION
     assert e.eventos.registros[0]["action"] == "on"
@@ -65,11 +65,11 @@ def test_inicio_de_switch():
 
 
 def test_bloqueo_infantil_al_encender_configurable():
-    for accion, esperado in [("unlock", [("heat", CLIMA, "heat", 20.0), ("switch", BLOQUEO, False)]),
-                             ("none", [("heat", CLIMA, "heat", 20.0)])]:
+    for accion, esperado in [("unlock", [("heat", CLIMA, "heat"), ("temp", CLIMA, 20.0), ("switch", BLOQUEO, False)]),
+                             ("none", [("heat", CLIMA, "heat"), ("temp", CLIMA, 20.0)])]:
         datos = copy.deepcopy(DATOS)
         datos["rooms"][0]["actuator"]["child_lock_on_start"] = accion
-        e = montar(datos)
+        e = montar(datos, estados={BLOQUEO: "on"})  # bloqueado: «desbloquear» sí necesita una orden
         correr(e, ev("start"))
         assert e.actuador.llamadas == esperado
 
@@ -128,7 +128,7 @@ def test_fallo_del_actuador_al_encender_es_un_error():
 
     async def falla(*a):
         raise RuntimeError("sin conexión")
-    e.actuador.climate_heat = falla
+    e.actuador.climate_set_mode = falla
     reg = correr(e, ev("start"))
     assert reg.action == "error" and "sin conexión" in reg.reason
     assert len(e.envio.enviados) == 1
@@ -275,7 +275,7 @@ def test_catch_up_evalua_el_tramo_activo():
     # A las 06:30 están activos el tramo del dormitorio y el del toallero (05:50-07:35)
     assert sorted((r.room_id, r.slot_id, r.action) for r in registros) == [
         ("dormitorio", "madrugada", "on"), ("toallero", "manana", "on")]
-    assert ("heat", CLIMA, "heat", 20.0) in e.actuador.llamadas
+    assert ("heat", CLIMA, "heat") in e.actuador.llamadas and ("temp", CLIMA, 20.0) in e.actuador.llamadas
 
 
 def test_catch_up_ninguno_por_defecto():

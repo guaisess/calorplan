@@ -1,4 +1,4 @@
-# Versión: 2026.11.11
+# Versión: 2026.11.12
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.11"
+VERSION = "2026.11.12"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -300,3 +300,10 @@ PAUSA_CREADA = "created"
 PAUSA_ACTUALIZADA = "updated"
 PAUSA_SIN_CAMBIOS = "unchanged"
 ERROR_QUITAR_PAUSA_FALTA = "Indica 'pause_id' o 'reason' para quitar una pausa"
+
+# --- Órdenes a los dispositivos: comprobación y reintentos -------------------------------------------
+ORDEN_REINTENTOS = 3  # intentos por orden (modo, temperatura, encendido, bloqueo)
+ORDEN_ESPERA_SEGUNDOS = 5  # espera antes de comprobar de nuevo y reintentar
+TOLERANCIA_OBJETIVO = 0.5  # °C de diferencia admitida (algunos termostatos redondean)
+ATRIBUTO_TEMPERATURA = "temperature"
+MOTIVO_ORDEN_NO_CONFIRMADA = "{paso}: no se confirmó tras {intentos} intentos"

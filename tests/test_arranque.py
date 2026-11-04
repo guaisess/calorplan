@@ -1,4 +1,4 @@
-# Versión: 2026.11.10
+# Versión: 2026.11.12
 """Tests del reinicio: lo ya gestionado se respeta, no se enciende con datos ausentes."""
 from __future__ import annotations
 
@@ -174,7 +174,7 @@ def test_un_fallo_del_actuador_se_anota_como_error():
 
     async def falla(*a):
         raise RuntimeError("sin conexión")
-    e.act.climate_heat = falla
+    e.act.climate_set_mode = falla
     evento(e)
     assert e.runner.estado_arranque()["dormitorio/madrugada"]["outcome"] == aj.RESULTADO_ERROR
 

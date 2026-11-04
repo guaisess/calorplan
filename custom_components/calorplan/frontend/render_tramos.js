@@ -1,9 +1,9 @@
-// Versión: 2026.11.11
+// Versión: 2026.11.12
 // HTML de la vista «Tramos» (funciones puras): tabla por habitación y editor de tramo.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.11";
-import { daysLabel, esc, fmtMin, fmtNum } from "./logic.js?v=2026.11.11";
-import { CASA } from "./textos_casa.js?v=2026.11.11";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.12";
+import { daysLabel, esc, fmtMin, fmtNum } from "./logic.js?v=2026.11.12";
+import { CASA } from "./textos_casa.js?v=2026.11.12";
 
 const E = TEXTOS.editor;
 

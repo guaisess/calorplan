@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.12
 """Puertos falsos para los tests del motor."""
 from __future__ import annotations
 
@@ -30,6 +30,7 @@ class FakeState(StatePort):
 
     def __init__(self, estados: dict[str, str] | None = None) -> None:
         self.estados: dict[str, str] = dict(estados or {})
+        self.atributos: dict[str, dict] = {}  # entidad -> atributos (p. ej. temperature)
 
     def get_state(self, entity_id: str) -> str | None:
         return self.estados.get(entity_id)
@@ -46,6 +47,9 @@ class FakeState(StatePort):
     def is_available(self, entity_id: str) -> bool:
         return self.estados.get(entity_id) not in (None, "unavailable", "unknown")
 
+    def get_attribute(self, entity_id: str, name: str):
+        return self.atributos.get(entity_id, {}).get(name)
+
 
 class FakeActuator(ActuatorPort):
     """Registra las órdenes y, opcionalmente, actualiza el estado como un dispositivo real."""
@@ -55,10 +59,34 @@ class FakeActuator(ActuatorPort):
         self.llamadas: list[tuple] = []
         self.ignorar_apagado = False  # simula un dispositivo que no obedece
         self.fallos_apagado = 0  # nº de excepciones antes de funcionar
+        self.fallos_modo = 0  # excepciones antes de aceptar el cambio de modo
+        self.fallos_temp = 0  # excepciones antes de aceptar la temperatura
+        self.aplica_pese_al_error = False  # como la nube de Tuya: da error pero la orden sí se aplica
+        self.ignorar_modo = False  # la orden de modo no tiene efecto
+        self.ignorar_temp = False  # la orden de temperatura no tiene efecto
+        self.redondeo = None  # si se indica (p. ej. 1.0), el termostato redondea la temperatura
 
-    async def climate_heat(self, entity_id, hvac_mode, temperature):
-        self.llamadas.append(("heat", entity_id, hvac_mode, temperature))
-        self.state.estados[entity_id] = hvac_mode
+    async def climate_set_mode(self, entity_id, hvac_mode):
+        self.llamadas.append(("heat", entity_id, hvac_mode))
+        if self.fallos_modo > 0:
+            self.fallos_modo -= 1
+            if self.aplica_pese_al_error and not self.ignorar_modo:
+                self.state.estados[entity_id] = hvac_mode
+            raise RuntimeError("The Tuya cloud rejected the command")
+        if not self.ignorar_modo:
+            self.state.estados[entity_id] = hvac_mode
+
+    async def climate_set_temperature(self, entity_id, temperature):
+        self.llamadas.append(("temp", entity_id, temperature))
+        aplicar = not self.ignorar_temp
+        valor = round(temperature / self.redondeo) * self.redondeo if self.redondeo else temperature
+        if self.fallos_temp > 0:
+            self.fallos_temp -= 1
+            if self.aplica_pese_al_error and aplicar:
+                self.state.atributos.setdefault(entity_id, {})["temperature"] = valor
+            raise RuntimeError("The Tuya cloud rejected the command")
+        if aplicar:
+            self.state.atributos.setdefault(entity_id, {})["temperature"] = valor
 
     async def climate_off(self, entity_id):
         self.llamadas.append(("climate_off", entity_id))

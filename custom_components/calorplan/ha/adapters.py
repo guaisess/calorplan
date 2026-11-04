@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.12
 """Adaptadores de los puertos del núcleo sobre Home Assistant."""
 from __future__ import annotations
 
@@ -41,6 +41,10 @@ class HAState(StatePort):
         valor = self.get_state(entity_id)
         return valor is not None and valor not in ajustes.ESTADOS_NO_DISPONIBLE
 
+    def get_attribute(self, entity_id: str, name: str) -> Any:
+        estado = self._hass.states.get(entity_id)
+        return estado.attributes.get(name) if estado else None
+
 
 class HAActuator(ActuatorPort):
     """Llama a los servicios `climate.*` y `switch.*`."""
@@ -51,12 +55,13 @@ class HAActuator(ActuatorPort):
     async def _llamar(self, dominio: str, servicio: str, datos: dict[str, Any]) -> None:
         await self._hass.services.async_call(dominio, servicio, datos, blocking=True)
 
-    async def climate_heat(self, entity_id: str, hvac_mode: str, temperature: float | None) -> None:
+    async def climate_set_mode(self, entity_id: str, hvac_mode: str) -> None:
         await self._llamar("climate", "set_hvac_mode",
                            {"entity_id": entity_id, "hvac_mode": hvac_mode})
-        if temperature is not None:
-            await self._llamar("climate", "set_temperature",
-                               {"entity_id": entity_id, "temperature": temperature})
+
+    async def climate_set_temperature(self, entity_id: str, temperature: float) -> None:
+        await self._llamar("climate", "set_temperature",
+                           {"entity_id": entity_id, "temperature": temperature})
 
     async def climate_off(self, entity_id: str) -> None:
         await self._llamar("climate", "set_hvac_mode",

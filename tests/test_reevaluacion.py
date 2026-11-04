@@ -1,4 +1,4 @@
-# Versión: 2026.11.9
+# Versión: 2026.11.12
 """Tests de la reevaluación durante el tramo (omisiones por condiciones que luego se cumplen)."""
 from __future__ import annotations
 
@@ -62,7 +62,7 @@ def test_la_omision_por_condicion_deja_el_tramo_pendiente_y_se_reevalua():
     registros = reevaluar(e)
     assert [(r.action, r.code) for r in registros] == [("on", aj.COD_OK)]
     assert registros[0].reason == aj.MOTIVO_REEVALUACION and registros[0].kind == "start"
-    assert e.act.llamadas[0] == ("heat", CLIMA, "heat", 20.0)
+    assert e.act.llamadas[0] == ("heat", CLIMA, "heat")
     assert len(e.envio.enviados) == 1 and "ACTIVADA" in e.envio.enviados[0][2]
     assert e.runner.salas_pendientes() == set()
 
@@ -168,15 +168,15 @@ def test_un_fallo_del_actuador_se_reintenta_en_la_siguiente_reevaluacion():
     e = montar()
     inicio(e)
     e.estado.estados.update(FRIO)
-    ok = e.act.climate_heat
+    ok = e.act.climate_set_mode
 
     async def falla(*a):
         raise RuntimeError("sin conexión")
-    e.act.climate_heat = falla
+    e.act.climate_set_mode = falla
     hora(e, "06:15")
     assert [r.action for r in reevaluar(e)] == ["error"]
     assert e.runner.salas_pendientes() == {"dormitorio"}  # no se da por iniciado
-    e.act.climate_heat = ok
+    e.act.climate_set_mode = ok
     hora(e, "06:30")
     assert [r.action for r in reevaluar(e)] == ["on"]
 

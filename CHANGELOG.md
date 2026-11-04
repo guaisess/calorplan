@@ -2,6 +2,25 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.12
+
+**Órdenes a los dispositivos más robustas y silenciosas** (cada orden hace pitar al termostato).
+
+- **No se envía nada que ya esté aplicado:** antes de cada orden se comprueba el estado. Si el
+  climate ya está en modo calor, si la temperatura objetivo ya es la deseada (con una tolerancia de
+  0,5 °C por si el termostato redondea), si el bloqueo infantil ya está en su sitio o si el switch
+  ya está encendido, no se manda ninguna orden. Relanzar un tramo ya encendido no hace pitar.
+- **Modo y temperatura por separado:** un fallo al fijar la temperatura ya no repite el modo.
+- **Reintentos con comprobación:** hasta 3 intentos por orden, con 5 s de espera, y **antes de
+  cada reintento se vuelve a comprobar el estado** (a veces la nube de Tuya da un error pero la orden
+  sí se aplicó). Si la temperatura no se puede leer, se envía una sola vez.
+- **El apagado también comprueba antes de reintentar.** «Apagar igualmente» sigue enviando la
+  primera orden.
+- **Si aun así falla:** el tramo queda pendiente y la reevaluación (si está activa) completa solo lo
+  que falte, sin repetir lo ya aplicado. El error se avisa **solo la primera vez**.
+- Contexto: el 3/11 a las 20:00 la nube de Tuya rechazó la temperatura de Principal, que quedó
+  en modo calor con el objetivo anterior hasta que se corrigió a mano.
+
 ## 2026.11.11
 
 - **Servicios `calorplan.set_pause` y `calorplan.clear_pause`** para crear y quitar pausas desde tus

@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.12
 """Puertos (interfaces abstractas) que el motor necesita del exterior.
 
 Los adaptadores reales viven en `ha/adapters.py`; los tests usan falsos.
@@ -29,13 +29,21 @@ class StatePort(ABC):
     def is_available(self, entity_id: str) -> bool:
         """Indica si la entidad existe y no está «unavailable/unknown»."""
 
+    @abstractmethod
+    def get_attribute(self, entity_id: str, name: str) -> Any:
+        """Valor de un atributo de la entidad, o None si no existe."""
+
 
 class ActuatorPort(ABC):
     """Órdenes a los dispositivos."""
 
     @abstractmethod
-    async def climate_heat(self, entity_id: str, hvac_mode: str, temperature: float | None) -> None:
-        """Pone el climate en modo calor y fija la temperatura objetivo (si hay)."""
+    async def climate_set_mode(self, entity_id: str, hvac_mode: str) -> None:
+        """Cambia el modo del climate (p. ej. `heat`)."""
+
+    @abstractmethod
+    async def climate_set_temperature(self, entity_id: str, temperature: float) -> None:
+        """Fija la temperatura objetivo del climate."""
 
     @abstractmethod
     async def climate_off(self, entity_id: str) -> None:

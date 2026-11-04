@@ -1,8 +1,9 @@
-# Versión: 2026.11.10
+# Versión: 2026.11.12
 """Ejecutor: aplica los eventos planificados sobre los actuadores."""
 from __future__ import annotations
 
 import logging
+from collections.abc import Awaitable, Callable
 from datetime import datetime
 from typing import Any
 
@@ -32,6 +33,8 @@ class Runner:
         self._pendientes: set[tuple[str, str]] = set()
         # De ellos, los omitidos por falta de datos de sensores (se reintentan tras un arranque)
         self._sin_datos: set[tuple[str, str]] = set()
+        # De ellos, los que fallaron al accionar el dispositivo (se reintentan; avisan solo la 1.ª vez)
+        self._con_error: set[tuple[str, str]] = set()
         # Último inicio gestionado de cada tramo («habitación/tramo» → inicio y resultado)
         self._manejados: dict[str, dict[str, str]] = {}
         self.plan = plan
@@ -83,6 +86,7 @@ class Runner:
         """Deja de reevaluar un tramo."""
         self._pendientes.discard(clave)
         self._sin_datos.discard(clave)
+        self._con_error.discard(clave)
 
     def ya_gestionado(self, room_id: str, slot_id: str, inicio: datetime) -> bool:
         """Indica si el inicio de ese tramo (esa ocurrencia) ya se gestionó, p. ej. antes de un reinicio."""
@@ -184,7 +188,7 @@ class Runner:
             if (not sala.enabled or not tramo.enabled or self.plan.config.away_mode
                     or self.pausa_vigente(sala) is not None):
                 continue  # sigue pendiente: se reanudará cuando se levante el bloqueo
-            if self._ya_encendido(sala.actuator):
+            if self._ya_encendido(sala.actuator) and clave not in self._con_error:
                 self._quitar_pendiente(clave)  # alguien lo encendió: no se interviene
                 continue
             if not self._evaluator.evaluate(sala, tramo, self.plan.config, politica).start:
@@ -240,21 +244,71 @@ class Runner:
                 await self._encender(sala.actuator, tramo)
             except Exception as err:  # noqa: BLE001 - cualquier fallo del actuador
                 _LOGGER.exception("Error al encender %s", sala.id)
+                clave = (sala.id, tramo.id)
+                repetido = reevaluacion and clave in self._con_error  # el 1.er error ya avisó
+                self._pendientes.add(clave)  # se reintentará en la siguiente reevaluación
+                self._con_error.add(clave)
                 return await self._emitir(
                     sala, tramo, tipo, ajustes.ACCION_ERROR, ajustes.COD_NO_DISPONIBLE,
-                    ajustes.MOTIVO_ACTUADOR_ERROR.format(error=err), decision)
+                    ajustes.MOTIVO_ACTUADOR_ERROR.format(error=err), decision, avisar=not repetido)
         self._quitar_pendiente((sala.id, tramo.id))
         motivo = ajustes.MOTIVO_REEVALUACION if reevaluacion else decision.reason
         return await self._emitir(sala, tramo, tipo, ajustes.ACCION_ENCENDER, decision.code,
                                   motivo, decision)
 
+    async def _asegurar(self, paso: str, aplicado: Callable[[], bool | None],
+                        enviar: Callable[[], Awaitable[None]]) -> None:
+        """Deja aplicado un paso (modo, temperatura, encendido...) sin enviar órdenes innecesarias.
+
+        Cada orden hace pitar al termostato, así que antes de enviar —y antes de cada reintento—
+        se comprueba el estado: si ya está aplicado no se manda nada. Tras enviar se comprueba al
+        momento y, si no consta, se espera y se vuelve a comprobar antes de reenviar (a veces el
+        servicio devuelve un error pero la orden sí se aplica). `aplicado()` devuelve None si no
+        se puede verificar: entonces se envía una sola vez.
+        """
+        ultimo_error: Exception | None = None
+        for _ in range(ajustes.ORDEN_REINTENTOS):
+            if aplicado() is True:
+                return
+            try:
+                await enviar()
+            except Exception as err:  # noqa: BLE001 - se comprueba el estado antes de reintentar
+                _LOGGER.warning("Orden «%s» con error: %s", paso, err)
+                ultimo_error = err
+            else:
+                if aplicado() is not False:  # aplicado, o no verificable: se da por buena
+                    return
+            await self._clock.sleep(ajustes.ORDEN_ESPERA_SEGUNDOS)
+            if aplicado() is True:
+                return
+        motivo = ajustes.MOTIVO_ORDEN_NO_CONFIRMADA.format(paso=paso, intentos=ajustes.ORDEN_REINTENTOS)
+        raise RuntimeError(f"{motivo} ({ultimo_error})" if ultimo_error else motivo)
+
+    def _objetivo_aplicado(self, entity_id: str, valor: float) -> bool | None:
+        """¿La temperatura objetivo del climate ya es la deseada? None si no se puede saber."""
+        actual = self._state.get_attribute(entity_id, ajustes.ATRIBUTO_TEMPERATURA)
+        try:
+            return abs(float(actual) - float(valor)) <= ajustes.TOLERANCIA_OBJETIVO
+        except (TypeError, ValueError):
+            return None
+
     async def _encender(self, act: Actuator, tramo: Slot) -> None:
-        """Enciende el actuador y aplica el bloqueo infantil de inicio."""
+        """Enciende el actuador (modo y temperatura por separado, comprobando) y aplica el bloqueo."""
+        entidad = act.entity_id
         if act.type == ajustes.TIPO_CLIMATE:
-            await self._actuator.climate_heat(act.entity_id, act.hvac_mode_on, tramo.setpoint)
+            await self._asegurar(
+                f"modo {act.hvac_mode_on}", lambda: self._state.is_state(entidad, act.hvac_mode_on),
+                lambda: self._actuator.climate_set_mode(entidad, act.hvac_mode_on))
+            if tramo.setpoint is not None:
+                await self._asegurar(
+                    f"temperatura objetivo {tramo.setpoint}",
+                    lambda: self._objetivo_aplicado(entidad, tramo.setpoint),
+                    lambda: self._actuator.climate_set_temperature(entidad, tramo.setpoint))
             await self._bloqueo(act, act.child_lock_on_start)
         else:
-            await self._actuator.switch_set(act.entity_id, True)
+            await self._asegurar(
+                "encendido", lambda: self._state.is_state(entidad, act.estado_encendido),
+                lambda: self._actuator.switch_set(entidad, True))
 
     # --- Fin y reintento ---------------------------------------------------------
     async def _fin(self, sala: Room, tramo: Slot, tipo: str) -> Record | None:
@@ -292,9 +346,14 @@ class Runner:
     async def _apagar_verificado(self, act: Actuator) -> tuple[bool, str | None]:
         """Apaga y comprueba el estado, con reintentos. Devuelve (ok, último error)."""
         ultimo_error: str | None = None
-        for _ in range(act.verify_attempts):
+        for intento in range(act.verify_attempts):
             if not await self._esperar_disponible(act.entity_id):
                 continue
+            # Los reintentos (y el caso normal) comprueban antes: si ya consta apagado no se manda otra
+            # orden (cada una hace pitar). «Apagar igualmente» envía siempre la primera.
+            if ((intento > 0 or act.off_only_if_heating)
+                    and self._state.is_state(act.entity_id, act.estado_apagado)):
+                return True, None
             try:
                 if act.type == ajustes.TIPO_CLIMATE:
                     await self._actuator.climate_off(act.entity_id)
@@ -321,17 +380,20 @@ class Runner:
 
     # --- Utilidades ---------------------------------------------------------------
     async def _bloqueo(self, act: Actuator, accion: str) -> None:
-        """Aplica el bloqueo infantil; un fallo se registra pero no es crítico."""
+        """Aplica el bloqueo infantil (solo si hace falta); un fallo se registra pero no es crítico."""
         if not act.tiene_bloqueo or accion == ajustes.BLOQUEO_NADA:
             return
+        bloquear = accion == ajustes.BLOQUEO_BLOQUEAR
+        deseado = ajustes.ESTADO_SWITCH_ENCENDIDO if bloquear else ajustes.ESTADO_SWITCH_APAGADO
         try:
-            await self._actuator.switch_set(act.child_lock_switch,
-                                            accion == ajustes.BLOQUEO_BLOQUEAR)
+            await self._asegurar(
+                "bloqueo infantil", lambda: self._state.is_state(act.child_lock_switch, deseado),
+                lambda: self._actuator.switch_set(act.child_lock_switch, bloquear))
         except Exception:  # noqa: BLE001 - el bloqueo no debe romper el encendido
             _LOGGER.exception("No se pudo aplicar el bloqueo infantil de %s", act.entity_id)
 
     async def _emitir(self, sala: Room, tramo: Slot, tipo: str, accion: str, codigo: str,
-                      motivo: str, decision: Decision | None = None) -> Record:
+                      motivo: str, decision: Decision | None = None, avisar: bool = True) -> Record:
         """Crea el registro, dispara el evento y avisa (salvo en modo sombra)."""
         if tipo == ajustes.EVENTO_INICIO:
             self._registrar_manejo(sala, tramo, accion, codigo)
@@ -348,6 +410,6 @@ class Runner:
         datos = registro.to_dict()
         self._events.record(datos)
         self._events.fire(ajustes.EVENTO_ACCION, datos)
-        if not sombra:
+        if not sombra and avisar:
             await self._notifier.notificar(sala, tramo, registro)
         return registro
