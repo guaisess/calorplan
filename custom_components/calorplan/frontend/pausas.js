@@ -1,8 +1,8 @@
-// Versión: 2026.11.10
+// Versión: 2026.11.11
 // Lógica pura de las pausas: borradores, formulario y formato de fechas.
 
-import { parseEntries } from "./forms.js?v=2026.11.10";
-import { PAUSAS } from "./textos_pausas.js?v=2026.11.10";
+import { parseEntries } from "./forms.js?v=2026.11.11";
+import { PAUSAS } from "./textos_pausas.js?v=2026.11.11";
 
 /** Suma días a una fecha «AAAA-MM-DD» (sin depender de la zona horaria). */
 export function sumarDias(iso, dias) {

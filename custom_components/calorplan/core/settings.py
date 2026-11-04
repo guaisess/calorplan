@@ -1,4 +1,4 @@
-# Versión: 2026.11.10
+# Versión: 2026.11.11
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.10"
+VERSION = "2026.11.11"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -287,3 +287,16 @@ RESULTADO_ERROR = "error"
 RESULTADO_PENDIENTE = "pending"  # omitido por condiciones: puede reevaluarse
 RESULTADO_PENDIENTE_DATOS = "pending_data"  # omitido por falta de datos de sensores
 CODIGOS_SIN_DATOS = (COD_EXTERIOR_NO_DISPONIBLE, COD_INTERIOR_NO_DISPONIBLE)
+
+# --- Servicios de pausas para automatizaciones -----------------------------------------------------
+SERVICIO_PAUSA = "set_pause"
+SERVICIO_QUITAR_PAUSA = "clear_pause"
+CAMPO_DESDE = "from"
+CAMPO_HASTA = "until"
+CAMPO_MOTIVO = "reason"
+CAMPO_ACTIVA = "enabled"
+CAMPO_ID_PAUSA = "pause_id"
+PAUSA_CREADA = "created"
+PAUSA_ACTUALIZADA = "updated"
+PAUSA_SIN_CAMBIOS = "unchanged"
+ERROR_QUITAR_PAUSA_FALTA = "Indica 'pause_id' o 'reason' para quitar una pausa"

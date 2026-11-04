@@ -44,3 +44,47 @@ test_notification:
         text:
 
 reload:
+
+set_pause:
+  fields:
+    room_id:
+      required: false
+      example: "dormitorio_alba"
+      selector:
+        text:
+    reason:
+      required: false
+      example: "Vacaciones"
+      selector:
+        text:
+    from:
+      required: false
+      selector:
+        date:
+    until:
+      required: false
+      selector:
+        date:
+    enabled:
+      required: false
+      default: true
+      selector:
+        boolean:
+
+clear_pause:
+  fields:
+    room_id:
+      required: false
+      example: "dormitorio_alba"
+      selector:
+        text:
+    reason:
+      required: false
+      example: "Vacaciones"
+      selector:
+        text:
+    pause_id:
+      required: false
+      example: "vacaciones"
+      selector:
+        text:

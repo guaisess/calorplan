@@ -120,6 +120,46 @@ Tras importar la configuración aparece **Calorplan** en la barra lateral (solo 
 | `calorplan.set_away` | Activa o desactiva el modo ausencia |
 | `calorplan.test_notification` | Envía un aviso de prueba a un canal |
 | `calorplan.reload` | Recarga la integración |
+| `calorplan.set_pause` | Crea o actualiza una pausa (idempotente), por habitación o de toda la casa |
+| `calorplan.clear_pause` | Quita pausas por motivo o identificador |
+
+### Pausas desde automatizaciones
+
+`set_pause` crea **o actualiza** la pausa que tenga ese motivo en ese ámbito, así que puedes llamarla tantas veces como quieras sin duplicar nada. Sin `room_id` afecta a toda la casa; sin `until` no tiene fecha de fin.
+
+```yaml
+# Vacaciones con fechas, solo en el dormitorio de Alba
+action: calorplan.set_pause
+data:
+  room_id: dormitorio_alba
+  reason: Vacaciones
+  from: "2026-12-20"
+  until: "2027-01-06"
+```
+
+```yaml
+# Casa vacía: pausa sin fecha de fin al llevar 24 h sin nadie; se quita al volver
+automation:
+  - alias: Pausar calefacción con la casa vacía
+    trigger:
+      - platform: state
+        entity_id: group.personas
+        to: not_home
+        for: { hours: 24 }
+    action:
+      - action: calorplan.set_pause
+        data: { reason: Casa vacía }
+  - alias: Reanudar calefacción al volver
+    trigger:
+      - platform: state
+        entity_id: group.personas
+        to: home
+    action:
+      - action: calorplan.clear_pause
+        data: { reason: Casa vacía }
+```
+
+Las dos devuelven una respuesta (`pause_id` y `result`: `created`, `updated` o `unchanged`; `removed`) que puedes recoger con `response_variable`.
 
 ## Desarrollo y tests
 

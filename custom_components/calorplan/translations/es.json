@@ -66,6 +66,50 @@
     "reload": {
       "name": "Recargar",
       "description": "Recarga la integración y recrea sus entidades."
+    },
+    "set_pause": {
+      "name": "Crear o actualizar pausa",
+      "description": "Crea una pausa (o actualiza la que tenga el mismo motivo y ámbito): mientras está activa no se programan encendidos. Pensada para automatizaciones; repetir la llamada no duplica pausas.",
+      "fields": {
+        "room_id": {
+          "name": "Habitación",
+          "description": "Identificador de la habitación. Si se omite, la pausa es para toda la casa."
+        },
+        "reason": {
+          "name": "Motivo",
+          "description": "Motivo de la pausa (por ejemplo Vacaciones). Es la clave para actualizarla o quitarla."
+        },
+        "from": {
+          "name": "Desde",
+          "description": "Primer día incluido. Por defecto, hoy."
+        },
+        "until": {
+          "name": "Hasta",
+          "description": "Último día incluido. Si se omite, no tiene fecha de fin hasta que se quite."
+        },
+        "enabled": {
+          "name": "Habilitada",
+          "description": "Permite crearla deshabilitada."
+        }
+      }
+    },
+    "clear_pause": {
+      "name": "Quitar pausa",
+      "description": "Quita las pausas con ese motivo (o identificador) de una habitación o de toda la casa. No falla si no existe ninguna.",
+      "fields": {
+        "room_id": {
+          "name": "Habitación",
+          "description": "Identificador de la habitación. Si se omite, se buscan las de toda la casa."
+        },
+        "reason": {
+          "name": "Motivo",
+          "description": "Motivo de las pausas a quitar."
+        },
+        "pause_id": {
+          "name": "Identificador",
+          "description": "Identificador de la pausa a quitar."
+        }
+      }
     }
   }
 }

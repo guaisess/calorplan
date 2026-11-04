@@ -1,4 +1,4 @@
-# Versión: 2026.11.8
+# Versión: 2026.11.11
 """Editor del plan: altas, cambios y bajas de tramos con validación completa.
 
 Cada operación devuelve un plan NUEVO (el original no se modifica): se vuelve a
@@ -143,6 +143,56 @@ class PlanEditor:
             raise ConfigError(ajustes.ERROR_PAUSA_INEXISTENTE.format(pausa=pause_id))
         contenedor["pauses"] = restantes
         return Plan.from_dict(completo)
+
+    @staticmethod
+    def _clave_motivo(texto: Any) -> str:
+        """Motivo normalizado para comparar (sin mayúsculas ni espacios sobrantes)."""
+        return " ".join(str(texto or "").split()).casefold()
+
+    @classmethod
+    def fijar_pausa(cls, plan: Plan, room_id: str | None, motivo: str, desde: str,
+                    hasta: str | None, habilitada: bool = True) -> tuple[Plan, str, str]:
+        """Crea o actualiza **la** pausa con ese motivo en ese ámbito (idempotente).
+
+        Pensado para automatizaciones: llamarla varias veces con los mismos datos no duplica
+        pausas ni llena el historial. Devuelve (plan, id de la pausa, «created» | «updated» |
+        «unchanged»). `hasta=None` significa sin fecha de fin.
+        """
+        lista = cls._contenedor_pausas(copy.deepcopy(plan.to_dict()), room_id).get("pauses", [])
+        clave = cls._clave_motivo(motivo)
+        existente = next((p for p in lista if cls._clave_motivo(p.get("reason")) == clave), None)
+        nueva = {"reason": " ".join(str(motivo or "").split()), "from": desde, "until": hasta,
+                 "enabled": habilitada}
+        if existente is None:
+            nuevo, id_ = cls.guardar_pausa(plan, nueva, None, room_id)
+            return nuevo, id_, ajustes.PAUSA_CREADA
+        if all(existente.get(k) == v for k, v in nueva.items()):
+            return plan, existente["id"], ajustes.PAUSA_SIN_CAMBIOS
+        nuevo, id_ = cls.guardar_pausa(plan, nueva, existente["id"], room_id)
+        return nuevo, id_, ajustes.PAUSA_ACTUALIZADA
+
+    @classmethod
+    def quitar_pausas(cls, plan: Plan, room_id: str | None, pause_id: str | None = None,
+                      motivo: str | None = None) -> tuple[Plan, int]:
+        """Quita las pausas con ese id, o con ese motivo, de un ámbito. Devuelve (plan, cuántas).
+
+        No falla si no hay ninguna (útil en automatizaciones). Exige `pause_id` o `motivo`.
+        """
+        if pause_id is None and motivo is None:
+            raise ConfigError(ajustes.ERROR_QUITAR_PAUSA_FALTA)
+        completo = copy.deepcopy(plan.to_dict())
+        contenedor = cls._contenedor_pausas(completo, room_id)
+        lista = contenedor.get("pauses", [])
+        if pause_id is not None:
+            restantes = [p for p in lista if p["id"] != pause_id]
+        else:
+            clave = cls._clave_motivo(motivo)
+            restantes = [p for p in lista if cls._clave_motivo(p.get("reason")) != clave]
+        quitadas = len(lista) - len(restantes)
+        if quitadas == 0:
+            return plan, 0
+        contenedor["pauses"] = restantes
+        return Plan.from_dict(completo), quitadas
 
     @classmethod
     def validar_pausa(cls, plan: Plan, pausa: dict[str, Any], pause_id: str | None = None,

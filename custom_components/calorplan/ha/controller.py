@@ -1,4 +1,4 @@
-# Versión: 2026.11.10
+# Versión: 2026.11.11
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -314,6 +314,25 @@ class Controller:
         nuevo = PlanEditor.borrar_pausa(self.plan, pause_id, room_id)
         ambito = room_id or ajustes.PAUSA_AMBITO_CASA
         await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_PAUSA_BORRAR.format(ambito=ambito, pausa=pause_id))
+
+    async def async_fijar_pausa(self, room_id: str | None, motivo: str, desde: str,
+                                hasta: str | None, habilitada: bool = True) -> tuple[str, str]:
+        """Crea o actualiza la pausa con ese motivo (idempotente). Devuelve (id, resultado)."""
+        nuevo, id_, resultado = PlanEditor.fijar_pausa(self.plan, room_id, motivo, desde, hasta, habilitada)
+        if resultado != ajustes.PAUSA_SIN_CAMBIOS:
+            ambito = room_id or ajustes.PAUSA_AMBITO_CASA
+            await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_PAUSA_GUARDAR.format(ambito=ambito, pausa=id_))
+        return id_, resultado
+
+    async def async_quitar_pausas(self, room_id: str | None, pause_id: str | None = None,
+                                  motivo: str | None = None) -> int:
+        """Quita pausas por id o por motivo. Devuelve cuántas se quitaron (puede ser 0)."""
+        nuevo, quitadas = PlanEditor.quitar_pausas(self.plan, room_id, pause_id, motivo)
+        if quitadas:
+            ambito = room_id or ajustes.PAUSA_AMBITO_CASA
+            await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_PAUSA_BORRAR.format(
+                ambito=ambito, pausa=pause_id or motivo))
+        return quitadas
 
     def en_pausa(self, room_id: str) -> tuple[Any, bool] | None:
         """Pausa vigente que afecta a la habitación: (pausa, es_global) o None."""

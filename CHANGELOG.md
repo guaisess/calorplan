@@ -2,6 +2,18 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.11
+
+- **Servicios `calorplan.set_pause` y `calorplan.clear_pause`** para crear y quitar pausas desde tus
+  propias automatizaciones.
+  - `set_pause`: `room_id` (opcional; sin él, toda la casa), `from` (por defecto hoy), `until`
+    (opcional; omitido o `null` = sin fecha de fin; una fecha vacía se rechaza), `reason`, `enabled`.
+  - **Idempotente:** crea o actualiza *la* pausa con ese motivo en ese ámbito (sin distinguir
+    mayúsculas ni espacios), así que repetir la llamada no duplica pausas ni llena el historial.
+  - `clear_pause`: quita por `reason` o `pause_id`; no falla si no existe ninguna.
+  - Devuelven una respuesta (`pause_id` y `result`: `created`/`updated`/`unchanged`; `removed`),
+    útil con `response_variable`.
+
 ## 2026.11.10
 
 **Reinicio seguro**: tras reiniciar Home Assistant, Calorplan ya no toca lo que estaba como estaba.

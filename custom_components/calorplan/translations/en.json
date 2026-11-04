@@ -66,6 +66,50 @@
     "reload": {
       "name": "Reload",
       "description": "Reloads the integration and recreates its entities."
+    },
+    "set_pause": {
+      "name": "Create or update pause",
+      "description": "Creates a pause (or updates the one with the same reason and scope): no starts are scheduled while it is active. Meant for automations; repeating the call does not duplicate pauses.",
+      "fields": {
+        "room_id": {
+          "name": "Room",
+          "description": "Room identifier. If omitted, the pause applies to the whole house."
+        },
+        "reason": {
+          "name": "Reason",
+          "description": "Reason for the pause (for example Vacation). It is the key to update or remove it."
+        },
+        "from": {
+          "name": "From",
+          "description": "First day, included. Defaults to today."
+        },
+        "until": {
+          "name": "Until",
+          "description": "Last day, included. If omitted, it has no end date until removed."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Allows creating it disabled."
+        }
+      }
+    },
+    "clear_pause": {
+      "name": "Remove pause",
+      "description": "Removes the pauses with that reason (or identifier) from a room or the whole house. It does not fail if none exists.",
+      "fields": {
+        "room_id": {
+          "name": "Room",
+          "description": "Room identifier. If omitted, whole-house pauses are used."
+        },
+        "reason": {
+          "name": "Reason",
+          "description": "Reason of the pauses to remove."
+        },
+        "pause_id": {
+          "name": "Identifier",
+          "description": "Identifier of the pause to remove."
+        }
+      }
     }
   }
 }
