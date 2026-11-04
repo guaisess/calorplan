@@ -1,8 +1,8 @@
-// Versión: 2026.11.20
+// Versión: 2026.11.21
 // Generación del HTML de la tarjeta (funciones puras: datos → texto).
 
-import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.20";
-import { accionesHabitacion, estadoHabitacion, filtrarHabitaciones, hhmm, posicion, textoEstado, textoProximo } from "./card_logic.js?v=2026.11.20";
+import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.21";
+import { accionesHabitacion, estadoHabitacion, filtrarHabitaciones, hhmm, posicion, textoEstado, textoProximo } from "./card_logic.js?v=2026.11.21";
 
 /** Escapa texto para insertarlo en HTML. */
 export function esc(valor) {

@@ -1,4 +1,4 @@
-# Versión: 2026.11.20
+# Versión: 2026.11.21
 """Ejecutor: aplica los eventos planificados sobre los actuadores."""
 from __future__ import annotations
 
@@ -60,6 +60,24 @@ class Runner:
         if not sala.enabled:
             return None  # habitación deshabilitada = control manual: Calorplan no apaga nada
         return await self._fin(sala, tramo, evento.kind)
+
+    async def procesar_al_habilitar(self, room_id: str) -> list[Record]:
+        """Al habilitar una habitación: si está dentro de un tramo, procesa su inicio como si acabara de empezar.
+
+        Aplica las condiciones normales (sin forzar). Si el dispositivo ya está encendido (p. ej. a mano)
+        no se interviene; si las condiciones no se cumplen, queda pendiente de reevaluación.
+        """
+        sala = self.plan.room(room_id)
+        if sala is None or not sala.enabled:
+            return []
+        registros: list[Record] = []
+        for tramo in self.planner.active_slots(sala, self._clock.now()):
+            if not tramo.enabled:
+                continue
+            if self._ya_encendido(sala.actuator):
+                break  # ya está calentando: no se manda nada más
+            registros.append(await self._inicio(sala, tramo, False))
+        return registros
 
     async def apagar_por_deshabilitar(self, room_id: str) -> bool:
         """Al deshabilitar una habitación: apaga el dispositivo si está encendido y lo deja en manual.

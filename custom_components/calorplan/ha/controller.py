@@ -1,4 +1,4 @@
-# Versión: 2026.11.20
+# Versión: 2026.11.21
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -224,12 +224,23 @@ class Controller:
             sala.enabled = habilitada
             await self.store.async_save(self.plan)
             self._avisar()
-            if estaba_habilitada and not habilitada and self.runner is not None:
-                # Pasa a control manual: se apaga lo que estuviera encendido (en segundo plano)
+            if estaba_habilitada != habilitada and self.runner is not None:
+                # Deshabilitar: se apaga lo encendido y pasa a manual. Habilitar: procesa el tramo en curso
+                trabajo = (self._procesar_habilitada if habilitada else self._apagar_deshabilitada)(room_id)
                 tarea = self.hass.async_create_background_task(
-                    self._apagar_deshabilitada(room_id), name=f"{ajustes.DOMAIN}_deshabilitar_{room_id}")
+                    trabajo, name=f"{ajustes.DOMAIN}_habilitar_{room_id}")
                 self._tareas.add(tarea)
                 tarea.add_done_callback(self._tareas.discard)
+
+    async def _procesar_habilitada(self, room_id: str) -> None:
+        """Procesa el tramo en curso de una habitación recién habilitada (con su cerrojo)."""
+        assert self.runner is not None
+        async with self._cerrojos[room_id]:
+            try:
+                await self.runner.procesar_al_habilitar(room_id)
+            except Exception:  # noqa: BLE001 - un fallo no debe romper el servicio
+                _LOGGER.exception("Error al procesar %s tras habilitarla", room_id)
+        self._avisar()
 
     async def _apagar_deshabilitada(self, room_id: str) -> None:
         """Apaga el dispositivo de una habitación recién deshabilitada (con el cerrojo de la habitación)."""

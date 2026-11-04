@@ -1,4 +1,4 @@
-# Versión: 2026.11.20
+# Versión: 2026.11.21
 """Tests del ejecutor (inicio, fin, reintento, verificación, sombra, ausencia)."""
 from __future__ import annotations
 
@@ -313,3 +313,26 @@ def test_apagar_por_deshabilitar_exige_habitacion_deshabilitada():
     e = montar(estados={CLIMA: "heat"})
     assert asyncio.run(e.runner.apagar_por_deshabilitar("dormitorio")) is False
     assert e.actuador.llamadas == []
+
+
+def test_habilitar_dentro_de_un_tramo_lo_procesa_con_sus_condiciones():
+    e = montar()  # 06:00, dentro de «madrugada», frío fuera y dentro
+    e.plan.room("dormitorio").enabled = True
+    regs = asyncio.run(e.runner.procesar_al_habilitar("dormitorio"))
+    assert [r.action for r in regs] == ["on"] and e.estado.estados[CLIMA] == "heat"
+
+
+def test_habilitar_respeta_condiciones_ya_encendido_y_deshabilitada():
+    e = montar(estados={EXT[0]: "20", EXT[1]: "20"})  # no hace frío fuera
+    regs = asyncio.run(e.runner.procesar_al_habilitar("dormitorio"))
+    assert [r.action for r in regs] == ["skip"] and e.actuador.llamadas == []
+    m = montar(estados={CLIMA: "heat"})  # encendido a mano: no se interviene
+    assert asyncio.run(m.runner.procesar_al_habilitar("dormitorio")) == [] and m.actuador.llamadas == []
+    d = montar()
+    d.plan.room("dormitorio").enabled = False
+    assert asyncio.run(d.runner.procesar_al_habilitar("dormitorio")) == []
+
+
+def test_habilitar_fuera_de_horario_no_hace_nada():
+    e = montar(hora="08:00")  # entre «madrugada» y «tarde»
+    assert asyncio.run(e.runner.procesar_al_habilitar("dormitorio")) == [] and e.actuador.llamadas == []

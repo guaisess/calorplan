@@ -2,6 +2,12 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.21
+
+- **Habilitar una habitación procesa el tramo en curso**: si en ese momento hay un tramo activo, se evalúa
+  su inicio con las condiciones normales (sin forzar). Si el dispositivo ya está encendido no se toca, y si
+  las condiciones no se cumplen queda pendiente de reevaluación como cualquier inicio omitido.
+
 ## 2026.11.20
 
 - **Deshabilitar una habitación = control manual.** Al deshabilitarla, si su dispositivo está encendido
