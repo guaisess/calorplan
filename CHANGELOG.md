@@ -2,6 +2,11 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.19
+
+- Tarjeta Lovelace: corregido el botón de habilitar/deshabilitar, que mostraba el texto contrario
+  al estado de la habitación (una habitación habilitada ofrecía «Habilitar»).
+
 ## 2026.11.18
 
 - Nueva herramienta `tools/publicar_release.py`: comprueba versión, CHANGELOG, árbol limpio y commit

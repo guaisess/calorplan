@@ -1,9 +1,9 @@
-// Versión: 2026.11.18
+// Versión: 2026.11.19
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
-import { TEXTOS } from "./config.js?v=2026.11.18";
-import { esc } from "./logic.js?v=2026.11.18";
-import { CASA } from "./textos_casa.js?v=2026.11.18";
+import { TEXTOS } from "./config.js?v=2026.11.19";
+import { esc } from "./logic.js?v=2026.11.19";
+import { CASA } from "./textos_casa.js?v=2026.11.19";
 
 // --- Piezas comunes ----------------------------------------------------------------------------------
 const opciones = (mapa, actual) => Object.entries(mapa)

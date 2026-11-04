@@ -1,4 +1,4 @@
-// Versión: 2026.11.16
+// Versión: 2026.11.19
 // Tests de la tarjeta Lovelace: lógica pura y HTML generado.
 process.env.TZ = "Europe/Madrid";
 
@@ -58,4 +58,12 @@ test("renderTarjeta pinta cabecera, sala, línea y botones; escapa HTML", () => 
   assert.ok(html.includes("Desactivar ausencia") && html.includes("Pausar hasta mañana") && html.includes("Ejecutar tramo ahora"));
   assert.ok(html.includes('class="ahora"') && html.includes("Exterior 8"));
   assert.ok(!R.renderTarjeta(resumen(), L.normalizarConfig({ show_timeline: false })).includes('class="ahora"'));
+});
+
+test("el botón de habilitar ofrece la acción contraria al estado actual", () => {
+  const c = L.normalizarConfig({ actions: ["enable"] });
+  assert.ok(R.renderAcciones(sala({ enabled: true }), c).includes("Deshabilitar"));
+  assert.ok(R.renderAcciones(sala({ enabled: false }), c).includes("Habilitar"));
+  assert.ok(!R.renderAcciones(sala({ enabled: false }), c).includes("Deshabilitar"));
+  assert.ok(R.renderAcciones(sala({ quick_pause: true }), L.normalizarConfig({ actions: ["pause"] })).includes("Reanudar"));
 });

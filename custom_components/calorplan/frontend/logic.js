@@ -1,7 +1,7 @@
-// Versión: 2026.11.18
+// Versión: 2026.11.19
 // Lógica pura del panel (sin DOM): formatos, posiciones de barras y descripciones.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.18";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.19";
 
 /** Escapa texto para insertarlo en HTML. */
 export function esc(valor) {

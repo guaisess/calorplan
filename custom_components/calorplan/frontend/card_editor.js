@@ -1,10 +1,10 @@
-// Versión: 2026.11.18
+// Versión: 2026.11.19
 // Editor visual sencillo de la tarjeta (inputs nativos, evento `config-changed`).
 
-import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.18";
-import { normalizarConfig } from "./card_logic.js?v=2026.11.18";
-import { esc } from "./render_card.js?v=2026.11.18";
-import { ESTILOS_TARJETA } from "./styles_card.js?v=2026.11.18";
+import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.19";
+import { normalizarConfig } from "./card_logic.js?v=2026.11.19";
+import { esc } from "./render_card.js?v=2026.11.19";
+import { ESTILOS_TARJETA } from "./styles_card.js?v=2026.11.19";
 
 export class CalorplanCardEditor extends HTMLElement {
   constructor() {

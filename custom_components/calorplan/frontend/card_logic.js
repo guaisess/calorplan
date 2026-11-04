@@ -1,7 +1,7 @@
-// Versión: 2026.11.18
+// Versión: 2026.11.19
 // Lógica pura de la tarjeta (sin DOM): configuración, filtrado, texto de estado y servicios.
 
-import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.18";
+import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.19";
 
 /** Normaliza la configuración del usuario aplicando los valores por defecto. */
 export function normalizarConfig(cfg = {}) {
@@ -66,7 +66,8 @@ export function accionesHabitacion(h, config) {
   const lista = [];
   for (const a of config.actions) {
     if (a === "pause") lista.push({ id: "pause", activa: h.quick_pause });
-    else if (a === "enable") lista.push({ id: "enable", activa: !h.enabled });
+    // «activa» = el estado que el botón desharía: habitación habilitada → se ofrece «Deshabilitar»
+    else if (a === "enable") lista.push({ id: "enable", activa: h.enabled });
     else if (a === "run" && h.enabled && h.active) lista.push({ id: "run", activa: false });
   }
   return lista;
