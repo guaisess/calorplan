@@ -1,4 +1,4 @@
-# Versión: 2026.11.21
+# Versión: 2026.11.22
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.21"
+VERSION = "2026.11.22"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -327,3 +327,19 @@ AUTOIMPORTAR_ERROR = "No se pudo importar {fichero}: {error}. Corrígelo y usa e
 # --- Deshabilitar una habitación = control manual ----------------------------------------------------
 LOG_DESHABILITAR_APAGADO = "Habitación %s deshabilitada: dispositivo apagado, pasa a control manual"
 LOG_DESHABILITAR_FALLO = "Habitación %s deshabilitada, pero no se pudo comprobar el apagado (%s)"
+
+# --- Apagado de lo encendido a mano (límite por habitación) -----------------------------------------------
+MANUAL_MIN_MINUTOS = 1
+MANUAL_MAX_MINUTOS = 1440
+MANUAL_VENTANA_PROPIA_SEGUNDOS = 120  # un encendido tan próximo a una orden de Calorplan se considera suyo
+CLAVE_MANUAL = "__manual__"  # clave reservada en el estado persistente
+COD_MANUAL_APAGADO = "manual_timeout"
+TRAMO_MANUAL_ID = "manual"
+TRAMO_MANUAL_NOMBRE = "Encendido manual"
+EVENTO_MANUAL = "manual"
+MOTIVO_MANUAL_APAGADO = "Encendida a mano durante {minutos} min (límite {limite} min)"
+MOTIVO_MANUAL_ERROR = "No se pudo apagar tras el límite de encendido manual ({limite} min)"
+MENSAJE_MANUAL_APAGADO = "⏱️ {room} apagada: llevaba {minutos} min encendida a mano (límite {limite} min)."
+MENSAJE_MANUAL_ERROR = "⚠️ {room} sigue encendida tras el límite de encendido manual ({limite} min) y no se pudo apagar."
+ERROR_MANUAL_RANGO = "Habitación '{habitacion}': 'manual_max_minutes' debe ser un entero entre {minimo} y {maximo}"
+MANUAL_REPROGRAMAR_SEGUNDOS = 60  # reintento si el límite ya venció y no se pudo actuar (p. ej. modo sombra)

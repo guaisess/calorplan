@@ -1,9 +1,9 @@
-// Versión: 2026.11.21
+// Versión: 2026.11.22
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
-import { TEXTOS } from "./config.js?v=2026.11.21";
-import { esc } from "./logic.js?v=2026.11.21";
-import { CASA } from "./textos_casa.js?v=2026.11.21";
+import { TEXTOS } from "./config.js?v=2026.11.22";
+import { esc } from "./logic.js?v=2026.11.22";
+import { CASA } from "./textos_casa.js?v=2026.11.22";
 
 // --- Piezas comunes ----------------------------------------------------------------------------------
 const opciones = (mapa, actual) => Object.entries(mapa)
@@ -140,6 +140,7 @@ export function renderFormHabitacion(h, ctx, validacion) {
     ${bloqueo}
     ${casilla("offOnlyHeating", E.soloSiEncendido, a.off_only_if_heating)}
     ${campo(E.intentos, `<input type="number" name="verify" min="${CASA.limites.intentosMin}" max="${CASA.limites.intentosMax}" value="${esc(a.verify_attempts)}">`)}
+    ${campo(E.manualMax, `<input type="number" name="manualMax" min="${CASA.limites.manualMin}" max="${CASA.limites.manualMax}" value="${esc(h.manual_max_minutes ?? "")}">`)}
     <h3>${E.sensores}</h3>${sensores}
     <button type="button" data-accion="anadir-sensor-habitacion">+ ${E.anadirSensor}</button>
     ${campo(E.agregacion, `<select name="agg">${opciones(CASA.agregaciones, h.indoor_aggregation)}</select>`)}

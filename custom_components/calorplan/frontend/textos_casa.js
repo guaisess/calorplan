@@ -1,4 +1,4 @@
-// Versión: 2026.11.10
+// Versión: 2026.11.22
 // Textos y valores por defecto de la vista «Casa» (ajustes globales y habitaciones).
 
 export const CASA = {
@@ -75,6 +75,7 @@ export const CASA = {
     bloqueoOpciones: { lock: "Bloquear", unlock: "Desbloquear", none: "No hacer nada" },
     soloSiEncendido: "Apagar solo si está encendido",
     intentos: "Intentos de verificación del apagado",
+    manualMax: "Apagar lo encendido a mano tras (minutos; vacío = sin límite)",
     sensores: "Sensores de temperatura de la habitación",
     anadirSensor: "Añadir sensor",
     agregacion: "Si hay varios sensores",
@@ -92,5 +93,5 @@ export const CASA = {
     hvacModoEncendido: "heat",
     esperaArranque: 120,
   },
-  limites: { intentosMin: 1, intentosMax: 10 },
+  limites: { intentosMin: 1, intentosMax: 10, manualMin: 1, manualMax: 1440 },
 };

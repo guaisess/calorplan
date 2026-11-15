@@ -102,7 +102,7 @@ Tras importar la configuración aparece **Calorplan** en la barra lateral (solo 
 
 **Casa** (edición)
 - **Ajustes globales**: sensores exteriores y cómo se combinan (más frío, más cálido o media), canales de aviso (con botón *Probar*), aviso por defecto, mensajes, política si falta un sensor, comportamiento al arrancar y **modo sombra**.
-- **Habitaciones**: alta, edición y baja con su `climate` o `switch`, bloqueo infantil, sensores y agregación.
+- **Habitaciones**: alta, edición y baja con su `climate` o `switch`, bloqueo infantil, sensores y agregación, y un **límite para lo encendido a mano** (`manual_max_minutes`: pasado ese tiempo se apaga y se avisa, haya o no movimiento; vacío = sin límite).
 - Cada cambio se **valida en el servidor** antes de guardar y se conserva una **copia de las últimas 10 versiones**, que se pueden restaurar desde *Historial*.
 
 ## Tarjeta Lovelace

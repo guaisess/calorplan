@@ -1,4 +1,4 @@
-// Versión: 2026.11.10
+// Versión: 2026.11.22
 // Tests de la vista «Casa» (node --test): conversión de formularios y HTML.
 process.env.TZ = "Europe/Madrid";
 
@@ -280,4 +280,11 @@ test("renderGlobal: campo de espera tras arrancar con su ayuda", () => {
   assert.match(html, /Esperar tras arrancar Home Assistant antes de actuar \(segundos\)/);
   assert.match(html, /nunca se enciende con datos ausentes/);
   assert.match(vista.renderGlobal(clonar(GLOBAL), CTX, { ok: true }), /name="startupDelay"[^>]*value="120"/);
+});
+
+test("límite de encendido manual: vacío = sin límite y número = minutos", () => {
+  const base = [["name", "A"], ["actuatorType", "switch"], ["entity", "switch.a"], ["notifyMode", "inherit"]];
+  assert.equal(casa.formToRoom([...base, ["manualMax", ""]], null).manual_max_minutes, null);
+  assert.equal(casa.formToRoom([...base, ["manualMax", "180"]], null).manual_max_minutes, 180);
+  assert.equal(casa.habitacionVacia().manual_max_minutes, null);
 });

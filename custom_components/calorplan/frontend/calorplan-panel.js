@@ -1,24 +1,24 @@
-// Versión: 2026.11.21
+// Versión: 2026.11.22
 // Panel lateral de Calorplan (web component sin dependencias ni compilación).
 // Vistas: «Resumen» (solo lectura) y «Casa» (ajustes globales y habitaciones).
 
 import {
   canalesNotify, clonar, entidadesDe, fmtFecha, formToGlobal, formToRoom, habitacionVacia, sensoresTemperatura,
-} from "./casa.js?v=2026.11.21";
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.21";
-import { esc } from "./logic.js?v=2026.11.21";
-import { renderFormTramo, renderTramos, renderValidacionTramo } from "./render_tramos.js?v=2026.11.21";
-import { duplicarTramo, formToSlot, tramoVacio } from "./tramos.js?v=2026.11.21";
-import { formToPause, pausaVacia } from "./pausas.js?v=2026.11.21";
-import { renderFormPausa, renderPausas } from "./render_pausas.js?v=2026.11.21";
-import { PAUSAS } from "./textos_pausas.js?v=2026.11.21";
-import { renderCabecera, renderPanel } from "./render.js?v=2026.11.21";
+} from "./casa.js?v=2026.11.22";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.22";
+import { esc } from "./logic.js?v=2026.11.22";
+import { renderFormTramo, renderTramos, renderValidacionTramo } from "./render_tramos.js?v=2026.11.22";
+import { duplicarTramo, formToSlot, tramoVacio } from "./tramos.js?v=2026.11.22";
+import { formToPause, pausaVacia } from "./pausas.js?v=2026.11.22";
+import { renderFormPausa, renderPausas } from "./render_pausas.js?v=2026.11.22";
+import { PAUSAS } from "./textos_pausas.js?v=2026.11.22";
+import { renderCabecera, renderPanel } from "./render.js?v=2026.11.22";
 import {
   renderCasa, renderFormHabitacion, renderHistorial, renderModal, renderValidacion, renderVistas,
-} from "./render_casa.js?v=2026.11.21";
-import { ESTILOS } from "./styles.js?v=2026.11.21";
-import { ESTILOS_CASA } from "./styles_casa.js?v=2026.11.21";
-import { CASA } from "./textos_casa.js?v=2026.11.21";
+} from "./render_casa.js?v=2026.11.22";
+import { ESTILOS } from "./styles.js?v=2026.11.22";
+import { ESTILOS_CASA } from "./styles_casa.js?v=2026.11.22";
+import { CASA } from "./textos_casa.js?v=2026.11.22";
 
 class CalorplanPanel extends HTMLElement {
   constructor() {

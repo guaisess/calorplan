@@ -1,8 +1,8 @@
-// Versión: 2026.11.21
+// Versión: 2026.11.22
 // Lógica pura de la vista «Casa»: opciones desde Home Assistant y conversión de formularios.
 
-import { lista, numero, parseEntries } from "./forms.js?v=2026.11.21";
-import { CASA } from "./textos_casa.js?v=2026.11.21";
+import { lista, numero, parseEntries } from "./forms.js?v=2026.11.22";
+import { CASA } from "./textos_casa.js?v=2026.11.22";
 
 // --- Opciones (autocompletado) a partir de `hass` ----------------------------------------------
 /** Ids de entidades de un dominio, ordenados. */
@@ -67,6 +67,7 @@ export function habitacionVacia() {
     indoor_aggregation: CASA.defectos.agregacion,
     sensors: [""],
     notify: null,
+    manual_max_minutes: null,
     actuator: {
       type: CASA.defectos.tipo, entity_id: "", child_lock_switch: null,
       child_lock_on_start: CASA.defectos.bloqueoEncender, child_lock_on_end: CASA.defectos.bloqueoApagar,
@@ -85,6 +86,7 @@ export function formToRoom(entries, base) {
     enabled: f.marcado("enabled"),
     indoor_aggregation: f.uno("agg", CASA.defectos.agregacion),
     sensors: lista(f.varios("sensor")),
+    manual_max_minutes: numero(f.uno("manualMax")),
     notify: modo === "inherit" ? null : { mode: modo, channels: f.varios("notifyChannel") },
     actuator: {
       type: tipo,

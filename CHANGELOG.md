@@ -2,6 +2,18 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.22
+
+- **Límite para lo encendido a mano.** Nuevo ajuste por habitación `manual_max_minutes` (campo «Apagar lo
+  encendido a mano tras…» en el panel; vacío = sin límite). Si el dispositivo se enciende y no ha sido
+  Calorplan, a los N minutos se apaga (con comprobación) y se avisa como un apagado; si no se logra
+  apagar, se avisa siempre. Es independiente del movimiento en la habitación.
+  - Un encendido de Calorplan nunca cuenta como manual (lo cierra el fin de su tramo).
+  - El contador no se renueva si se vuelve a encender durante el tiempo, y sobrevive a reinicios; tras
+    un reinicio, lo que esté encendido sin origen conocido cuenta desde ese momento.
+  - Las habitaciones deshabilitadas están en control manual y no tienen límite.
+  - En modo sombra no se actúa.
+
 ## 2026.11.21
 
 - **Habilitar una habitación procesa el tramo en curso**: si en ese momento hay un tramo activo, se evalúa

@@ -1,5 +1,5 @@
 {
- "version": "2026.11.21",
+ "version": "2026.11.22",
  "now": "2026-11-02T06:30:00+01:00",
  "weekday": 0,
  "minute": 390,
@@ -39,7 +39,8 @@
     ],
     "indoor_aggregation": "min",
     "notify": null,
-    "pauses": []
+    "pauses": [],
+    "manual_max_minutes": null
    },
    "actuator": {
     "type": "climate",
@@ -371,7 +372,8 @@
     ],
     "indoor_aggregation": "min",
     "notify": null,
-    "pauses": []
+    "pauses": [],
+    "manual_max_minutes": null
    },
    "actuator": {
     "type": "switch",
@@ -579,7 +581,8 @@
     ],
     "indoor_aggregation": "min",
     "notify": null,
-    "pauses": []
+    "pauses": [],
+    "manual_max_minutes": null
    },
    "actuator": {
     "type": "switch",

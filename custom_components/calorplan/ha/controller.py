@@ -1,4 +1,4 @@
-# Versión: 2026.11.21
+# Versión: 2026.11.22
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -9,10 +9,10 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import Any
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
-from homeassistant.helpers.event import (async_track_point_in_time, async_track_time_change,
-                                        async_track_time_interval)
+from homeassistant.helpers.event import (async_track_point_in_time, async_track_state_change_event,
+                                        async_track_time_change, async_track_time_interval)
 from homeassistant.helpers.start import async_at_started
 
 from ..core import settings as ajustes
@@ -47,6 +47,8 @@ class Controller:
         self._cancelar_arranque: Callable[[], None] | None = None
         self._cancelar_medianoche: Callable[[], None] | None = None
         self._cancelar_reevaluacion: Callable[[], None] | None = None
+        self._cancelar_manual: Callable[[], None] | None = None  # temporizador del límite manual
+        self._cancelar_escucha: Callable[[], None] | None = None  # cambios de estado de los dispositivos
         self._ultimo_instante: datetime = self.clock.now()
         self._tareas: set[asyncio.Task] = set()
         self._cerrojos: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
@@ -85,6 +87,10 @@ class Controller:
         if self._cancelar_reevaluacion:
             self._cancelar_reevaluacion()
             self._cancelar_reevaluacion = None
+        for cancelar in (self._cancelar_manual, self._cancelar_escucha):
+            if cancelar:
+                cancelar()
+        self._cancelar_manual = self._cancelar_escucha = None
         for tarea in list(self._tareas):
             tarea.cancel()
         self._tareas.clear()
@@ -102,6 +108,9 @@ class Controller:
             await asyncio.sleep(self.plan.config.startup_delay_seconds)
             await self.runner.catch_up()
             await self._reintentar_sin_datos()
+            self.runner.adoptar_encendidos()  # lo encendido sin origen conocido empieza a contar
+            self._guardar_runtime()
+            self._programar_manual()
         except Exception:  # noqa: BLE001 - el arranque nunca debe dejar el motor bloqueado
             _LOGGER.exception("Error en la secuencia de arranque")
         finally:
@@ -137,6 +146,56 @@ class Controller:
         if siguiente is not None:
             self._cancelar_temporizador = async_track_point_in_time(
                 self.hass, self._disparar, siguiente.when)
+        self._escuchar_actuadores()
+        self._programar_manual()
+
+    # --- Límite de lo encendido a mano ----------------------------------------------------
+    def _escuchar_actuadores(self) -> None:
+        """Escucha los cambios de estado de los dispositivos de habitaciones con límite manual."""
+        if self._cancelar_escucha:
+            self._cancelar_escucha()
+            self._cancelar_escucha = None
+        salas = {s.actuator.entity_id: s.id for s in self.plan.rooms if s.manual_max_minutes is not None}
+        if salas:
+            self._cancelar_escucha = async_track_state_change_event(
+                self.hass, list(salas), lambda evento: self._estado_cambiado(salas, evento))
+
+    @callback
+    def _estado_cambiado(self, salas: dict[str, str], evento: Any) -> None:
+        """Un dispositivo vigilado cambió de estado."""
+        if self.runner is None:
+            return
+        room_id = salas.get(evento.data.get("entity_id"))
+        if room_id:
+            self.runner.cambio_estado(room_id)
+            self._guardar_runtime()
+            self._programar_manual()
+
+    def _programar_manual(self) -> None:
+        """Programa el temporizador al límite manual más cercano."""
+        if self._cancelar_manual:
+            self._cancelar_manual()
+            self._cancelar_manual = None
+        if self.runner is None:
+            return
+        limite = self.runner.manual.proximo_limite()
+        if limite is not None:
+            minimo = self.clock.now() + timedelta(seconds=ajustes.MANUAL_REPROGRAMAR_SEGUNDOS)
+            self._cancelar_manual = async_track_point_in_time(
+                self.hass, self._disparar_manual, limite if limite > self.clock.now() else minimo)
+
+    async def _disparar_manual(self, _ahora: datetime) -> None:
+        """Llegó un límite manual: apaga lo vencido, habitación a habitación."""
+        assert self.runner is not None
+        for room_id in self.runner.manual.vencidos(self.clock.now()):
+            async with self._cerrojos[room_id]:
+                try:
+                    await self.runner.vigilar_manual(room_id)
+                except Exception:  # noqa: BLE001 - un fallo no debe parar el resto
+                    _LOGGER.exception("Error al apagar %s por encendido manual", room_id)
+        self._guardar_runtime()
+        self._programar_manual()
+        self._avisar()
 
     async def _disparar(self, _ahora: datetime) -> None:
         """Se ejecuta al llegar el instante programado."""
@@ -238,6 +297,8 @@ class Controller:
         async with self._cerrojos[room_id]:
             try:
                 await self.runner.procesar_al_habilitar(room_id)
+                self.runner.adoptar_encendidos()  # encendida a mano mientras estaba deshabilitada
+                self._programar_manual()
             except Exception:  # noqa: BLE001 - un fallo no debe romper el servicio
                 _LOGGER.exception("Error al procesar %s tras habilitarla", room_id)
         self._avisar()
@@ -271,6 +332,7 @@ class Controller:
         self.runner.set_plan(plan)
         await self.store.async_save(plan)
         self._ultimo_instante = self.clock.now()
+        self.runner.adoptar_encendidos()  # p. ej. se acaba de configurar un límite con el dispositivo ya encendido
         self._programar()
         self._programar_reevaluacion()
         self._avisar()

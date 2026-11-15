@@ -1,4 +1,4 @@
-# Versión: 2026.11.8
+# Versión: 2026.11.22
 """Notificador: elige modo y canales efectivos y envía los avisos."""
 from __future__ import annotations
 
@@ -90,6 +90,18 @@ class Notifier:
         enviados = 0
         for canal in self._canales(room, slot):
             if await self._enviar(canal, ajustes.TITULO_AVISO, self.componer(canal, registro)):
+                enviados += 1
+        return enviados
+
+    async def notificar_manual(self, room: Room, mensaje: str, error: bool = False) -> int:
+        """Aviso del apagado por encendido manual: como un apagado (o siempre si es un error)."""
+        efectivo = room.notify or self.plan.config.default_notify
+        if not error and efectivo.mode not in (ajustes.AVISO_APAGADO, ajustes.AVISO_AMBOS):
+            return 0
+        ids = efectivo.channels or self.plan.config.default_notify.channels
+        enviados = 0
+        for canal in (c for c in (self.plan.config.canal(i) for i in ids) if c is not None):
+            if await self._enviar(canal, ajustes.TITULO_AVISO, mensaje):
                 enviados += 1
         return enviados
 

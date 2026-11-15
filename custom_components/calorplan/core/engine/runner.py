@@ -1,4 +1,4 @@
-# Versión: 2026.11.21
+# Versión: 2026.11.22
 """Ejecutor: aplica los eventos planificados sobre los actuadores."""
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from typing import Any
 from .. import settings as ajustes
 from ..models import Actuator, Pause, Plan, Room, Slot, pausa_activa
 from .evaluator import Evaluator
+from .manual import ManualGuard
 from .notifier import Notifier
 from .planner import Planner
 from .ports import ActuatorPort, ClockPort, EventPort, StatePort
@@ -29,6 +30,7 @@ class Runner:
         self._clock = clock
         self._events = events
         self._evaluator = Evaluator(state)
+        self.manual = ManualGuard(plan)  # límite de lo encendido a mano
         # Tramos activos cuyo inicio se omitió por condiciones: (id de habitación, id de tramo)
         self._pendientes: set[tuple[str, str]] = set()
         # De ellos, los omitidos por falta de datos de sensores (se reintentan tras un arranque)
@@ -45,6 +47,7 @@ class Runner:
         """Sustituye el plan (tras importar o recargar la configuración)."""
         self.plan = plan
         self.planner = Planner(plan)
+        self.manual.plan = plan
         self._notifier.plan = plan
 
     # --- Entrada ---------------------------------------------------------------
@@ -79,6 +82,65 @@ class Runner:
             registros.append(await self._inicio(sala, tramo, False))
         return registros
 
+    # --- Límite de lo encendido a mano -----------------------------------------------------
+    def cambio_estado(self, room_id: str) -> None:
+        """El dispositivo de una habitación cambió de estado: actualiza el vigilante manual."""
+        sala = self.plan.room(room_id)
+        if sala is not None:
+            self.manual.cambio_estado(room_id, self._ya_encendido(sala.actuator), self._clock.now())
+
+    def adoptar_encendidos(self) -> None:
+        """Tras arrancar: lo que esté encendido sin ser obra de un tramo en curso empieza a contar."""
+        ahora = self._clock.now()
+        for sala in self.plan.rooms:
+            if not self._ya_encendido(sala.actuator) or self.manual.limite(sala.id) is not None:
+                continue
+            propio = any(self._manejados.get(self._clave(sala.id, t.id), {}).get("outcome") == ajustes.RESULTADO_ENCENDIDO
+                         for t in self.planner.active_slots(sala, ahora))
+            if not propio:
+                self.manual.adoptar(sala.id, ahora)
+
+    async def vigilar_manual(self, room_id: str | None = None) -> list[Record]:
+        """Apaga lo encendido a mano que ha superado su límite (con comprobación y aviso)."""
+        ahora = self._clock.now()
+        registros: list[Record] = []
+        for room_id in ([room_id] if room_id else self.manual.vencidos(ahora)):
+            sala = self.plan.room(room_id)
+            if sala is None or not sala.enabled or not self._ya_encendido(sala.actuator):
+                self.manual.olvidar(room_id)  # ya está apagada, o deshabilitada (control manual)
+                continue
+            if self.plan.config.shadow_mode:
+                continue  # en sombra no se actúa (se reintenta al salir de él)
+            minutos = self.manual.minutos_encendida(room_id, ahora)
+            verificado, _ = await self._apagar_verificado(sala.actuator)
+            limite = sala.manual_max_minutes
+            if verificado:
+                self.manual.olvidar(room_id)
+                registros.append(await self._registrar_manual(
+                    sala, ajustes.ACCION_APAGAR, ajustes.COD_OK,
+                    ajustes.MOTIVO_MANUAL_APAGADO.format(minutos=minutos, limite=limite),
+                    ajustes.MENSAJE_MANUAL_APAGADO.format(room=sala.name, minutos=minutos, limite=limite)))
+            else:
+                registros.append(await self._registrar_manual(
+                    sala, ajustes.ACCION_ERROR, ajustes.COD_APAGADO_NO_VERIFICADO,
+                    ajustes.MOTIVO_MANUAL_ERROR.format(limite=limite),
+                    ajustes.MENSAJE_MANUAL_ERROR.format(room=sala.name, limite=limite), error=True))
+        return registros
+
+    async def _registrar_manual(self, sala: Room, accion: str, codigo: str, motivo: str,
+                                mensaje: str, error: bool = False) -> Record:
+        """Anota y avisa el apagado por encendido manual (no pertenece a ningún tramo)."""
+        registro = Record(
+            when=self._clock.now(), room_id=sala.id, room_name=sala.name,
+            slot_id=ajustes.TRAMO_MANUAL_ID, slot_name=ajustes.TRAMO_MANUAL_NOMBRE,
+            kind=ajustes.EVENTO_MANUAL, action=accion, code=ajustes.COD_MANUAL_APAGADO if not error else codigo,
+            reason=motivo, setpoint=None, outdoor=None, indoor=None, simulated=False)
+        datos = registro.to_dict()
+        self._events.record(datos)
+        self._events.fire(ajustes.EVENTO_ACCION, datos)
+        await self._notifier.notificar_manual(sala, mensaje, error)
+        return registro
+
     async def apagar_por_deshabilitar(self, room_id: str) -> bool:
         """Al deshabilitar una habitación: apaga el dispositivo si está encendido y lo deja en manual.
 
@@ -87,6 +149,7 @@ class Runner:
         sala = self.plan.room(room_id)
         if sala is None or sala.enabled:
             return False
+        self.manual.olvidar(room_id)  # en control manual no hay límite
         for clave in [c for c in (self._pendientes | self._sin_datos | self._con_error) if c[0] == room_id]:
             self._quitar_pendiente(clave)  # ya no se reevalúa nada de esta habitación
         if self.plan.config.shadow_mode or not self._ya_encendido(sala.actuator):
@@ -151,7 +214,9 @@ class Runner:
 
     def estado_arranque(self) -> dict[str, dict[str, str]]:
         """Copia del estado que debe persistirse."""
-        return {k: dict(v) for k, v in self._manejados.items()}
+        datos: dict[str, Any] = {k: dict(v) for k, v in self._manejados.items()}
+        datos[ajustes.CLAVE_MANUAL] = self.manual.estado()
+        return datos
 
     def cargar_estado(self, datos: dict[str, Any] | None) -> None:
         """Restaura lo gestionado antes de un reinicio.
@@ -160,6 +225,7 @@ class Runner:
         está activo ahora, para no tocar ningún dispositivo.
         """
         ahora = self._clock.now()
+        self.manual.cargar((datos or {}).get(ajustes.CLAVE_MANUAL))
         if datos is None:
             self._manejados = {}
             for sala in self.plan.rooms:
@@ -279,8 +345,10 @@ class Runner:
                                       decision.reason, decision)
 
         if not self.plan.config.shadow_mode:
+            self.manual.marcar_propio(sala.id, self._clock.now())  # no es un encendido manual
             try:
                 await self._encender(sala.actuator, tramo)
+                self.manual.marcar_propio(sala.id, self._clock.now())
             except Exception as err:  # noqa: BLE001 - cualquier fallo del actuador
                 _LOGGER.exception("Error al encender %s", sala.id)
                 clave = (sala.id, tramo.id)
