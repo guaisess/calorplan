@@ -1,4 +1,4 @@
-# Versión: 2026.11.22
+# Versión: 2026.11.23
 """Notificador: elige modo y canales efectivos y envía los avisos."""
 from __future__ import annotations
 
@@ -61,11 +61,15 @@ class Notifier:
     def componer(self, canal: Channel, registro: Record) -> str:
         """Construye el mensaje con la plantilla del canal o la global."""
         plantilla = canal.templates.get(registro.action) or self.plan.config.plantilla(registro.action)
+        if (registro.power is not None and registro.action == ajustes.ACCION_ENCENDER
+                and plantilla == ajustes.PLANTILLAS_DEFECTO[ajustes.ACCION_ENCENDER]):
+            plantilla = ajustes.PLANTILLA_ENCENDER_POTENCIA  # dispositivo con potencia y sin plantilla propia
         variables = _VariablesSeguras(
             room=registro.room_name,
             slot=registro.slot_name,
             action=registro.action,
             setpoint=self._numero(registro.setpoint),
+            power=self._numero(registro.power),
             outdoor=self._numero(registro.outdoor),
             indoor=self._numero(registro.indoor),
             reason=registro.reason,

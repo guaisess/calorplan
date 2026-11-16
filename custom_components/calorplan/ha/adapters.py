@@ -1,4 +1,4 @@
-# Versión: 2026.11.12
+# Versión: 2026.11.23
 """Adaptadores de los puertos del núcleo sobre Home Assistant."""
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ class HAState(StatePort):
 
 
 class HAActuator(ActuatorPort):
-    """Llama a los servicios `climate.*` y `switch.*`."""
+    """Llama a los servicios `climate.*`, `fan.*` y `switch.*`."""
 
     def __init__(self, hass: HomeAssistant) -> None:
         self._hass = hass
@@ -66,6 +66,15 @@ class HAActuator(ActuatorPort):
     async def climate_off(self, entity_id: str) -> None:
         await self._llamar("climate", "set_hvac_mode",
                            {"entity_id": entity_id, "hvac_mode": ajustes.HVAC_MODO_APAGADO})
+
+    async def fan_turn_on(self, entity_id: str, percentage: int | None) -> None:
+        datos: dict[str, Any] = {"entity_id": entity_id}
+        if percentage is not None:
+            datos["percentage"] = percentage
+        await self._llamar("fan", "turn_on", datos)
+
+    async def fan_turn_off(self, entity_id: str) -> None:
+        await self._llamar("fan", "turn_off", {"entity_id": entity_id})
 
     async def switch_set(self, entity_id: str, on: bool) -> None:
         await self._llamar("switch", "turn_on" if on else "turn_off", {"entity_id": entity_id})

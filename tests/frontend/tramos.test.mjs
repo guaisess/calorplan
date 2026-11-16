@@ -1,4 +1,4 @@
-// Versión: 2026.11.7
+// Versión: 2026.11.23
 // Tests de la edición de tramos (node --test): borradores, formulario y HTML.
 process.env.TZ = "Europe/Madrid";
 
@@ -160,4 +160,23 @@ test("las pestañas siguen el orden Resumen, Casa, Tramos y Pausas", () => {
   assert.ok(orden.every((x) => x >= 0));
   assert.deepEqual([...orden].sort((a, b) => a - b), orden);
   assert.match(html, /data-vista="tramos" class="sel"/);
+});
+
+// --- Calefactores fan (potencia) y grupos ------------------------------------------------------------------
+test("fan: el tramo lleva potencia (por defecto 100 %) y el formulario la muestra", () => {
+  const fan = { ...clonar(toallero), actuator: { type: "fan", entity_id: "fan.calefactor_bano", state: "off" } };
+  const t = tramos.tramoVacio(fan);
+  assert.equal(t.power, 100);
+  assert.equal(tramos.tramoVacio(despacho).power, undefined);
+  const html = vista.renderFormTramo(t, fan, CTX, null);
+  assert.match(html, /name="power"/);
+  assert.doesNotMatch(vista.renderFormTramo(tramos.tramoVacio(despacho), despacho, CTX, null), /name="power"/);
+});
+
+test("fan: formToSlot convierte la potencia a entero y usa 100 si está vacía", () => {
+  const fan = { actuator: { type: "fan" } };
+  const base = [["name", "Mañana"], ["start", "06:00"], ["endMode", "duration"], ["duration", "30"], ["days", "0"]];
+  assert.equal(tramos.formToSlot([...base, ["power", "66.4"]], fan).power, 66);
+  assert.equal(tramos.formToSlot([...base, ["power", ""]], fan).power, 100);
+  assert.equal(tramos.formToSlot(base, { actuator: { type: "switch" } }).power, undefined);
 });

@@ -1,12 +1,19 @@
-// Versión: 2026.11.22
+// Versión: 2026.11.23
 // Lógica pura de la edición de tramos: borradores y conversión del formulario.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.22";
-import { numero, parseEntries } from "./forms.js?v=2026.11.22";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.23";
+import { numero, parseEntries } from "./forms.js?v=2026.11.23";
+
+/** Potencia del formulario: entero 0-100 (vacío = la de por defecto). */
+function potencia(valor) {
+  const n = numero(valor);
+  return n === null ? CONFIG.potenciaPorDefecto : Math.round(n);
+}
 
 /** Tramo vacío para el alta (la temperatura objetivo solo aplica a termostatos). */
 export function tramoVacio(room) {
   const climate = room.actuator.type === "climate";
+  const fan = room.actuator.type === "fan";
   return {
     name: "",
     enabled: true,
@@ -18,6 +25,7 @@ export function tramoVacio(room) {
     conditions: { outdoor_below: null, indoor_below: null },
     notify: null,
     notify_on_skip: false,
+    ...(fan ? { power: CONFIG.potenciaPorDefecto } : {}),
   };
 }
 
@@ -45,6 +53,7 @@ export function formToSlot(entries, room) {
     notify: modoAviso === "inherit" ? null : { mode: modoAviso, channels: f.varios("notifyChannel") },
     notify_on_skip: f.marcado("notifySkip"),
   };
+  if (room.actuator.type === "fan") tramo.power = potencia(f.uno("power"));
   // Al cambiar de modo, el campo del modo nuevo aún no existe en el formulario: se usa un valor por defecto.
   if (modoFin === "duration") {
     tramo.duration_minutes = f.marcado("duration") ? numero(f.uno("duration")) : CONFIG.duracionPorDefecto;

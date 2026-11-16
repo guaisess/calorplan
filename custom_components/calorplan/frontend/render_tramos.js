@@ -1,9 +1,9 @@
-// Versión: 2026.11.22
+// Versión: 2026.11.23
 // HTML de la vista «Tramos» (funciones puras): tabla por habitación y editor de tramo.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.22";
-import { daysLabel, esc, fmtMin, fmtNum } from "./logic.js?v=2026.11.22";
-import { CASA } from "./textos_casa.js?v=2026.11.22";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.23";
+import { daysLabel, esc, fmtMin, fmtNum } from "./logic.js?v=2026.11.23";
+import { CASA } from "./textos_casa.js?v=2026.11.23";
 
 const E = TEXTOS.editor;
 
@@ -32,7 +32,8 @@ export function condiciones(slot) {
 function renderTabla(room) {
   if (!room.slots.length) return `<div class="mensaje">${TEXTOS.sinTramos}</div>`;
   const filas = [...room.slots].sort((a, b) => a.start.localeCompare(b.start)).map((s) => {
-    const objetivo = s.setpoint === null ? TEXTOS.nada : `${fmtNum(s.setpoint)} ${TEXTOS.unidades.grados}`;
+    const objetivo = s.power !== null && s.power !== undefined ? `${fmtNum(s.power)} ${TEXTOS.unidades.porcentaje}`
+      : s.setpoint === null ? TEXTOS.nada : `${fmtNum(s.setpoint)} ${TEXTOS.unidades.grados}`;
     const alterna = s.enabled ? TEXTOS.deshabilitar : TEXTOS.habilitar;
     const data = `data-room="${esc(room.id)}" data-slot="${esc(s.id)}"`;
     return `<tr class="${s.enabled ? "" : "tramo-off"}">
@@ -69,6 +70,7 @@ export function renderValidacionTramo(res, room) {
 /** Formulario del editor de tramo (sin el marco del diálogo). */
 export function renderFormTramo(t, room, ctx, validacion) {
   const climate = room.actuator.type === "climate";
+  const fan = room.actuator.type === "fan";
   const dias = CONFIG.diasLargos.map((nombre, i) => casilla("days", nombre, t.days.includes(i), String(i))).join("");
   const porDuracion = t.duration_minutes !== undefined && t.duration_minutes !== null;
   const radios = `<label class="casilla"><input type="radio" name="endMode" value="end" data-estructural="1"${porDuracion ? "" : " checked"}> ${E.fin}</label>
@@ -85,6 +87,7 @@ export function renderFormTramo(t, room, ctx, validacion) {
     ${campo(E.inicio, `<input type="time" name="start" value="${esc(t.start)}">`)}
     <div class="campo"><span>${E.fin} / ${E.duracion}</span><div class="casillas">${radios}</div>${fin}</div>
     ${climate ? campo(E.objetivo, `<input type="number" step="0.5" name="setpoint" value="${esc(t.setpoint ?? "")}">`) : ""}
+    ${fan ? campo(E.potencia, `<input type="number" step="1" min="0" max="100" name="power" value="${esc(t.power ?? "")}">`) : ""}
     ${campo(E.exterior, `<input type="number" step="0.5" name="outdoor" value="${esc(t.conditions?.outdoor_below ?? "")}">`)}
     ${campo(E.interior, `<input type="number" step="0.5" name="indoor" value="${esc(t.conditions?.indoor_below ?? "")}">`)}
     ${campo(E.reintento, `<input type="number" min="0" max="${CONFIG.minutosMaxDuracion}" name="retry" value="${esc(t.retry_off_minutes)}">`)}

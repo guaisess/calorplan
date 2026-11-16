@@ -1,4 +1,4 @@
-# Versión: 2026.11.12
+# Versión: 2026.11.23
 """Puertos (interfaces abstractas) que el motor necesita del exterior.
 
 Los adaptadores reales viven en `ha/adapters.py`; los tests usan falsos.
@@ -48,6 +48,14 @@ class ActuatorPort(ABC):
     @abstractmethod
     async def climate_off(self, entity_id: str) -> None:
         """Apaga el climate."""
+
+    @abstractmethod
+    async def fan_turn_on(self, entity_id: str, percentage: int | None) -> None:
+        """Enciende un fan (calefactor), con una potencia si se indica."""
+
+    @abstractmethod
+    async def fan_turn_off(self, entity_id: str) -> None:
+        """Apaga un fan (calefactor)."""
 
     @abstractmethod
     async def switch_set(self, entity_id: str, on: bool) -> None:

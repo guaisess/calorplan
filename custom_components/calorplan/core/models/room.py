@@ -1,5 +1,8 @@
-# Versión: 2026.11.22
-"""Habitación: actuador, sensores, avisos y tramos."""
+# Versión: 2026.11.23
+"""Habitación (dispositivo programable): actuador, sensores, avisos y tramos.
+
+Varias habitaciones pueden compartir `group` (la estancia real, p. ej. «Baño»): cada una
+conserva su programación, pero se presentan y gestionan juntas."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -27,6 +30,7 @@ class Room:
     slots: list[Slot] = field(default_factory=list)
     pauses: list[Pause] = field(default_factory=list)
     manual_max_minutes: int | None = None  # límite de un encendido manual (None = sin límite)
+    group: str | None = None  # estancia que agrupa varios dispositivos (None = sin grupo)
 
     def slot(self, slot_id: str) -> Slot | None:
         """Devuelve el tramo con ese id, o None."""
@@ -63,6 +67,12 @@ class Room:
                     ajustes.MANUAL_MIN_MINUTOS <= manual <= ajustes.MANUAL_MAX_MINUTOS):
                 raise ConfigError(ajustes.ERROR_MANUAL_RANGO.format(
                     habitacion=id_, minimo=ajustes.MANUAL_MIN_MINUTOS, maximo=ajustes.MANUAL_MAX_MINUTOS))
+        grupo = datos.get("group")
+        if grupo is not None:
+            if not isinstance(grupo, str) or len(grupo.strip()) > ajustes.GRUPO_MAX_LONGITUD:
+                raise ConfigError(ajustes.ERROR_GRUPO_TIPO.format(
+                    habitacion=id_, maximo=ajustes.GRUPO_MAX_LONGITUD))
+            grupo = grupo.strip() or None
         sala = cls(
             id=id_,
             name=str(datos.get("name", id_)),
@@ -74,6 +84,7 @@ class Room:
             slots=[Slot.from_dict(s) for s in datos.get("slots", [])],
             pauses=pausas_desde(datos.get("pauses"), f"Habitación '{id_}'"),
             manual_max_minutes=manual,
+            group=grupo,
         )
         sala.validar()
         return sala
@@ -91,4 +102,5 @@ class Room:
             "slots": [s.to_dict() for s in self.slots],
             "pauses": [p.to_dict() for p in self.pauses],
             "manual_max_minutes": self.manual_max_minutes,
+            "group": self.group,
         }

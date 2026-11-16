@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.23
 """Estructuras de datos del motor: eventos planificados, decisiones y registros."""
 from __future__ import annotations
 
@@ -49,6 +49,7 @@ class Record:
     code: str  # ajustes.COD_*
     reason: str
     setpoint: float | None = None
+    power: int | None = None  # potencia aplicada (solo dispositivos tipo fan)
     outdoor: float | None = None
     indoor: float | None = None
     simulated: bool = False
@@ -66,6 +67,7 @@ class Record:
             "code": self.code,
             "reason": self.reason,
             "setpoint": self.setpoint,
+            "power": self.power,
             "outdoor": self.outdoor,
             "indoor": self.indoor,
             "simulated": self.simulated,

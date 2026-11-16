@@ -1,7 +1,7 @@
-// Versión: 2026.11.22
+// Versión: 2026.11.23
 // Lógica pura del panel (sin DOM): formatos, posiciones de barras y descripciones.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.22";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.23";
 
 /** Escapa texto para insertarlo en HTML. */
 export function esc(valor) {
@@ -62,8 +62,25 @@ export function slotTitle(slot) {
   }
   if (slot.outdoor_below !== null) partes.push(`${TEXTOS.tramo.exterior} ${fmtNum(slot.outdoor_below)}`);
   if (slot.indoor_below !== null) partes.push(`${TEXTOS.tramo.interior} ${fmtNum(slot.indoor_below)}`);
+  if (slot.power !== null && slot.power !== undefined) {
+    partes.push(`${TEXTOS.tramo.potencia} ${fmtNum(slot.power)} ${TEXTOS.unidades.porcentaje}`);
+  }
   if (!slot.enabled) partes.push(TEXTOS.deshabilitada);
   return partes.join(" · ");
+}
+
+/** Habitaciones ordenadas por grupo (las sin grupo, al final), conservando el orden dentro de cada grupo. */
+export function ordenarPorGrupo(salas) {
+  const grupos = [];
+  for (const s of salas) if (s.group && !grupos.includes(s.group)) grupos.push(s.group);
+  const rango = (s) => (s.group ? grupos.indexOf(s.group) : grupos.length);
+  return salas.map((s, i) => ({ s, i })).sort((a, b) => rango(a.s) - rango(b.s) || a.i - b.i).map((x) => x.s);
+}
+
+/** Nombre a mostrar: antepone el grupo si el nombre aún no lo incluye. */
+export function etiquetaHabitacion(sala) {
+  if (!sala.group || sala.name.toLowerCase().includes(sala.group.toLowerCase())) return sala.name;
+  return `${sala.group} · ${sala.name}`;
 }
 
 /** Describe la simulación «¿qué haría ahora?» → {text, tone}. */

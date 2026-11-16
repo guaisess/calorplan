@@ -1,9 +1,9 @@
-// Versión: 2026.11.22
+// Versión: 2026.11.23
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
-import { TEXTOS } from "./config.js?v=2026.11.22";
-import { esc } from "./logic.js?v=2026.11.22";
-import { CASA } from "./textos_casa.js?v=2026.11.22";
+import { TEXTOS } from "./config.js?v=2026.11.23";
+import { esc, etiquetaHabitacion, ordenarPorGrupo } from "./logic.js?v=2026.11.23";
+import { CASA } from "./textos_casa.js?v=2026.11.23";
 
 // --- Piezas comunes ----------------------------------------------------------------------------------
 const opciones = (mapa, actual) => Object.entries(mapa)
@@ -103,8 +103,8 @@ export function renderGlobal(g, ctx, validacion) {
 export function renderHabitaciones(datos) {
   const H = CASA.habitaciones;
   if (!datos.rooms.length) return `<div class="mensaje">${H.vacio}</div>`;
-  const filas = datos.rooms.map((r) => {
-    const nombre = esc(r.name) + (r.enabled ? "" : ` <span class="muted">(${H.deshabilitada})</span>`);
+  const filas = ordenarPorGrupo(datos.rooms).map((r) => {
+    const nombre = esc(etiquetaHabitacion(r)) + (r.enabled ? "" : ` <span class="muted">(${H.deshabilitada})</span>`);
     const n = r.config.sensors.length;
     return `<tr><td>${nombre}</td>
       <td>${esc(r.actuator.type)} · ${esc(r.actuator.entity_id)}</td>
@@ -123,6 +123,7 @@ export function renderFormHabitacion(h, ctx, validacion) {
   const E = CASA.editor;
   const a = h.actuator;
   const climate = a.type === "climate";
+  const listaEntidades = { climate: "dl-climate", fan: "dl-fan" }[a.type] ?? "dl-switch";
   const sensores = (h.sensors.length ? h.sensors : [""])
     .map((s, i) => filaSensor(s, i, "dl-temp", "quitar-sensor-habitacion")).join("");
   const bloqueo = climate ? `
@@ -133,10 +134,11 @@ export function renderFormHabitacion(h, ctx, validacion) {
   const canales = ctx.canalesIds.map((id) => casilla("notifyChannel", id, h.notify?.channels?.includes(id), id)).join("");
   const modos = { inherit: E.avisoHeredar, ...CASA.modosAviso };
   return `<form data-form="habitacion">
-    ${datalist("dl-temp", ctx.sensores)}${datalist("dl-climate", ctx.climates)}${datalist("dl-switch", ctx.switches)}
+    ${datalist("dl-temp", ctx.sensores)}${datalist("dl-climate", ctx.climates)}${datalist("dl-switch", ctx.switches)}${datalist("dl-fan", ctx.fans ?? [])}${datalist("dl-grupo", ctx.grupos ?? [])}
     ${campo(E.nombre, `<input name="name" value="${esc(h.name)}">`)}
+    ${campo(E.grupo, `<input name="group" list="dl-grupo" value="${esc(h.group ?? "")}">`)}
     ${campo(E.tipo, `<select name="actuatorType" data-estructural="1">${opciones(E.tipos, a.type)}</select>`)}
-    ${campo(E.entidad, `<input name="entity" list="${climate ? "dl-climate" : "dl-switch"}" value="${esc(a.entity_id)}">`)}
+    ${campo(E.entidad, `<input name="entity" list="${listaEntidades}" value="${esc(a.entity_id)}">`)}
     ${bloqueo}
     ${casilla("offOnlyHeating", E.soloSiEncendido, a.off_only_if_heating)}
     ${campo(E.intentos, `<input type="number" name="verify" min="${CASA.limites.intentosMin}" max="${CASA.limites.intentosMax}" value="${esc(a.verify_attempts)}">`)}

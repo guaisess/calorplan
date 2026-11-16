@@ -1,5 +1,5 @@
-# Versión: 2026.11.2
-"""Actuador de una habitación: un `climate` o un `switch`."""
+# Versión: 2026.11.23
+"""Actuador de una habitación: un `climate`, un `switch` o un `fan` (calefactor con potencia)."""
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -2,6 +2,22 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.23
+
+- **Calefactores con potencia (`fan`).** Nuevo tipo de actuador `fan` (solo calor): el tramo indica
+  `power` (0-100 %, por defecto 100) y Calorplan enciende con `fan.turn_on` y ese porcentaje, y apaga con
+  `fan.turn_off`. Antes de cada orden comprueba el estado: si ya está encendido a esa potencia no envía
+  nada (tolerancia de ±17 % porque los fans con 3 niveles redondean a 33/66/100) y, si el dispositivo no
+  informa del porcentaje, basta con que esté encendido.
+- **Grupos de dispositivos.** Nuevo campo opcional `group` por habitación: varios dispositivos de la
+  misma estancia (p. ej. toallero y calefactor del baño) siguen siendo habitaciones independientes, con
+  programación, solapes, condiciones y límite manual propios, pero se muestran juntos. No hay cambios
+  de comportamiento para quien no use `group`.
+- Panel: tipo «Calefactor con potencia (fan)», campo de grupo, potencia en el formulario y en la tabla
+  de tramos, y habitaciones ordenadas por grupo.
+- Avisos: nueva variable `{power}` y plantilla de encendido propia (con potencia) para los fans que no
+  tengan plantilla personalizada. El evento `calorplan_action` incluye `power`.
+
 ## 2026.11.22
 
 - **Límite para lo encendido a mano.** Nuevo ajuste por habitación `manual_max_minutes` (campo «Apagar lo

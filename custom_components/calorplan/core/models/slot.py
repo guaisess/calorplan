@@ -1,4 +1,4 @@
-# Versión: 2026.11.2
+# Versión: 2026.11.23
 """Tramo horario de una habitación."""
 from __future__ import annotations
 
@@ -46,6 +46,7 @@ class Slot:
     start: time
     days: list[int]
     setpoint: float | None = None
+    power: int | None = None  # potencia 0-100 % (solo dispositivos tipo fan)
     end: time | None = None
     duration_minutes: int | None = None
     enabled: bool = True
@@ -102,6 +103,12 @@ class Slot:
         tiene_duracion = datos.get("duration_minutes") is not None
         if tiene_fin == tiene_duracion:
             raise ConfigError(f"Tramo '{id_}': indique 'end' o 'duration_minutes', pero no ambos")
+        potencia = datos.get("power")
+        if potencia is not None:
+            if isinstance(potencia, bool) or not isinstance(potencia, int) or not (
+                    ajustes.POTENCIA_MIN <= potencia <= ajustes.POTENCIA_MAX):
+                raise ConfigError(ajustes.ERROR_POTENCIA_RANGO.format(
+                    tramo=id_, minimo=ajustes.POTENCIA_MIN, maximo=ajustes.POTENCIA_MAX))
         duracion = None
         if tiene_duracion:
             duracion = _entero(datos["duration_minutes"], "duration_minutes",
@@ -115,6 +122,7 @@ class Slot:
             start=parsear_hora(datos.get("start"), "start"),
             days=sorted(set(dias)),
             setpoint=_numero_opcional(datos.get("setpoint"), "setpoint"),
+            power=potencia,
             end=parsear_hora(datos["end"], "end") if tiene_fin else None,
             duration_minutes=duracion,
             enabled=bool(datos.get("enabled", True)),
@@ -136,6 +144,7 @@ class Slot:
             "days": list(self.days),
             "start": self.start.strftime(ajustes.FORMATO_HORA),
             "setpoint": self.setpoint,
+            "power": self.power,
             "retry_off_minutes": self.retry_off_minutes,
             "conditions": {"outdoor_below": self.outdoor_below,
                            "indoor_below": self.indoor_below},

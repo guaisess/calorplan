@@ -1,4 +1,4 @@
-// Versión: 2026.11.22
+// Versión: 2026.11.23
 // Textos y valores por defecto de la vista «Casa» (ajustes globales y habitaciones).
 
 export const CASA = {
@@ -67,7 +67,8 @@ export const CASA = {
     editar: "Editar habitación",
     nombre: "Nombre",
     tipo: "Tipo de actuador",
-    tipos: { climate: "Termostato (climate)", switch: "Enchufe o interruptor (switch)" },
+    tipos: { climate: "Termostato (climate)", switch: "Enchufe o interruptor (switch)", fan: "Calefactor con potencia (fan)" },
+    grupo: "Grupo o estancia (opcional; une varios dispositivos, p. ej. Baño)",
     entidad: "Entidad del actuador",
     bloqueo: "Interruptor de bloqueo infantil (opcional)",
     bloqueoEncender: "Bloqueo al encender",

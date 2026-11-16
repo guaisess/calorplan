@@ -1,4 +1,4 @@
-# Versión: 2026.11.22
+# Versión: 2026.11.23
 """Ejecutor: aplica los eventos planificados sobre los actuadores."""
 from __future__ import annotations
 
@@ -412,10 +412,37 @@ class Runner:
                     lambda: self._objetivo_aplicado(entidad, tramo.setpoint),
                     lambda: self._actuator.climate_set_temperature(entidad, tramo.setpoint))
             await self._bloqueo(act, act.child_lock_on_start)
+        elif act.type == ajustes.TIPO_FAN:
+            potencia = self._potencia(act, tramo)
+            await self._asegurar(
+                f"encendido al {potencia} %",
+                lambda: self._fan_aplicado(act, potencia),
+                lambda: self._actuator.fan_turn_on(entidad, potencia))
         else:
             await self._asegurar(
                 "encendido", lambda: self._state.is_state(entidad, act.estado_encendido),
                 lambda: self._actuator.switch_set(entidad, True))
+
+    @staticmethod
+    def _potencia(act: Actuator, tramo: Slot) -> int | None:
+        """Potencia (%) del tramo para un fan; None si el actuador no tiene potencia."""
+        if act.type != ajustes.TIPO_FAN:
+            return None
+        return ajustes.POTENCIA_DEFECTO if tramo.power is None else tramo.power
+
+    def _fan_aplicado(self, act: Actuator, potencia: int) -> bool | None:
+        """¿El fan está encendido a la potencia deseada? None si no se puede saber.
+
+        Los fans con pocos niveles (p. ej. 33/66/100 %) redondean, de ahí la tolerancia. Si el
+        dispositivo no informa de su porcentaje solo se comprueba que esté encendido.
+        """
+        if not self._state.is_state(act.entity_id, act.estado_encendido):
+            return False
+        actual = self._state.get_attribute(act.entity_id, ajustes.ATRIBUTO_PORCENTAJE)
+        try:
+            return abs(float(actual) - potencia) <= ajustes.TOLERANCIA_POTENCIA
+        except (TypeError, ValueError):
+            return True  # sin porcentaje legible: basta con que esté encendido
 
     # --- Fin y reintento ---------------------------------------------------------
     async def _fin(self, sala: Room, tramo: Slot, tipo: str) -> Record | None:
@@ -464,6 +491,8 @@ class Runner:
             try:
                 if act.type == ajustes.TIPO_CLIMATE:
                     await self._actuator.climate_off(act.entity_id)
+                elif act.type == ajustes.TIPO_FAN:
+                    await self._actuator.fan_turn_off(act.entity_id)
                 else:
                     await self._actuator.switch_set(act.entity_id, False)
             except Exception as err:  # noqa: BLE001 - cuenta como intento fallido
@@ -512,6 +541,7 @@ class Runner:
             when=self._clock.now(), room_id=sala.id, room_name=sala.name,
             slot_id=tramo.id, slot_name=tramo.name, kind=tipo, action=accion,
             code=codigo, reason=motivo, setpoint=tramo.setpoint,
+            power=self._potencia(sala.actuator, tramo),
             outdoor=decision.outdoor if decision else None,
             indoor=decision.indoor if decision else None, simulated=sombra)
         datos = registro.to_dict()

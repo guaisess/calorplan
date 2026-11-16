@@ -1,10 +1,10 @@
-// Versión: 2026.11.22
+// Versión: 2026.11.23
 // Generación del HTML del panel a partir de los datos (función pura, sin DOM).
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.22";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.23";
 import {
-  barStyle, describeLast, describeNext, describeSimulation, esc, fmtMin, fmtNum, segState, slotTitle,
-} from "./logic.js?v=2026.11.22";
+  barStyle, describeLast, etiquetaHabitacion, ordenarPorGrupo, describeNext, describeSimulation, esc, fmtMin, fmtNum, segState, slotTitle,
+} from "./logic.js?v=2026.11.23";
 
 /** Cabecera: título, versión, avisos de modo y temperatura exterior. */
 export function renderCabecera(datos, actualizadoEn) {
@@ -48,10 +48,10 @@ export function renderGantt(datos, dia) {
   const lineas = marcas.map((m) => `<div class="marca" style="left:${m}%"></div>`).join("");
   const ahora = dia === datos.weekday
     ? `<div class="ahora" style="left:${((datos.minute / CONFIG.minutosDia) * 100).toFixed(3)}%"></div>` : "";
-  const filas = datos.rooms.map((room) => {
+  const filas = ordenarPorGrupo(datos.rooms).map((room) => {
     const barras = room.week[dia].map((seg) => renderBarra(room, seg, dia, datos)).join("");
     const estado = room.actuator.state ?? TEXTOS.nada;
-    const nombre = esc(room.name) + (room.enabled ? "" : ` (${TEXTOS.deshabilitada})`);
+    const nombre = esc(etiquetaHabitacion(room)) + (room.enabled ? "" : ` (${TEXTOS.deshabilitada})`);
     return `<div class="etiqueta">${nombre}<small>${esc(estado)}</small></div>
       <div class="pista">${lineas}${barras}${ahora}</div>`;
   });
@@ -61,12 +61,12 @@ export function renderGantt(datos, dia) {
 /** Tabla «Estado ahora» con simulación y última acción. */
 export function renderEstado(datos, ahora) {
   const cabecera = TEXTOS.columnas.map((c) => `<th>${c}</th>`).join("");
-  const filas = datos.rooms.map((room) => {
+  const filas = ordenarPorGrupo(datos.rooms).map((room) => {
     const activo = room.slots.find((s) => s.id === room.active_slot);
     const sim = describeSimulation(room.simulation);
     const ultima = describeLast(room.last);
     return `<tr>
-      <td>${esc(room.name)}</td>
+      <td>${esc(etiquetaHabitacion(room))}</td>
       <td>${esc(room.actuator.state ?? TEXTOS.nada)}</td>
       <td>${activo ? esc(activo.name) : TEXTOS.nada}</td>
       <td>${esc(describeNext(room.next, room, ahora))}</td>

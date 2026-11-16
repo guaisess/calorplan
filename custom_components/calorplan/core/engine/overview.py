@@ -1,4 +1,4 @@
-# Versión: 2026.11.16
+# Versión: 2026.11.23
 """Resumen de solo lectura para el panel: línea de tiempo, estado y simulación.
 
 El simulador responde «¿qué haría ahora?» evaluando las condiciones con los
@@ -84,6 +84,7 @@ class OverviewBuilder:
         return {
             "id": sala.id,
             "name": sala.name,
+            "group": sala.group,
             "enabled": sala.enabled,
             "indoor_aggregation": sala.indoor_aggregation,
             "config": {k: v for k, v in sala.to_dict().items() if k != "slots"},
@@ -92,7 +93,7 @@ class OverviewBuilder:
             "slots": [{
                 "id": t.id, "name": t.name, "enabled": t.enabled, "days": t.days,
                 "start": t.start.strftime(ajustes.FORMATO_HORA),
-                "duration_minutes": t.duracion_minutos, "setpoint": t.setpoint,
+                "duration_minutes": t.duracion_minutos, "setpoint": t.setpoint, "power": t.power,
                 "outdoor_below": t.outdoor_below, "indoor_below": t.indoor_below,
                 "config": t.to_dict(),  # datos completos para el editor
             } for t in sala.slots],

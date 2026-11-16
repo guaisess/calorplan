@@ -1,5 +1,5 @@
 {
- "version": "2026.11.22",
+ "version": "2026.11.23",
  "now": "2026-11-02T06:30:00+01:00",
  "weekday": 0,
  "minute": 390,
@@ -17,6 +17,7 @@
   {
    "id": "dormitorio",
    "name": "Dormitorio",
+   "group": null,
    "enabled": true,
    "indoor_aggregation": "min",
    "config": {
@@ -40,7 +41,8 @@
     "indoor_aggregation": "min",
     "notify": null,
     "pauses": [],
-    "manual_max_minutes": null
+    "manual_max_minutes": null,
+    "group": null
    },
    "actuator": {
     "type": "climate",
@@ -62,6 +64,7 @@
      "start": "06:00",
      "duration_minutes": 60,
      "setpoint": 20.0,
+     "power": null,
      "outdoor_below": 10.0,
      "indoor_below": 16.0,
      "config": {
@@ -77,6 +80,7 @@
       ],
       "start": "06:00",
       "setpoint": 20.0,
+      "power": null,
       "retry_off_minutes": 5,
       "conditions": {
        "outdoor_below": 10.0,
@@ -103,6 +107,7 @@
      "start": "11:00",
      "duration_minutes": 360,
      "setpoint": 20.0,
+     "power": null,
      "outdoor_below": 15.0,
      "indoor_below": 16.0,
      "config": {
@@ -120,6 +125,7 @@
       ],
       "start": "11:00",
       "setpoint": 20.0,
+      "power": null,
       "retry_off_minutes": 5,
       "conditions": {
        "outdoor_below": 15.0,
@@ -145,6 +151,7 @@
      "start": "19:00",
      "duration_minutes": 120,
      "setpoint": 20.0,
+     "power": null,
      "outdoor_below": 10.0,
      "indoor_below": 18.0,
      "config": {
@@ -161,6 +168,7 @@
       ],
       "start": "19:00",
       "setpoint": 20.0,
+      "power": null,
       "retry_off_minutes": 5,
       "conditions": {
        "outdoor_below": 10.0,
@@ -351,6 +359,7 @@
   {
    "id": "despacho",
    "name": "Despacho",
+   "group": null,
    "enabled": true,
    "indoor_aggregation": "min",
    "config": {
@@ -373,7 +382,8 @@
     "indoor_aggregation": "min",
     "notify": null,
     "pauses": [],
-    "manual_max_minutes": null
+    "manual_max_minutes": null,
+    "group": null
    },
    "actuator": {
     "type": "switch",
@@ -392,6 +402,7 @@
      "start": "07:00",
      "duration_minutes": 150,
      "setpoint": null,
+     "power": null,
      "outdoor_below": 16.0,
      "indoor_below": 20.0,
      "config": {
@@ -404,6 +415,7 @@
       ],
       "start": "07:00",
       "setpoint": null,
+      "power": null,
       "retry_off_minutes": 5,
       "conditions": {
        "outdoor_below": 16.0,
@@ -430,6 +442,7 @@
      "start": "11:30",
      "duration_minutes": 165,
      "setpoint": null,
+     "power": null,
      "outdoor_below": 16.0,
      "indoor_below": 20.0,
      "config": {
@@ -447,6 +460,7 @@
       ],
       "start": "11:30",
       "setpoint": null,
+      "power": null,
       "retry_off_minutes": 5,
       "conditions": {
        "outdoor_below": 16.0,
@@ -560,6 +574,7 @@
   {
    "id": "toallero",
    "name": "Toallero",
+   "group": null,
    "enabled": true,
    "indoor_aggregation": "min",
    "config": {
@@ -582,7 +597,8 @@
     "indoor_aggregation": "min",
     "notify": null,
     "pauses": [],
-    "manual_max_minutes": null
+    "manual_max_minutes": null,
+    "group": null
    },
    "actuator": {
     "type": "switch",
@@ -606,6 +622,7 @@
      "start": "05:50",
      "duration_minutes": 105,
      "setpoint": null,
+     "power": null,
      "outdoor_below": 16.0,
      "indoor_below": 22.0,
      "config": {
@@ -623,6 +640,7 @@
       ],
       "start": "05:50",
       "setpoint": null,
+      "power": null,
       "retry_off_minutes": 5,
       "conditions": {
        "outdoor_below": 16.0,

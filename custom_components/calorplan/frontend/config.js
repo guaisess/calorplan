@@ -1,4 +1,4 @@
-// Versión: 2026.11.9
+// Versión: 2026.11.23
 // Configuración del panel: todos los textos y valores ajustables (sin valores fijos en el código).
 
 export const CONFIG = {
@@ -13,6 +13,7 @@ export const CONFIG = {
   comandoBorrarPausa: "calorplan/delete_pause",
   esperaValidacionMs: 300,
   objetivoPorDefecto: 20,
+  potenciaPorDefecto: 100,
   inicioPorDefecto: "08:00",
   finPorDefecto: "09:00",
   duracionPorDefecto: 60,
@@ -60,8 +61,8 @@ export const TEXTOS = {
     sinTramos: "Sin tramos",
     proximo: "(próximo tramo)",
   },
-  tramo: { objetivo: "temperatura objetivo", exterior: "ext <", interior: "int <" },
-  unidades: { grados: "°C", minutos: "min", horas: "h" },
+  tramo: { objetivo: "temperatura objetivo", potencia: "potencia", exterior: "ext <", interior: "int <" },
+  unidades: { grados: "°C", minutos: "min", horas: "h", porcentaje: "%" },
   en: "en",
   tramos: "Tramos",
   historial: "Historial",
@@ -72,7 +73,7 @@ export const TEXTOS = {
   habilitar: "Habilitar",
   deshabilitar: "Deshabilitar",
   copiaSufijo: "(copia)",
-  columnasTramos: ["Tramo", "Días", "Horario", "Temperatura objetivo", "Condiciones", "Estado", ""],
+  columnasTramos: ["Tramo", "Días", "Horario", "Objetivo / potencia", "Condiciones", "Estado", ""],
   habilitado: "Habilitado",
   inhabilitado: "Deshabilitado",
   editor: {
@@ -84,6 +85,7 @@ export const TEXTOS = {
     fin: "Hora de fin",
     duracion: "Duración (min)",
     objetivo: "Temperatura objetivo (°C)",
+    potencia: "Potencia (0-100 %)",
     exterior: "Encender si exterior menor que (°C)",
     interior: "Encender si interior menor que (°C)",
     reintento: "Reintento de apagado (min, 0 = ninguno)",

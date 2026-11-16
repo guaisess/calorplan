@@ -1,4 +1,4 @@
-# Versión: 2026.11.12
+# Versión: 2026.11.23
 """Puertos falsos para los tests del motor."""
 from __future__ import annotations
 
@@ -64,6 +64,7 @@ class FakeActuator(ActuatorPort):
         self.aplica_pese_al_error = False  # como la nube de Tuya: da error pero la orden sí se aplica
         self.ignorar_modo = False  # la orden de modo no tiene efecto
         self.ignorar_temp = False  # la orden de temperatura no tiene efecto
+        self.ignorar_potencia = False  # el fan se enciende pero no cambia de nivel
         self.redondeo = None  # si se indica (p. ej. 1.0), el termostato redondea la temperatura
 
     async def climate_set_mode(self, entity_id, hvac_mode):
@@ -90,6 +91,16 @@ class FakeActuator(ActuatorPort):
 
     async def climate_off(self, entity_id):
         self.llamadas.append(("climate_off", entity_id))
+        await self._apagar(entity_id)
+
+    async def fan_turn_on(self, entity_id, percentage):
+        self.llamadas.append(("fan_on", entity_id, percentage))
+        self.state.estados[entity_id] = "on"
+        if percentage is not None and not self.ignorar_potencia:
+            self.state.atributos.setdefault(entity_id, {})["percentage"] = percentage
+
+    async def fan_turn_off(self, entity_id):
+        self.llamadas.append(("fan_off", entity_id))
         await self._apagar(entity_id)
 
     async def switch_set(self, entity_id, on):

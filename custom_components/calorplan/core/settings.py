@@ -1,4 +1,4 @@
-# Versión: 2026.11.22
+# Versión: 2026.11.23
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.22"
+VERSION = "2026.11.23"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -29,12 +29,21 @@ TOLERANCIA_RETRASO_SEGUNDOS = 300  # eventos más antiguos se consideran caducad
 # --- Actuadores -------------------------------------------------------------
 TIPO_CLIMATE = "climate"
 TIPO_SWITCH = "switch"
-TIPOS_ACTUADOR = (TIPO_CLIMATE, TIPO_SWITCH)
+TIPO_FAN = "fan"  # calefactor con niveles de potencia (solo calor)
+TIPOS_ACTUADOR = (TIPO_CLIMATE, TIPO_SWITCH, TIPO_FAN)
 HVAC_MODO_ENCENDIDO = "heat"
 HVAC_MODO_APAGADO = "off"
 ESTADOS_NO_DISPONIBLE = ("unavailable", "unknown")
 ESTADO_SWITCH_ENCENDIDO = "on"
 ESTADO_SWITCH_APAGADO = "off"
+
+# Potencia de un calefactor tipo fan (porcentaje 0-100)
+POTENCIA_MIN = 0
+POTENCIA_MAX = 100
+POTENCIA_DEFECTO = 100  # potencia si el tramo no indica ninguna
+ATRIBUTO_PORCENTAJE = "percentage"
+TOLERANCIA_POTENCIA = 17  # % de diferencia admitida (los fans con 3 niveles redondean a 33/66/100)
+ERROR_POTENCIA_RANGO = "Tramo '{tramo}': 'power' debe ser un entero entre {minimo} y {maximo}"
 
 # Bloqueo infantil: acción a aplicar al encender y al apagar
 BLOQUEO_BLOQUEAR = "lock"
@@ -115,7 +124,7 @@ AVISO_DEFECTO = AVISO_NINGUNO
 CANAL_TIPO_NOTIFY = "notify"
 CANAL_TIPOS = (CANAL_TIPO_NOTIFY,)
 VARIABLES_PLANTILLA = (
-    "room", "slot", "action", "setpoint", "outdoor", "indoor", "reason", "time",
+    "room", "slot", "action", "setpoint", "power", "outdoor", "indoor", "reason", "time",
 )
 FORMATO_NUMERO = "{:g}"
 
@@ -135,6 +144,11 @@ PLANTILLAS_DEFECTO = {
     ACCION_OMITIR: "⏭️ No se enciende {room} · {slot}\n{reason}",
     ACCION_ERROR: "⚠️ Problema en {room} · {slot}\n{reason}",
 }
+# Plantilla de encendido para dispositivos con potencia (fan) cuando no hay plantilla propia
+PLANTILLA_ENCENDER_POTENCIA = (
+    "🔥 CALEFACCIÓN ACTIVADA\n🏠 {room} · {slot}\n"
+    "🌡️ Exterior: {outdoor} °C · Estancia: {indoor} °C · ⚡ Potencia: {power} %"
+)
 TITULO_AVISO = "Calorplan"
 TITULO_PRUEBA = "Calorplan · prueba de aviso"
 MENSAJE_PRUEBA = "Aviso de prueba de Calorplan ({time})"
@@ -343,3 +357,7 @@ MENSAJE_MANUAL_APAGADO = "⏱️ {room} apagada: llevaba {minutos} min encendida
 MENSAJE_MANUAL_ERROR = "⚠️ {room} sigue encendida tras el límite de encendido manual ({limite} min) y no se pudo apagar."
 ERROR_MANUAL_RANGO = "Habitación '{habitacion}': 'manual_max_minutes' debe ser un entero entre {minimo} y {maximo}"
 MANUAL_REPROGRAMAR_SEGUNDOS = 60  # reintento si el límite ya venció y no se pudo actuar (p. ej. modo sombra)
+
+# --- Grupos de dispositivos (la estancia real que comparten varios dispositivos) ------------------------
+GRUPO_MAX_LONGITUD = 60
+ERROR_GRUPO_TIPO = "Habitación '{habitacion}': 'group' debe ser un texto de hasta {maximo} caracteres"
