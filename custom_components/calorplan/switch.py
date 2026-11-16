@@ -1,4 +1,4 @@
-# Versión: 2026.11.24
+# Versión: 2026.11.25
 """Interruptores: habilitar cada habitación, cada grupo y modo ausencia global."""
 from __future__ import annotations
 
@@ -62,9 +62,9 @@ class GrupoSwitch(CalorplanEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool:
-        """Encendido solo si todos los dispositivos del grupo están habilitados."""
+        """Encendido si al menos un dispositivo del grupo está habilitado (apagado solo si todos lo están)."""
         salas = [self._controller.plan.room(i) for i in self._controller.habitaciones_del_grupo(self._grupo)]
-        return bool(salas) and all(s is not None and s.enabled for s in salas)
+        return any(s is not None and s.enabled for s in salas)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

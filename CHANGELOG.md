@@ -2,6 +2,12 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.25
+
+- **Regla del grupo corregida:** el interruptor de grupo (y el botón del panel) está activo si **al menos
+  un** dispositivo del grupo está habilitado, y apagado solo si todos están deshabilitados (antes exigía que
+  todos lo estuvieran). Encender o apagar el grupo sigue actuando sobre todos sus dispositivos.
+
 ## 2026.11.24
 
 - **Habilitar o deshabilitar un grupo entero.** Nuevo servicio `calorplan.set_group_enabled`

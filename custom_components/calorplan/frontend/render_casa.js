@@ -1,9 +1,9 @@
-// Versión: 2026.11.24
+// Versión: 2026.11.25
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
-import { TEXTOS } from "./config.js?v=2026.11.24";
-import { esc, etiquetaHabitacion, ordenarPorGrupo } from "./logic.js?v=2026.11.24";
-import { CASA } from "./textos_casa.js?v=2026.11.24";
+import { TEXTOS } from "./config.js?v=2026.11.25";
+import { esc, etiquetaHabitacion, ordenarPorGrupo } from "./logic.js?v=2026.11.25";
+import { CASA } from "./textos_casa.js?v=2026.11.25";
 
 // --- Piezas comunes ----------------------------------------------------------------------------------
 const opciones = (mapa, actual) => Object.entries(mapa)
@@ -117,9 +117,9 @@ export function renderHabitaciones(datos) {
   const grupos = [...new Set(ordenarPorGrupo(datos.rooms).map((r) => r.group).filter(Boolean))];
   const barraGrupos = grupos.map((g) => {
     const salas = datos.rooms.filter((r) => r.group === g);
-    const todas = salas.every((r) => r.enabled);
-    const accion = todas ? "deshabilitar-grupo" : "habilitar-grupo";
-    const texto = todas ? H.deshabilitarGrupo : H.habilitarGrupo;
+    const alguna = salas.some((r) => r.enabled); // grupo activo si hay al menos un dispositivo habilitado
+    const accion = alguna ? "deshabilitar-grupo" : "habilitar-grupo";
+    const texto = alguna ? H.deshabilitarGrupo : H.habilitarGrupo;
     return `<span class="grupo-barra">${esc(H.grupo)} <strong>${esc(g)}</strong> (${salas.length}):
       <button data-accion="${accion}" data-grupo="${esc(g)}">${texto}</button></span>`;
   }).join(" ");

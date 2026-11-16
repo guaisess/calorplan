@@ -4,21 +4,21 @@
 
 import {
   canalesNotify, clonar, entidadesDe, fmtFecha, formToGlobal, formToRoom, habitacionVacia, sensoresTemperatura,
-} from "./casa.js?v=2026.11.24";
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.24";
-import { esc } from "./logic.js?v=2026.11.24";
-import { renderFormTramo, renderTramos, renderValidacionTramo } from "./render_tramos.js?v=2026.11.24";
-import { duplicarTramo, formToSlot, tramoVacio } from "./tramos.js?v=2026.11.24";
-import { formToPause, pausaVacia } from "./pausas.js?v=2026.11.24";
-import { renderFormPausa, renderPausas } from "./render_pausas.js?v=2026.11.24";
-import { PAUSAS } from "./textos_pausas.js?v=2026.11.24";
-import { renderCabecera, renderPanel } from "./render.js?v=2026.11.24";
+} from "./casa.js?v=2026.11.25";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.25";
+import { esc } from "./logic.js?v=2026.11.25";
+import { renderFormTramo, renderTramos, renderValidacionTramo } from "./render_tramos.js?v=2026.11.25";
+import { duplicarTramo, formToSlot, tramoVacio } from "./tramos.js?v=2026.11.25";
+import { formToPause, pausaVacia } from "./pausas.js?v=2026.11.25";
+import { renderFormPausa, renderPausas } from "./render_pausas.js?v=2026.11.25";
+import { PAUSAS } from "./textos_pausas.js?v=2026.11.25";
+import { renderCabecera, renderPanel } from "./render.js?v=2026.11.25";
 import {
   renderCasa, renderFormHabitacion, renderHistorial, renderModal, renderValidacion, renderVistas,
-} from "./render_casa.js?v=2026.11.24";
-import { ESTILOS } from "./styles.js?v=2026.11.24";
-import { ESTILOS_CASA } from "./styles_casa.js?v=2026.11.24";
-import { CASA } from "./textos_casa.js?v=2026.11.24";
+} from "./render_casa.js?v=2026.11.25";
+import { ESTILOS } from "./styles.js?v=2026.11.25";
+import { ESTILOS_CASA } from "./styles_casa.js?v=2026.11.25";
+import { CASA } from "./textos_casa.js?v=2026.11.25";
 
 class CalorplanPanel extends HTMLElement {
   constructor() {
