@@ -2,6 +2,17 @@
 
 Formato de versión: `AAAA.MM.V` (la versión vuelve a `.1` al empezar cada mes).
 
+## 2026.11.24
+
+- **Habilitar o deshabilitar un grupo entero.** Nuevo servicio `calorplan.set_group_enabled`
+  (`group`, `enabled`): aplica a todos los dispositivos del grupo lo mismo que `set_room_enabled` a una
+  habitación (al deshabilitar se apaga lo encendido y pasa a control manual; al habilitar se procesa
+  el tramo en curso).
+- **Interruptor por grupo** (`switch.calorplan_grupo_<grupo>`): encendido solo si todos sus dispositivos
+  están habilitados; encenderlo o apagarlo actúa sobre todos. Si cambia el grupo de una habitación se
+  recrean las entidades.
+- Panel: en la lista de habitaciones, una barra con un botón «Habilitar / Deshabilitar» por grupo.
+
 ## 2026.11.23
 
 - **Calefactores con potencia (`fan`).** Nuevo tipo de actuador `fan` (solo calor): el tramo indica

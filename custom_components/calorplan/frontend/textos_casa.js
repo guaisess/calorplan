@@ -1,4 +1,4 @@
-// Versión: 2026.11.23
+// Versión: 2026.11.24
 // Textos y valores por defecto de la vista «Casa» (ajustes globales y habitaciones).
 
 export const CASA = {
@@ -61,6 +61,10 @@ export const CASA = {
     sensoresN: "{n} sensor(es)",
     confirmarBorrar: "¿Borrar la habitación «{habitacion}» y sus {tramos} tramos? Se guarda una copia en el historial.",
     deshabilitada: "deshabilitada",
+    grupo: "Grupo",
+    habilitarGrupo: "Habilitar",
+    deshabilitarGrupo: "Deshabilitar",
+    errorGrupo: "No se pudo cambiar el grupo",
   },
   editor: {
     nueva: "Nueva habitación",

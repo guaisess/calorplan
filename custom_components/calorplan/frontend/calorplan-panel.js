@@ -1,24 +1,24 @@
-// Versión: 2026.11.23
+// Versión: 2026.11.24
 // Panel lateral de Calorplan (web component sin dependencias ni compilación).
 // Vistas: «Resumen» (solo lectura) y «Casa» (ajustes globales y habitaciones).
 
 import {
   canalesNotify, clonar, entidadesDe, fmtFecha, formToGlobal, formToRoom, habitacionVacia, sensoresTemperatura,
-} from "./casa.js?v=2026.11.23";
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.23";
-import { esc } from "./logic.js?v=2026.11.23";
-import { renderFormTramo, renderTramos, renderValidacionTramo } from "./render_tramos.js?v=2026.11.23";
-import { duplicarTramo, formToSlot, tramoVacio } from "./tramos.js?v=2026.11.23";
-import { formToPause, pausaVacia } from "./pausas.js?v=2026.11.23";
-import { renderFormPausa, renderPausas } from "./render_pausas.js?v=2026.11.23";
-import { PAUSAS } from "./textos_pausas.js?v=2026.11.23";
-import { renderCabecera, renderPanel } from "./render.js?v=2026.11.23";
+} from "./casa.js?v=2026.11.24";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.24";
+import { esc } from "./logic.js?v=2026.11.24";
+import { renderFormTramo, renderTramos, renderValidacionTramo } from "./render_tramos.js?v=2026.11.24";
+import { duplicarTramo, formToSlot, tramoVacio } from "./tramos.js?v=2026.11.24";
+import { formToPause, pausaVacia } from "./pausas.js?v=2026.11.24";
+import { renderFormPausa, renderPausas } from "./render_pausas.js?v=2026.11.24";
+import { PAUSAS } from "./textos_pausas.js?v=2026.11.24";
+import { renderCabecera, renderPanel } from "./render.js?v=2026.11.24";
 import {
   renderCasa, renderFormHabitacion, renderHistorial, renderModal, renderValidacion, renderVistas,
-} from "./render_casa.js?v=2026.11.23";
-import { ESTILOS } from "./styles.js?v=2026.11.23";
-import { ESTILOS_CASA } from "./styles_casa.js?v=2026.11.23";
-import { CASA } from "./textos_casa.js?v=2026.11.23";
+} from "./render_casa.js?v=2026.11.24";
+import { ESTILOS } from "./styles.js?v=2026.11.24";
+import { ESTILOS_CASA } from "./styles_casa.js?v=2026.11.24";
+import { CASA } from "./textos_casa.js?v=2026.11.24";
 
 class CalorplanPanel extends HTMLElement {
   constructor() {
@@ -313,6 +313,8 @@ class CalorplanPanel extends HTMLElement {
       case "nueva-habitacion": return this._abrirHabitacion(null);
       case "editar-habitacion": return this._abrirHabitacion(d.room);
       case "borrar-habitacion": return this._borrarHabitacion(d.room);
+      case "habilitar-grupo": return this._alternarGrupo(d.grupo, true);
+      case "deshabilitar-grupo": return this._alternarGrupo(d.grupo, false);
       case "anadir-sensor-habitacion": this._sincronizarHabitacion(); this._modal.draft.sensors.push(""); return this._pintarModal();
       case "quitar-sensor-habitacion": this._sincronizarHabitacion(); this._modal.draft.sensors.splice(Number(d.i), 1); return this._pintarModal();
       case "guardar-habitacion": return this._guardarHabitacion();
@@ -397,6 +399,15 @@ class CalorplanPanel extends HTMLElement {
     } catch (err) {
       m.validacion = { ok: false, error: `${CASA.errorGuardar}: ${err?.message ?? err}` };
       this._pintarValidacion(m.validacion, "guardar-habitacion", "validacion-habitacion");
+    }
+  }
+
+  async _alternarGrupo(grupo, habilitado) {
+    try {
+      await this._hass.callService("calorplan", "set_group_enabled", { group: grupo, enabled: habilitado });
+      await this._cargar();
+    } catch (err) {
+      alert(`${CASA.habitaciones.errorGrupo}: ${err?.message ?? err}`);
     }
   }
 

@@ -1,4 +1,4 @@
-# Versión: 2026.11.16
+# Versión: 2026.11.24
 """Servicios de Calorplan: importar, ejecutar tramo, ausencia, prueba y recarga."""
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from .ha.controller import Controller
 
 SERVICIOS = (ajustes.SERVICIO_IMPORTAR, ajustes.SERVICIO_EJECUTAR, ajustes.SERVICIO_AUSENCIA,
              ajustes.SERVICIO_PRUEBA, ajustes.SERVICIO_RECARGAR, ajustes.SERVICIO_PAUSA,
-             ajustes.SERVICIO_QUITAR_PAUSA, ajustes.SERVICIO_HABITACION)
+             ajustes.SERVICIO_QUITAR_PAUSA, ajustes.SERVICIO_HABITACION, ajustes.SERVICIO_GRUPO)
 
 ESQUEMA_IMPORTAR = vol.All(
     vol.Schema({vol.Optional(ajustes.CAMPO_RUTA): cv.string,
@@ -33,6 +33,8 @@ ESQUEMA_PRUEBA = vol.Schema({vol.Required(ajustes.CAMPO_CANAL): cv.string})
 ESQUEMA_RECARGAR = vol.Schema({})
 ESQUEMA_HABITACION = vol.Schema({vol.Required(ajustes.CAMPO_HABITACION): cv.string,
                                  vol.Required(ajustes.CAMPO_ACTIVA): cv.boolean})
+ESQUEMA_GRUPO = vol.Schema({vol.Required(ajustes.CAMPO_GRUPO): cv.string,
+                            vol.Required(ajustes.CAMPO_ACTIVA): cv.boolean})
 # Pausas: sin `room_id` = toda la casa; sin `until` (o `until: null`) = sin fecha de fin.
 # Una fecha de fin vacía se rechaza a propósito (evita pausas indefinidas por descuido).
 ESQUEMA_PAUSA = vol.Schema({
@@ -145,6 +147,14 @@ def async_registrar(hass: HomeAssistant) -> None:
             raise ServiceValidationError(ajustes.ERROR_SERVICIO_HABITACION.format(habitacion=sala_id))
         await controlador.async_set_room_enabled(sala_id, llamada.data[ajustes.CAMPO_ACTIVA])
 
+    async def grupo(llamada: ServiceCall) -> None:
+        _, controlador = _entrada_y_controlador(hass)
+        nombre = llamada.data[ajustes.CAMPO_GRUPO]
+        if not controlador.habitaciones_del_grupo(nombre):
+            raise ServiceValidationError(ajustes.ERROR_SERVICIO_GRUPO.format(grupo=nombre))
+        await controlador.async_set_group_enabled(nombre, llamada.data[ajustes.CAMPO_ACTIVA])
+
+    hass.services.async_register(ajustes.DOMAIN, ajustes.SERVICIO_GRUPO, grupo, schema=ESQUEMA_GRUPO)
     hass.services.async_register(ajustes.DOMAIN, ajustes.SERVICIO_HABITACION, habitacion,
                                  schema=ESQUEMA_HABITACION)
     hass.services.async_register(ajustes.DOMAIN, ajustes.SERVICIO_PAUSA, fijar_pausa,

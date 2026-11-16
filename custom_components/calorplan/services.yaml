@@ -100,3 +100,15 @@ set_room_enabled:
       required: true
       selector:
         boolean:
+
+set_group_enabled:
+  fields:
+    group:
+      required: true
+      example: "Aseo"
+      selector:
+        text:
+    enabled:
+      required: true
+      selector:
+        boolean:

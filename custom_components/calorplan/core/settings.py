@@ -1,4 +1,4 @@
-# Versión: 2026.11.23
+# Versión: 2026.11.24
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.23"
+VERSION = "2026.11.24"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -361,3 +361,11 @@ MANUAL_REPROGRAMAR_SEGUNDOS = 60  # reintento si el límite ya venció y no se p
 # --- Grupos de dispositivos (la estancia real que comparten varios dispositivos) ------------------------
 GRUPO_MAX_LONGITUD = 60
 ERROR_GRUPO_TIPO = "Habitación '{habitacion}': 'group' debe ser un texto de hasta {maximo} caracteres"
+
+# --- Habilitar o deshabilitar un grupo entero -----------------------------------------------------------
+SERVICIO_GRUPO = "set_group_enabled"
+CAMPO_GRUPO = "group"
+ERROR_SERVICIO_GRUPO = "El grupo '{grupo}' no existe"
+NOMBRE_SWITCH_GRUPO = "Calorplan grupo {grupo}"
+ID_UNICO_SWITCH_GRUPO = "{dominio}_grupo_{grupo}_habilitado"
+ICONO_SWITCH_GRUPO = "mdi:home-thermometer"

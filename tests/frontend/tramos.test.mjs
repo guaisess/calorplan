@@ -180,3 +180,14 @@ test("fan: formToSlot convierte la potencia a entero y usa 100 si está vacía",
   assert.equal(tramos.formToSlot([...base, ["power", ""]], fan).power, 100);
   assert.equal(tramos.formToSlot(base, { actuator: { type: "switch" } }).power, undefined);
 });
+
+test("grupos: la lista de habitaciones ofrece un botón por grupo (deshabilitar si todo está habilitado)", () => {
+  const sala = (id, group, enabled) => ({ ...clonar(toallero), id, group, enabled });
+  const base = { rooms: [sala("a", "Aseo", true), sala("b", "Aseo", true), sala("c", null, true)] };
+  const html = casa.renderHabitaciones(base);
+  assert.match(html, /data-accion="deshabilitar-grupo" data-grupo="Aseo"/);
+  assert.doesNotMatch(html, /habilitar-grupo" data-grupo="Aseo"[^>]*>Habilitar/);
+  base.rooms[1].enabled = false;
+  assert.match(casa.renderHabitaciones(base), /data-accion="habilitar-grupo" data-grupo="Aseo"/);
+  assert.doesNotMatch(casa.renderHabitaciones({ rooms: [sala("c", null, true)] }), /-grupo"/);
+});

@@ -1,4 +1,4 @@
-# Versión: 2026.11.22
+# Versión: 2026.11.24
 """Controlador: une el motor puro con Home Assistant (temporizador y estado)."""
 from __future__ import annotations
 
@@ -291,6 +291,20 @@ class Controller:
                 self._tareas.add(tarea)
                 tarea.add_done_callback(self._tareas.discard)
 
+    def habitaciones_del_grupo(self, grupo: str) -> list[str]:
+        """Ids de las habitaciones (dispositivos) que pertenecen a un grupo."""
+        return [r.id for r in self.plan.rooms if r.group == grupo]
+
+    async def async_set_group_enabled(self, grupo: str, habilitado: bool) -> int:
+        """Habilita o deshabilita todos los dispositivos de un grupo. Devuelve cuántos cambiaron."""
+        cambiados = 0
+        for room_id in self.habitaciones_del_grupo(grupo):
+            sala = self.plan.room(room_id)
+            if sala is not None and sala.enabled != habilitado:
+                await self.async_set_room_enabled(room_id, habilitado)
+                cambiados += 1
+        return cambiados
+
     async def _procesar_habilitada(self, room_id: str) -> None:
         """Procesa el tramo en curso de una habitación recién habilitada (con su cerrojo)."""
         assert self.runner is not None
@@ -372,9 +386,9 @@ class Controller:
         nuevo = PlanEditor.borrar_habitacion(self.plan, room_id)
         await self.async_replace_plan(nuevo, ajustes.MOTIVO_HIST_HAB_BORRAR.format(habitacion=room_id))
 
-    def firma_habitaciones(self) -> list[tuple[str, str]]:
-        """(id, nombre) de cada habitación: si cambia, hay que recrear las entidades."""
-        return [(r.id, r.name) for r in self.plan.rooms]
+    def firma_habitaciones(self) -> list[tuple[str, str, str | None]]:
+        """(id, nombre, grupo) de cada habitación: si cambia, hay que recrear las entidades."""
+        return [(r.id, r.name, r.group) for r in self.plan.rooms]
 
     # --- Ajustes globales («Casa») --------------------------------------------------------
     def global_config(self) -> dict[str, Any]:

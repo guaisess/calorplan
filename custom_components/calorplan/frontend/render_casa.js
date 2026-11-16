@@ -1,9 +1,9 @@
-// Versión: 2026.11.23
+// Versión: 2026.11.24
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
-import { TEXTOS } from "./config.js?v=2026.11.23";
-import { esc, etiquetaHabitacion, ordenarPorGrupo } from "./logic.js?v=2026.11.23";
-import { CASA } from "./textos_casa.js?v=2026.11.23";
+import { TEXTOS } from "./config.js?v=2026.11.24";
+import { esc, etiquetaHabitacion, ordenarPorGrupo } from "./logic.js?v=2026.11.24";
+import { CASA } from "./textos_casa.js?v=2026.11.24";
 
 // --- Piezas comunes ----------------------------------------------------------------------------------
 const opciones = (mapa, actual) => Object.entries(mapa)
@@ -114,8 +114,17 @@ export function renderHabitaciones(datos) {
       <td class="acciones"><button data-accion="editar-habitacion" data-room="${esc(r.id)}">${H.editar}</button>
       <button data-accion="borrar-habitacion" data-room="${esc(r.id)}">${H.borrar}</button></td></tr>`;
   }).join("");
+  const grupos = [...new Set(ordenarPorGrupo(datos.rooms).map((r) => r.group).filter(Boolean))];
+  const barraGrupos = grupos.map((g) => {
+    const salas = datos.rooms.filter((r) => r.group === g);
+    const todas = salas.every((r) => r.enabled);
+    const accion = todas ? "deshabilitar-grupo" : "habilitar-grupo";
+    const texto = todas ? H.deshabilitarGrupo : H.habilitarGrupo;
+    return `<span class="grupo-barra">${esc(H.grupo)} <strong>${esc(g)}</strong> (${salas.length}):
+      <button data-accion="${accion}" data-grupo="${esc(g)}">${texto}</button></span>`;
+  }).join(" ");
   const cab = H.columnas.map((c) => `<th>${c}</th>`).join("");
-  return `<table><thead><tr>${cab}</tr></thead><tbody>${filas}</tbody></table>`;
+  return `${barraGrupos ? `<div class="mensaje">${barraGrupos}</div>` : ""}<table><thead><tr>${cab}</tr></thead><tbody>${filas}</tbody></table>`;
 }
 
 /** Contenido del editor de habitación (sin el marco del diálogo). */

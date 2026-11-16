@@ -1,5 +1,5 @@
-# Versión: 2026.11.2
-"""Interruptores: habilitar cada habitación y modo ausencia global."""
+# Versión: 2026.11.24
+"""Interruptores: habilitar cada habitación, cada grupo y modo ausencia global."""
 from __future__ import annotations
 
 from typing import Any
@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .core import settings as ajustes
+from .core.engine.editor import generar_id
 from .entity import CalorplanEntity
 from .ha.controller import Controller
 
@@ -20,6 +21,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
     controlador: Controller = hass.data[ajustes.DOMAIN][entry.entry_id]
     entidades: list[SwitchEntity] = [AusenciaSwitch(controlador)]
     entidades += [HabitacionSwitch(controlador, r.id, r.name) for r in controlador.plan.rooms]
+    grupos = list(dict.fromkeys(r.group for r in controlador.plan.rooms if r.group))
+    entidades += [GrupoSwitch(controlador, g) for g in grupos]
     async_add_entities(entidades)
 
 
@@ -43,6 +46,35 @@ class HabitacionSwitch(CalorplanEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         await self._controller.async_set_room_enabled(self._room_id, False)
+
+
+class GrupoSwitch(CalorplanEntity, SwitchEntity):
+    """Habilita o deshabilita de una vez todos los dispositivos de un grupo (una estancia)."""
+
+    _attr_icon = ajustes.ICONO_SWITCH_GRUPO
+
+    def __init__(self, controlador: Controller, grupo: str) -> None:
+        super().__init__(controlador)
+        self._grupo = grupo
+        self._attr_name = ajustes.NOMBRE_SWITCH_GRUPO.format(grupo=grupo)
+        self._attr_unique_id = ajustes.ID_UNICO_SWITCH_GRUPO.format(
+            dominio=ajustes.DOMAIN, grupo=generar_id(grupo, [], "grupo"))
+
+    @property
+    def is_on(self) -> bool:
+        """Encendido solo si todos los dispositivos del grupo están habilitados."""
+        salas = [self._controller.plan.room(i) for i in self._controller.habitaciones_del_grupo(self._grupo)]
+        return bool(salas) and all(s is not None and s.enabled for s in salas)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {"rooms": self._controller.habitaciones_del_grupo(self._grupo)}
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._controller.async_set_group_enabled(self._grupo, True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self._controller.async_set_group_enabled(self._grupo, False)
 
 
 class AusenciaSwitch(CalorplanEntity, SwitchEntity):
