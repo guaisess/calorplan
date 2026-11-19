@@ -1,4 +1,4 @@
-# Versión: 2026.11.23
+# Versión: 2026.11.26
 """Notificador: elige modo y canales efectivos y envía los avisos."""
 from __future__ import annotations
 
@@ -53,10 +53,13 @@ class Notifier:
         return False
 
     # --- Mensajes ----------------------------------------------------------
-    @staticmethod
-    def _numero(valor: float | None) -> str:
-        """Formatea un número opcional."""
-        return "" if valor is None else ajustes.FORMATO_NUMERO.format(valor)
+    def _numero(self, valor: float | None, decimales: int | None = None) -> str:
+        """Formatea un número opcional con los decimales globales (o los indicados)."""
+        if valor is None:
+            return ""
+        if decimales is None:
+            decimales = self.plan.config.decimals
+        return ajustes.FORMATO_NUMERO.format(decimales=decimales).format(valor)
 
     def componer(self, canal: Channel, registro: Record) -> str:
         """Construye el mensaje con la plantilla del canal o la global."""
@@ -69,7 +72,7 @@ class Notifier:
             slot=registro.slot_name,
             action=registro.action,
             setpoint=self._numero(registro.setpoint),
-            power=self._numero(registro.power),
+            power=self._numero(registro.power, 0),  # la potencia es un porcentaje entero
             outdoor=self._numero(registro.outdoor),
             indoor=self._numero(registro.indoor),
             reason=registro.reason,

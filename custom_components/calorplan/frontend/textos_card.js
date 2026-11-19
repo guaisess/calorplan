@@ -1,4 +1,4 @@
-// Versión: 2026.11.16
+// Versión: 2026.11.26
 // Configuración y textos de la tarjeta Lovelace (sin valores fijos en el código).
 
 export const CONFIG_TARJETA = {
@@ -9,6 +9,7 @@ export const CONFIG_TARJETA = {
   servicios: { ausencia: "set_away", pausa: "set_pause", quitarPausa: "clear_pause", habitacion: "set_room_enabled", tramo: "run_slot" },
   refrescoSegundos: 30,
   minutosDia: 1440,
+  decimalesDefecto: 1, // precisión decimal si el resumen no la indica
   marcasHoras: [0, 6, 12, 18, 24],
   accionesDisponibles: ["away", "pause", "enable", "run"],
   porDefecto: { title: "Calefacción", show_timeline: true, actions: ["away", "pause"], rooms: [] },

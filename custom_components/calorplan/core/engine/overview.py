@@ -1,4 +1,4 @@
-# Versión: 2026.11.23
+# Versión: 2026.11.26
 """Resumen de solo lectura para el panel: línea de tiempo, estado y simulación.
 
 El simulador responde «¿qué haría ahora?» evaluando las condiciones con los
@@ -128,7 +128,8 @@ class OverviewBuilder:
             "away_mode": cfg.away_mode,
             "today": ahora.strftime(ajustes.FORMATO_FECHA),
             "global_pauses": self._pausas(cfg.pauses, ahora.date()),
-            "outdoor": self._evaluator.aggregate(cfg.outdoor_sensors, cfg.outdoor_aggregation),
+            "decimals": cfg.decimals,  # precisión decimal para mostrar las medidas
+            "outdoor": self._evaluator.aggregate(cfg.outdoor_sensors, cfg.outdoor_aggregation, cfg.decimals),
             "outdoor_aggregation": cfg.outdoor_aggregation,
             "channels": [c.id for c in cfg.channels],  # solo ids: nunca los servicios
             "rooms": [self._habitacion(r, ahora, ultimos) for r in self._plan.rooms],
@@ -181,6 +182,7 @@ class OverviewBuilder:
         return {
             "version": o["version"], "now": o["now"], "today": o["today"], "weekday": dia, "minute": minuto,
             "shadow_mode": o["shadow_mode"], "away_mode": o["away_mode"], "outdoor": o["outdoor"],
+            "decimals": o["decimals"],
             "quick_pause_reason": ajustes.MOTIVO_PAUSA_RAPIDA,
             "global_pause": ({"reason": activas_casa[0]["reason"], "until": activas_casa[0]["until"]}
                              if activas_casa else None),

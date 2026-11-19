@@ -1,5 +1,5 @@
 {
- "version": "2026.11.25",
+ "version": "2026.11.26",
  "now": "2026-11-02T06:30:00+01:00",
  "weekday": 0,
  "minute": 390,
@@ -7,6 +7,7 @@
  "away_mode": false,
  "today": "2026-11-02",
  "global_pauses": [],
+ "decimals": 1,
  "outdoor": 8.0,
  "outdoor_aggregation": "min",
  "channels": [

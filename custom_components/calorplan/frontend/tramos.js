@@ -1,8 +1,8 @@
 // Versión: 2026.11.23
 // Lógica pura de la edición de tramos: borradores y conversión del formulario.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.25";
-import { numero, parseEntries } from "./forms.js?v=2026.11.25";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.26";
+import { numero, parseEntries } from "./forms.js?v=2026.11.26";
 
 /** Potencia del formulario: entero 0-100 (vacío = la de por defecto). */
 function potencia(valor) {

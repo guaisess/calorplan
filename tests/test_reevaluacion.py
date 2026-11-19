@@ -228,4 +228,4 @@ def test_valores_no_validos_del_ajuste(valor):
 
 def test_los_motivos_de_omision_son_claros():
     e = montar()
-    assert inicio(e).reason == "Interior 17 °C no es menor que 16 °C"
+    assert inicio(e).reason == "Interior 17.0 °C no es menor que 16.0 °C"

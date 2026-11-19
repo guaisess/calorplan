@@ -1,9 +1,9 @@
-// Versión: 2026.11.25
+// Versión: 2026.11.26
 // HTML de la vista «Casa» (funciones puras): ajustes globales, habitaciones, editor e historial.
 
-import { TEXTOS } from "./config.js?v=2026.11.25";
-import { esc, etiquetaHabitacion, ordenarPorGrupo } from "./logic.js?v=2026.11.25";
-import { CASA } from "./textos_casa.js?v=2026.11.25";
+import { TEXTOS } from "./config.js?v=2026.11.26";
+import { esc, etiquetaHabitacion, ordenarPorGrupo } from "./logic.js?v=2026.11.26";
+import { CASA } from "./textos_casa.js?v=2026.11.26";
 
 // --- Piezas comunes ----------------------------------------------------------------------------------
 const opciones = (mapa, actual) => Object.entries(mapa)
@@ -79,6 +79,8 @@ function seccionComportamiento(g) {
   return `<h3>${CASA.global.comportamiento}</h3>
     ${campo(CASA.global.politica, `<select name="policy">${opciones(CASA.politicas, g.unavailable_policy)}</select>`)}
     ${campo(CASA.global.catchUp, `<select name="catchUp">${opciones(CASA.catchUps, g.catch_up)}</select>`)}
+    ${campo(CASA.global.decimales, `<input type="number" name="decimals" min="0" max="3" value="${esc(g.decimals ?? CASA.defectos.decimales)}">`)}
+    <p class="muted">${CASA.global.decimalesAyuda}</p>
     ${campo(CASA.global.reevaluar, `<input type="number" name="reevaluate" min="0" max="1440" value="${esc(g.reevaluate_minutes ?? 0)}">`)}
     <p class="muted">${CASA.global.reevaluarAyuda}</p>
     ${campo(CASA.global.esperaArranque, `<input type="number" name="startupDelay" min="0" max="3600" value="${esc(g.startup_delay_seconds ?? 120)}">`)}

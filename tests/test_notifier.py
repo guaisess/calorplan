@@ -87,7 +87,7 @@ def test_plantilla_por_defecto_y_variables():
     servicio, titulo, mensaje = envio.enviados[0]
     assert titulo == aj.TITULO_AVISO
     assert "Dormitorio · Madrugada" in mensaje
-    assert "Exterior: 8.5 °C" in mensaje and "Estancia: 15 °C" in mensaje and "Objetivo: 20 °C" in mensaje
+    assert "Exterior: 8.5 °C" in mensaje and "Estancia: 15.0 °C" in mensaje and "Objetivo: 20.0 °C" in mensaje
 
 
 def test_plantilla_global_y_de_canal_con_variable_ausente():

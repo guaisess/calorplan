@@ -1,9 +1,9 @@
-// Versión: 2026.11.23
+// Versión: 2026.11.26
 // HTML de la vista «Tramos» (funciones puras): tabla por habitación y editor de tramo.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.25";
-import { daysLabel, esc, fmtMin, fmtNum } from "./logic.js?v=2026.11.25";
-import { CASA } from "./textos_casa.js?v=2026.11.25";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.26";
+import { daysLabel, esc, fmtMin, fmtNum } from "./logic.js?v=2026.11.26";
+import { CASA } from "./textos_casa.js?v=2026.11.26";
 
 const E = TEXTOS.editor;
 
@@ -32,7 +32,7 @@ export function condiciones(slot) {
 function renderTabla(room) {
   if (!room.slots.length) return `<div class="mensaje">${TEXTOS.sinTramos}</div>`;
   const filas = [...room.slots].sort((a, b) => a.start.localeCompare(b.start)).map((s) => {
-    const objetivo = s.power !== null && s.power !== undefined ? `${fmtNum(s.power)} ${TEXTOS.unidades.porcentaje}`
+    const objetivo = s.power !== null && s.power !== undefined ? `${fmtNum(s.power, 0)} ${TEXTOS.unidades.porcentaje}`
       : s.setpoint === null ? TEXTOS.nada : `${fmtNum(s.setpoint)} ${TEXTOS.unidades.grados}`;
     const alterna = s.enabled ? TEXTOS.deshabilitar : TEXTOS.habilitar;
     const data = `data-room="${esc(room.id)}" data-slot="${esc(s.id)}"`;

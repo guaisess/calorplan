@@ -1,7 +1,8 @@
-// Versión: 2026.11.23
+// Versión: 2026.11.26
 // Configuración del panel: todos los textos y valores ajustables (sin valores fijos en el código).
 
 export const CONFIG = {
+  decimalesDefecto: 1, // precisión decimal si el servidor no la indica
   comandoWs: "calorplan/overview",
   comandoValidar: "calorplan/validate_slot",
   comandoGuardar: "calorplan/save_slot",

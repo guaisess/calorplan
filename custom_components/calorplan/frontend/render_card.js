@@ -1,8 +1,8 @@
-// Versión: 2026.11.22
+// Versión: 2026.11.26
 // Generación del HTML de la tarjeta (funciones puras: datos → texto).
 
-import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.25";
-import { accionesHabitacion, estadoHabitacion, filtrarHabitaciones, hhmm, posicion, textoEstado, textoProximo } from "./card_logic.js?v=2026.11.25";
+import { CONFIG_TARJETA as C, TEXTOS_TARJETA as T } from "./textos_card.js?v=2026.11.26";
+import { accionesHabitacion, estadoHabitacion, filtrarHabitaciones, hhmm, posicion, textoEstado, textoProximo } from "./card_logic.js?v=2026.11.26";
 
 /** Escapa texto para insertarlo en HTML. */
 export function esc(valor) {
@@ -16,7 +16,7 @@ export function renderCabecera(resumen, config) {
   if (resumen.shadow_mode) ins.push(`<span class="insignia aviso">${esc(T.sombra)}</span>`);
   if (resumen.away_mode) ins.push(`<span class="insignia aviso">${esc(T.ausencia)}</span>`);
   if (resumen.global_pause) ins.push(`<span class="insignia aviso">${esc(T.pausaGlobal)}</span>`);
-  if (resumen.outdoor != null) ins.push(`<span class="insignia">${esc(T.exterior)} ${esc(resumen.outdoor)} °C</span>`);
+  if (resumen.outdoor != null) ins.push(`<span class="insignia">${esc(T.exterior)} ${esc(Number(resumen.outdoor).toFixed(resumen.decimals ?? C.decimalesDefecto))} °C</span>`);
   const away = config.actions.includes("away")
     ? `<button data-accion="away">${esc(resumen.away_mode ? T.acciones.away.desactivar : T.acciones.away.activar)}</button>` : "";
   return `<div class="cabecera"><span class="titulo">${esc(config.title)}</span>${ins.join("")}<span class="espacio"></span>${away}</div>`;

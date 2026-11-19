@@ -1,8 +1,8 @@
-// Versión: 2026.11.23
+// Versión: 2026.11.26
 // Lógica pura de la vista «Casa»: opciones desde Home Assistant y conversión de formularios.
 
-import { lista, numero, parseEntries } from "./forms.js?v=2026.11.25";
-import { CASA } from "./textos_casa.js?v=2026.11.25";
+import { lista, numero, parseEntries } from "./forms.js?v=2026.11.26";
+import { CASA } from "./textos_casa.js?v=2026.11.26";
 
 // --- Opciones (autocompletado) a partir de `hass` ----------------------------------------------
 /** Ids de entidades de un dominio, ordenados. */
@@ -48,6 +48,7 @@ export function formToGlobal(entries, base) {
     unavailable_policy: f.uno("policy", "do_not_start"),
     catch_up: f.uno("catchUp", "none"),
     reevaluate_minutes: numero(f.uno("reevaluate")) ?? 0,
+    decimals: numero(f.uno("decimals")) ?? CASA.defectos.decimales,
     startup_delay_seconds: numero(f.uno("startupDelay")) ?? CASA.defectos.esperaArranque,
     channels: canales,
     default_notify: {

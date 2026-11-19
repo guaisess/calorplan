@@ -81,7 +81,7 @@ test("horario y condiciones", () => {
   assert.equal(vista.horario({ start: "06:00", duration_minutes: 60 }), "06:00–07:00");
   assert.equal(vista.horario({ start: "23:00", duration_minutes: 120 }), "23:00–01:00");
   assert.equal(vista.horario(toallero.slots[0]), "05:50–07:35");
-  assert.equal(vista.condiciones({ outdoor_below: 15, indoor_below: 16 }), "ext < 15 · int < 16");
+  assert.equal(vista.condiciones({ outdoor_below: 15, indoor_below: 16 }), "ext < 15.0 · int < 16.0");
   assert.equal(vista.condiciones({ outdoor_below: null, indoor_below: 18.5 }), "int < 18.5");
   assert.equal(vista.condiciones({ outdoor_below: null, indoor_below: null }), "—");
 });
@@ -92,8 +92,8 @@ test("renderTramos: una tarjeta por habitación, ordenado por hora y con accione
   assert.equal((html.match(/data-accion="editar-tramo"/g) || []).length, 6); // 3 + 2 + 1
   assert.ok(html.indexOf("Madrugada") < html.indexOf("Tarde") && html.indexOf("Tarde") < html.indexOf("Noche"));
   assert.match(html, /L–V/);
-  assert.match(html, /20 °C/);
-  assert.match(html, /ext &lt; 10 · int &lt; 16|ext < 10 · int < 16/);
+  assert.match(html, /20.0 °C/);
+  assert.match(html, /ext &lt; 10.0 · int &lt; 16.0|ext < 10.0 · int < 16.0/);
   assert.match(html, /data-accion="alternar-tramo" data-room="dormitorio" data-slot="madrugada">Deshabilitar/);
 });
 

@@ -17,8 +17,12 @@ test("fmtMin y fmtNum", () => {
   assert.equal(logica.fmtMin(0), "00:00");
   assert.equal(logica.fmtMin(390), "06:30");
   assert.equal(logica.fmtMin(1440), "24:00");
-  assert.equal(logica.fmtNum(20), "20");
+  assert.equal(logica.fmtNum(20), "20.0");
   assert.equal(logica.fmtNum(14.34), "14.3");
+  assert.equal(logica.fmtNum(50, 0), "50"); // la potencia es un entero
+  logica.fijarDecimales(2);
+  assert.equal(logica.fmtNum(14.3), "14.30");
+  logica.fijarDecimales(1); // se restaura la precisión por defecto
   assert.equal(logica.fmtNum(null), "—");
 });
 
@@ -108,7 +112,7 @@ test("renderPanel: cabecera, tabla y escape del nombre", () => {
   const html = render.renderPanel(d, 0, AHORA);
   assert.match(html, /Modo sombra/);
   assert.match(html, /v2026\.\d+\.\d+/);
-  assert.match(html, /Exterior 8 °C/);
+  assert.match(html, /Exterior 8.0 °C/);
   assert.match(html, /Si empezara ahora, encendería/);
   assert.equal(html.includes("<script>"), false);
   assert.match(html, /&lt;script&gt;/);

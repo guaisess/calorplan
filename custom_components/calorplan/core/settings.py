@@ -1,4 +1,4 @@
-# Versión: 2026.11.25
+# Versión: 2026.11.26
 """Configuración central: todas las constantes y valores por defecto.
 
 Ningún otro fichero del proyecto debe contener valores fijos (horas, umbrales,
@@ -7,7 +7,7 @@ textos por defecto, nombres de eventos...). Todo se define aquí.
 from __future__ import annotations
 
 # --- Identificación ---------------------------------------------------------
-VERSION = "2026.11.25"
+VERSION = "2026.11.26"
 DOMAIN = "calorplan"
 NOMBRE = "Calorplan"
 
@@ -126,7 +126,11 @@ CANAL_TIPOS = (CANAL_TIPO_NOTIFY,)
 VARIABLES_PLANTILLA = (
     "room", "slot", "action", "setpoint", "power", "outdoor", "indoor", "reason", "time",
 )
-FORMATO_NUMERO = "{:g}"
+# Precisión decimal de las medidas (temperaturas): se aplica al evaluar y al mostrar
+DECIMALES_DEFECTO = 1
+DECIMALES_MAX = 3
+ERROR_DECIMALES = "'decimals' debe ser un entero entre 0 y {maximo}"
+FORMATO_NUMERO = "{{:.{decimales}f}}"  # plantilla del formato; se completa con los decimales
 
 ACCION_ENCENDER = "on"
 ACCION_APAGAR = "off"

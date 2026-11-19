@@ -1,4 +1,4 @@
-# Versión: 2026.11.10
+# Versión: 2026.11.26
 """Configuración global: sensores exteriores, canales y políticas."""
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ class Config:
     unavailable_policy: str = ajustes.POLITICA_NO_DISPONIBLE_DEFECTO
     catch_up: str = ajustes.CATCH_UP_DEFECTO
     reevaluate_minutes: int = ajustes.REEVALUAR_MINUTOS_DEFECTO
+    decimals: int = ajustes.DECIMALES_DEFECTO  # precisión decimal de las medidas
     startup_delay_seconds: int = ajustes.ESPERA_ARRANQUE_DEFECTO
     channels: list[Channel] = field(default_factory=list)
     default_notify: NotifyConfig = field(default_factory=NotifyConfig)
@@ -56,6 +57,10 @@ class Config:
         if (isinstance(reevaluar, bool) or not isinstance(reevaluar, int)
                 or not 0 <= reevaluar <= ajustes.REEVALUAR_MINUTOS_MAX):
             raise ConfigError(ajustes.ERROR_REEVALUAR.format(maximo=ajustes.REEVALUAR_MINUTOS_MAX))
+        decimales = datos.get("decimals", ajustes.DECIMALES_DEFECTO)
+        if (isinstance(decimales, bool) or not isinstance(decimales, int)
+                or not 0 <= decimales <= ajustes.DECIMALES_MAX):
+            raise ConfigError(ajustes.ERROR_DECIMALES.format(maximo=ajustes.DECIMALES_MAX))
         espera = datos.get("startup_delay_seconds", ajustes.ESPERA_ARRANQUE_DEFECTO)
         if (isinstance(espera, bool) or not isinstance(espera, int)
                 or not 0 <= espera <= ajustes.ESPERA_ARRANQUE_MAX):
@@ -81,6 +86,7 @@ class Config:
             unavailable_policy=politica,
             catch_up=catch_up,
             reevaluate_minutes=reevaluar,
+            decimals=decimales,
             startup_delay_seconds=espera,
             channels=canales,
             default_notify=aviso,
@@ -98,6 +104,7 @@ class Config:
             "unavailable_policy": self.unavailable_policy,
             "catch_up": self.catch_up,
             "reevaluate_minutes": self.reevaluate_minutes,
+            "decimals": self.decimals,
             "startup_delay_seconds": self.startup_delay_seconds,
             "channels": [c.to_dict() for c in self.channels],
             "default_notify": self.default_notify.to_dict(),

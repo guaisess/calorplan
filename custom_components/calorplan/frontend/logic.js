@@ -1,7 +1,7 @@
-// Versión: 2026.11.23
+// Versión: 2026.11.26
 // Lógica pura del panel (sin DOM): formatos, posiciones de barras y descripciones.
 
-import { CONFIG, TEXTOS } from "./config.js?v=2026.11.25";
+import { CONFIG, TEXTOS } from "./config.js?v=2026.11.26";
 
 /** Escapa texto para insertarlo en HTML. */
 export function esc(valor) {
@@ -16,9 +16,17 @@ export function fmtMin(min) {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-/** Número sin ceros sobrantes (null → «—»). */
-export function fmtNum(valor) {
-  return valor === null || valor === undefined ? TEXTOS.nada : String(Number(valor.toFixed?.(1) ?? valor));
+// Decimales con que se muestran las medidas (los fija el servidor: ajuste global «decimals»)
+let decimalesActuales = CONFIG.decimalesDefecto;
+
+/** Fija la precisión decimal global a partir de los datos del servidor. */
+export function fijarDecimales(decimales) {
+  if (Number.isInteger(decimales) && decimales >= 0) decimalesActuales = decimales;
+}
+
+/** Número con los decimales globales (o los indicados; null → «—»). */
+export function fmtNum(valor, decimales = decimalesActuales) {
+  return valor === null || valor === undefined ? TEXTOS.nada : Number(valor).toFixed(decimales);
 }
 
 /** Posición y anchura (en %) de un segmento en la barra de 24 h. */
@@ -63,7 +71,7 @@ export function slotTitle(slot) {
   if (slot.outdoor_below !== null) partes.push(`${TEXTOS.tramo.exterior} ${fmtNum(slot.outdoor_below)}`);
   if (slot.indoor_below !== null) partes.push(`${TEXTOS.tramo.interior} ${fmtNum(slot.indoor_below)}`);
   if (slot.power !== null && slot.power !== undefined) {
-    partes.push(`${TEXTOS.tramo.potencia} ${fmtNum(slot.power)} ${TEXTOS.unidades.porcentaje}`);
+    partes.push(`${TEXTOS.tramo.potencia} ${fmtNum(slot.power, 0)} ${TEXTOS.unidades.porcentaje}`);
   }
   if (!slot.enabled) partes.push(TEXTOS.deshabilitada);
   return partes.join(" · ");
